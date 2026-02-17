@@ -835,12 +835,14 @@
         questionQueue: [],     // pre-built queue for spaced repetition
         practiceMode: false,   // ćwiczenie błędów
         questionHistory: [],   // ostatnie pytania, żeby nie powtarzać
+        freshPool: [],         // pula nieużytych jeszcze pytań w sesji
+        askedSet: new Set(),   // zbiór już zadanych par "a×b" w sesji
     };
 
     const diffSettings = {
-        easy:   { min: 1, max: 5,  timer: false, lives: 5 },
-        medium: { min: 1, max: 10, timer: false, lives: 5 },
-        hard:   { min: 1, max: 12, timer: true,  lives: 3, time: 15 }
+        easy:   { min: 2, max: 5,  timer: false, lives: 5 },
+        medium: { min: 2, max: 10, timer: false, lives: 5 },
+        hard:   { min: 2, max: 12, timer: true,  lives: 3, time: 15 }
     };
 
     const blockTypes = ['grass', 'dirt', 'stone', 'diamond', 'gold', 'wood'];
@@ -894,8 +896,10 @@
             playing: true, hintUsed: false, hintsUsedTotal: 0,
             mistakes: [], mistakeMap: {}, masteryMap: {},
             questionQueue: [], practiceMode: false, questionHistory: [],
+            freshPool: [], askedSet: new Set(),
         });
         Object.keys(state.items).forEach(k => state.items[k] = 0);
+        buildFreshPool();
 
         if (settings.timer) {
             state.timerMax = settings.time;
@@ -907,6 +911,39 @@
         updateUI();
         showScreen('gameScreen');
         nextQuestion();
+    }
+
+    // Build pool of all unique pairs (a×b where a<=b to avoid duplicates like 3×4 and 4×3)
+    function buildFreshPool() {
+        const settings = diffSettings[state.difficulty];
+        state.freshPool = [];
+        for (let a = settings.min; a <= settings.max; a++) {
+            for (let b = a; b <= settings.max; b++) {
+                state.freshPool.push({ a, b });
+            }
+        }
+        shuffle(state.freshPool);
+        state.askedSet = new Set();
+    }
+
+    function pullFromPool() {
+        // 1. Try fresh (never asked) question
+        if (state.freshPool.length > 0) {
+            const q = state.freshPool.shift();
+            // Randomly swap a,b for variety (3×5 vs 5×3)
+            if (Math.random() < 0.5) return { a: q.a, b: q.b };
+            return { a: q.b, b: q.a };
+        }
+        // 2. Pool exhausted — refill with all pairs, reshuffle
+        buildFreshPool();
+        if (state.freshPool.length > 0) {
+            const q = state.freshPool.shift();
+            if (Math.random() < 0.5) return { a: q.a, b: q.b };
+            return { a: q.b, b: q.a };
+        }
+        // 3. Fallback
+        const settings = diffSettings[state.difficulty];
+        return { a: randInt(settings.min, settings.max), b: randInt(settings.min, settings.max) };
     }
 
     // Practice only weak spots
@@ -964,9 +1001,8 @@
             // Practice mode: pull from queue
             const q = state.questionQueue.shift();
             a = q.a; b = q.b;
-            // End practice if queue empty after this
         } else if (!state.practiceMode && state.total > 0 && Math.random() < getRepeatChance()) {
-            // Spaced repetition: re-ask a weak question
+            // Spaced repetition: re-ask a weak question (only already-asked ones)
             const weak = getWeakestQuestion();
             if (weak) {
                 a = weak.a; b = weak.b;
@@ -974,21 +1010,17 @@
         }
 
         if (!a || !b) {
-            // Normal random question
-            const settings = diffSettings[state.difficulty];
-            let attempts = 0;
-            do {
-                a = randInt(settings.min, settings.max);
-                b = randInt(settings.min, settings.max);
-                attempts++;
-            } while (attempts < 20 && isRecentQuestion(a, b));
+            // Pull unique question from pool
+            const q = pullFromPool();
+            a = q.a; b = q.b;
         }
 
         state.a = a;
         state.b = b;
         state.answer = a * b;
+        state.askedSet.add(masteryKey(a, b));
 
-        // Track history to avoid immediate repeats
+        // Track recent history (for spaced repetition to avoid back-to-back)
         state.questionHistory.push(`${a}×${b}`);
         if (state.questionHistory.length > 5) state.questionHistory.shift();
 
