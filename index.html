@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabliczka Mnożenia - Minecraft Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dirt: #8B6914;
+            --dirt-dark: #6B4F0A;
+            --grass: #5D9B2A;
+            --grass-dark: #4A7B20;
+            --stone: #7F7F7F;
+            --stone-dark: #5F5F5F;
+            --wood: #BC9862;
+            --wood-dark: #8B6914;
+            --diamond: #5DECF5;
+            --gold: #FCDB05;
+            --emerald: #17DD62;
+            --redstone: #FF0000;
+            --obsidian: #1B1029;
+            --sky-top: #78A7FF;
+            --sky-bottom: #C9E4FF;
+        }
+
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--grass) 60%, var(--grass-dark) 62%, var(--dirt) 62%, var(--dirt-dark) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            image-rendering: pixelated;
+        }
+
+        /* Pixel art clouds */
+        .clouds {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 60vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            opacity: 0.9;
+            animation: float-cloud linear infinite;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+        }
+
+        .cloud-1 { width: 80px; height: 30px; top: 40px; animation-duration: 45s; }
+        .cloud-1::before { width: 40px; height: 20px; top: -15px; left: 10px; }
+        .cloud-1::after { width: 30px; height: 15px; top: -10px; left: 40px; }
+
+        .cloud-2 { width: 100px; height: 35px; top: 100px; animation-duration: 60s; animation-delay: -20s; }
+        .cloud-2::before { width: 50px; height: 25px; top: -18px; left: 15px; }
+        .cloud-2::after { width: 35px; height: 18px; top: -12px; left: 55px; }
+
+        .cloud-3 { width: 60px; height: 25px; top: 70px; animation-duration: 55s; animation-delay: -35s; }
+        .cloud-3::before { width: 30px; height: 15px; top: -10px; left: 8px; }
+        .cloud-3::after { width: 25px; height: 12px; top: -8px; left: 30px; }
+
+        @keyframes float-cloud { from { left: -150px; } to { left: 110%; } }
+
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px; height: 8px;
+            pointer-events: none;
+            animation: particle-fall 1s ease-out forwards;
+        }
+
+        @keyframes particle-fall {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0.3) translateY(60px); }
+        }
+
+        /* Main container */
+        .game-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* Title */
+        .title { text-align: center; margin-bottom: 20px; }
+
+        .title h1 {
+            font-size: 18px;
+            color: #333;
+            text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff;
+            line-height: 1.6;
+        }
+
+        .title h1 .green { color: var(--grass-dark); }
+        .title h1 .brown { color: var(--dirt-dark); }
+
+        /* Minecraft-style panel */
+        .mc-panel {
+            background: #C6C6C6;
+            border: 3px solid #000;
+            box-shadow: inset 2px 2px 0 #FFFFFF, inset -2px -2px 0 #555555;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #333;
+        }
+
+        /* XP bar */
+        .xp-section { margin-top: 10px; }
+
+        .xp-label {
+            font-size: 9px; color: #333;
+            margin-bottom: 4px;
+            display: flex; justify-content: space-between;
+        }
+
+        .xp-bar-bg {
+            height: 16px;
+            background: #222;
+            border: 2px solid #000;
+            box-shadow: inset 1px 1px 0 #444;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(180deg, #7FFF00, #32CD32);
+            transition: width 0.5s ease;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+        }
+
+        .xp-bar-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 7px; color: #fff;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* Question area */
+        .question-area { text-align: center; padding: 20px 10px; }
+
+        .question-text {
+            font-size: 28px;
+            color: #3F3F3F;
+            text-shadow: 2px 2px 0 #aaa;
+            margin-bottom: 20px;
+            letter-spacing: 4px;
+        }
+
+        .answer-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .answer-input {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 22px;
+            width: 140px;
+            padding: 10px;
+            text-align: center;
+            background: #000;
+            color: #fff;
+            border: 3px solid #555;
+            box-shadow: inset 2px 2px 0 #333;
+            outline: none;
+        }
+
+        .answer-input:focus {
+            border-color: var(--diamond);
+            box-shadow: inset 2px 2px 0 #333, 0 0 10px rgba(93, 236, 245, 0.5);
+        }
+
+        .answer-input.correct {
+            border-color: var(--emerald);
+            box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(23, 221, 98, 0.6);
+        }
+
+        .answer-input.wrong {
+            border-color: var(--redstone);
+            box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(255, 0, 0, 0.6);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(4px); }
+        }
+
+        /* MC Button */
+        .mc-btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            padding: 10px 20px;
+            background: #999;
+            color: #fff;
+            border: 3px solid #000;
+            box-shadow: inset 2px 2px 0 #CCC, inset -2px -2px 0 #555;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 #333;
+            transition: background 0.1s;
+        }
+
+        .mc-btn:hover { background: #AAA; box-shadow: inset 2px 2px 0 #DDD, inset -2px -2px 0 #666; }
+        .mc-btn:active { background: #777; box-shadow: inset -2px -2px 0 #CCC, inset 2px 2px 0 #555; }
+
+        .mc-btn.primary {
+            background: #5A9E2F;
+            box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E;
+        }
+        .mc-btn.primary:hover { background: #6AB33A; }
+
+        .mc-btn.hint-btn {
+            background: #B8860B;
+            box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508;
+            font-size: 10px;
+            padding: 8px 14px;
+        }
+        .mc-btn.hint-btn:hover { background: #CC9A1E; }
+        .mc-btn.hint-btn:disabled { background: #666; opacity: 0.5; cursor: default; }
+        .mc-btn.hint-btn.hint-active {
+            background: #DAA520;
+            border-color: var(--gold);
+            box-shadow: inset 2px 2px 0 #FFD700, inset -2px -2px 0 #8B6508, 0 0 8px rgba(218,165,32,0.4);
+        }
+
+        /* Feedback */
+        .feedback {
+            text-align: center;
+            min-height: 30px;
+            margin-top: 15px;
+            font-size: 11px;
+            transition: opacity 0.3s;
+        }
+        .feedback.good { color: #17DD62; text-shadow: 1px 1px 0 #000; }
+        .feedback.bad { color: #FF4444; text-shadow: 1px 1px 0 #000; }
+
+        /* Hearts */
+        .hearts { display: flex; gap: 4px; align-items: center; }
+        .heart { width: 20px; height: 18px; position: relative; }
+        .heart svg { width: 100%; height: 100%; }
+        .heart.lost svg { opacity: 0.25; }
+        .heart.losing svg { animation: heart-break 0.3s ease; }
+
+        @keyframes heart-break {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); opacity: 0.25; }
+        }
+
+        /* Inventory */
+        .inventory { display: flex; justify-content: center; gap: 2px; margin-top: 12px; flex-wrap: wrap; }
+
+        .inv-slot {
+            width: 44px; height: 44px;
+            background: #555;
+            border: 2px solid #000;
+            box-shadow: inset 1px 1px 0 #777, inset -1px -1px 0 #333;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            position: relative;
+        }
+
+        .inv-slot .count {
+            position: absolute;
+            bottom: 1px; right: 3px;
+            font-size: 7px; color: #fff;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .inv-slot.active {
+            border-color: #fff;
+            box-shadow: inset 1px 1px 0 #aaa, inset -1px -1px 0 #555, 0 0 8px rgba(255,255,255,0.3);
+        }
+
+        /* Difficulty selector */
+        .difficulty { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+
+        .diff-btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px; padding: 8px 14px; cursor: pointer;
+            background: #666; color: #aaa;
+            border: 2px solid #000;
+            box-shadow: inset 1px 1px 0 #888, inset -1px -1px 0 #444;
+        }
+
+        .diff-btn.active {
+            background: #5A9E2F; color: #fff;
+            box-shadow: inset 1px 1px 0 #7BCF44, inset -1px -1px 0 #3B6B1E;
+        }
+
+        .diff-btn:hover { background: #777; color: #ddd; }
+        .diff-btn.active:hover { background: #6AB33A; color: #fff; }
+
+        /* Achievement popup */
+        .achievement {
+            position: fixed;
+            top: -80px; left: 50%;
+            transform: translateX(-50%);
+            background: #222;
+            border: 2px solid #555;
+            padding: 12px 20px;
+            display: flex; align-items: center; gap: 12px;
+            z-index: 200;
+            transition: top 0.5s ease;
+            max-width: 90vw;
+        }
+        .achievement.show { top: 20px; }
+        .achievement-icon { font-size: 28px; }
+        .achievement-text { color: #fff; }
+        .achievement-text .ach-title { font-size: 8px; color: var(--gold); margin-bottom: 4px; }
+        .achievement-text .ach-desc { font-size: 8px; color: #aaa; }
+
+        /* Screens */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .start-screen { text-align: center; }
+        .start-screen .big-icon { font-size: 60px; margin: 20px 0; animation: bob 2s ease-in-out infinite; }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .start-screen p { font-size: 9px; color: #555; margin: 12px 0; line-height: 1.8; }
+
+        .gameover-screen { text-align: center; }
+        .gameover-screen h2 { font-size: 16px; color: #333; margin-bottom: 15px; }
+        .gameover-screen .final-stats { font-size: 10px; color: #555; line-height: 2.2; }
+        .gameover-screen .final-stats .val { color: var(--grass-dark); }
+
+        /* Streak */
+        .streak-display {
+            text-align: center; font-size: 10px; color: #FF8800;
+            text-shadow: 1px 1px 0 #000; min-height: 18px; margin-top: 6px;
+        }
+
+        /* Timer */
+        .timer-section { margin-top: 8px; display: none; }
+        .timer-section.visible { display: block; }
+        .timer-bar-bg { height: 10px; background: #222; border: 2px solid #000; overflow: hidden; }
+        .timer-bar-fill { height: 100%; background: linear-gradient(180deg, #FF6B00, #FF4400); transition: width 0.1s linear; }
+        .timer-bar-fill.warning { background: linear-gradient(180deg, #FF0000, #CC0000); animation: pulse-red 0.5s ease infinite; }
+
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        /* ═══════════════════════════════════════════
+           NOWE: System podpowiedzi i nauki
+           ═══════════════════════════════════════════ */
+
+        /* Hint button row */
+        .hint-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Visual block grid (shows multiplication as blocks) */
+        .visual-hint {
+            margin-top: 16px;
+            padding: 12px;
+            background: #3A3A3A;
+            border: 2px solid #555;
+            display: none;
+            text-align: center;
+        }
+
+        .visual-hint.show { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hint-title {
+            font-size: 8px;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .hint-explanation {
+            font-size: 8px;
+            color: #ccc;
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        /* Block grid visualization */
+        .block-grid {
+            display: inline-grid;
+            gap: 2px;
+            margin: 8px auto;
+        }
+
+        .mc-block {
+            width: 22px;
+            height: 22px;
+            border: 1px solid rgba(0,0,0,0.4);
+            image-rendering: pixelated;
+            transition: all 0.15s ease;
+        }
+
+        .mc-block.grass { background: linear-gradient(180deg, #5D9B2A 0%, #5D9B2A 30%, #8B6914 30%); }
+        .mc-block.dirt { background: #8B6914; }
+        .mc-block.stone { background: linear-gradient(135deg, #888 25%, #777 50%, #999 75%); }
+        .mc-block.diamond { background: linear-gradient(135deg, #5DECF5 0%, #2BC4D8 50%, #5DECF5 100%); }
+        .mc-block.gold { background: linear-gradient(135deg, #FCDB05 0%, #D4A800 50%, #FCDB05 100%); }
+        .mc-block.wood { background: linear-gradient(0deg, #8B6914 0%, #BC9862 50%, #8B6914 100%); }
+
+        .mc-block.highlight {
+            animation: block-pop 0.3s ease forwards;
+            box-shadow: 0 0 6px rgba(255,255,255,0.5);
+        }
+
+        @keyframes block-pop {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .grid-label {
+            font-size: 8px;
+            color: #aaa;
+            margin: 4px 0;
+        }
+
+        .grid-result {
+            font-size: 12px;
+            color: var(--emerald);
+            margin-top: 8px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* Skip counting hint */
+        .skip-count {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .skip-num {
+            background: #555;
+            border: 2px solid #777;
+            padding: 5px 8px;
+            font-size: 10px;
+            color: #ccc;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .skip-num.revealed {
+            background: #2B6B1E;
+            border-color: var(--emerald);
+            color: #fff;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .skip-num.answer-num {
+            background: #8B6508;
+            border-color: var(--gold);
+            color: var(--gold);
+            font-size: 12px;
+        }
+
+        .skip-num.hidden {
+            color: #555;
+        }
+
+        /* Nearby facts hint */
+        .nearby-facts {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin: 8px 0;
+            align-items: center;
+        }
+
+        .nearby-fact {
+            font-size: 9px;
+            color: #aaa;
+            padding: 3px 10px;
+        }
+
+        .nearby-fact.current {
+            color: var(--gold);
+            font-size: 11px;
+            background: rgba(252,219,5,0.1);
+            border: 1px solid rgba(252,219,5,0.3);
+        }
+
+        .nearby-fact .op { color: #888; }
+
+        /* Wrong answer visual explanation */
+        .wrong-explain {
+            margin-top: 12px;
+            padding: 12px;
+            background: #2A1A1A;
+            border: 2px solid #FF4444;
+            display: none;
+            text-align: center;
+        }
+
+        .wrong-explain.show { display: block; animation: fadeIn 0.4s ease; }
+
+        .wrong-explain .explain-title {
+            font-size: 8px;
+            color: #FF8888;
+            margin-bottom: 8px;
+        }
+
+        .wrong-explain .explain-text {
+            font-size: 8px;
+            color: #ccc;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        /* Game over: mistake review */
+        .mistakes-review {
+            margin-top: 16px;
+            text-align: left;
+        }
+
+        .mistakes-review h3 {
+            font-size: 10px;
+            color: #FF8888;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .mistake-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            background: #555;
+            border: 1px solid #777;
+            font-size: 9px;
+            gap: 8px;
+        }
+
+        .mistake-item .mistake-q { color: #fff; }
+        .mistake-item .mistake-wrong { color: #FF6666; text-decoration: line-through; }
+        .mistake-item .mistake-right { color: var(--emerald); }
+        .mistake-item .mistake-count { color: var(--gold); font-size: 7px; }
+
+        /* Hint cost indicator */
+        .hint-cost {
+            font-size: 7px;
+            color: #aaa;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        /* Mastery stars on game over */
+        .mastery-section {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .mastery-section h3 {
+            font-size: 10px;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .mastery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 4px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .mastery-cell {
+            background: #444;
+            border: 1px solid #666;
+            padding: 4px;
+            font-size: 7px;
+            text-align: center;
+            color: #ccc;
+        }
+
+        .mastery-cell .mastery-stars { color: var(--gold); font-size: 8px; }
+        .mastery-cell.strong { background: #1A3A1A; border-color: var(--emerald); }
+        .mastery-cell.weak { background: #3A1A1A; border-color: #FF4444; }
+        .mastery-cell.untested { background: #333; color: #666; }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .title h1 { font-size: 13px; }
+            .question-text { font-size: 22px; }
+            .answer-input { font-size: 18px; width: 110px; }
+            .stat { font-size: 8px; }
+            .inv-slot { width: 36px; height: 36px; font-size: 18px; }
+            .mc-btn { font-size: 10px; padding: 8px 14px; }
+            .mc-block { width: 16px; height: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="clouds">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+</div>
+
+<div class="particles" id="particles"></div>
+
+<div id="achievement" class="achievement">
+    <div class="achievement-icon" id="achIcon">🏆</div>
+    <div class="achievement-text">
+        <div class="ach-title" id="achTitle">Osiągnięcie odblokowane!</div>
+        <div class="ach-desc" id="achDesc"></div>
+    </div>
+</div>
+
+<div class="game-container">
+    <div class="title">
+        <h1>
+            ⛏️ <span class="green">TABLICZKA</span> <span class="brown">MNOŻENIA</span> ⛏️
+            <br>Minecraft Edition
+        </h1>
+    </div>
+
+    <!-- ═══ START SCREEN ═══ -->
+    <div id="startScreen" class="screen active">
+        <div class="mc-panel start-screen">
+            <div class="big-icon">⛏️</div>
+            <p>
+                Rozwiązuj zadania z tabliczki mnożenia,<br>
+                zbieraj diamenty i zdobywaj poziomy!<br><br>
+                Każda poprawna odpowiedź = +1 💎<br>
+                Seria poprawnych = bonus punkty!<br><br>
+                📖 Nie wiesz? Użyj podpowiedzi!<br>
+                Gra uczy i powtarza trudne zadania.
+            </p>
+
+            <div style="margin: 16px 0;">
+                <div style="font-size: 9px; color: #555; margin-bottom: 8px;">WYBIERZ POZIOM:</div>
+                <div class="difficulty" id="diffSelect">
+                    <button class="diff-btn active" data-diff="easy" onclick="setDifficulty('easy', this)">😊 Łatwy<br><span style="font-size:7px;">1-5</span></button>
+                    <button class="diff-btn" data-diff="medium" onclick="setDifficulty('medium', this)">😎 Średni<br><span style="font-size:7px;">1-10</span></button>
+                    <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard', this)">💀 Trudny<br><span style="font-size:7px;">1-12 + czas</span></button>
+                </div>
+            </div>
+
+            <button class="mc-btn primary" onclick="startGame()" style="font-size: 14px; padding: 14px 30px;">
+                ▶ GRAJ!
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══ GAME SCREEN ═══ -->
+    <div id="gameScreen" class="screen">
+        <div class="mc-panel">
+            <div class="stats-bar">
+                <div class="stat">
+                    <span>💎</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat">
+                    <span>✅</span>
+                    <span id="correct">0</span> / <span id="total">0</span>
+                </div>
+                <div class="hearts" id="hearts"></div>
+            </div>
+
+            <div class="xp-section">
+                <div class="xp-label">
+                    <span>DOŚWIADCZENIE</span>
+                    <span id="xpText">0 / 100 XP</span>
+                </div>
+                <div class="xp-bar-bg">
+                    <div class="xp-bar-fill" id="xpBar" style="width: 0%"></div>
+                    <div class="xp-bar-text" id="xpBarText">Poziom 1</div>
+                </div>
+            </div>
+
+            <div class="timer-section" id="timerSection">
+                <div class="timer-bar-bg">
+                    <div class="timer-bar-fill" id="timerBar" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="streak-display" id="streakDisplay"></div>
+        </div>
+
+        <div class="mc-panel">
+            <div class="question-area">
+                <div class="question-text" id="question">? × ? = ?</div>
+                <div class="answer-row">
+                    <input type="number" class="answer-input" id="answerInput" autocomplete="off" placeholder="?"
+                           onkeydown="if(event.key==='Enter') checkAnswer()">
+                    <button class="mc-btn primary" onclick="checkAnswer()">OK</button>
+                </div>
+
+                <!-- Hint buttons -->
+                <div class="hint-row">
+                    <button class="mc-btn hint-btn" id="hintBlocksBtn" onclick="showHint('blocks')">🧱 Bloczki</button>
+                    <button class="mc-btn hint-btn" id="hintSkipBtn" onclick="showHint('skip')">🔢 Licz co...</button>
+                    <button class="mc-btn hint-btn" id="hintNearbyBtn" onclick="showHint('nearby')">📖 Blisko!</button>
+                </div>
+                <div class="hint-cost" id="hintCost">Podpowiedź = mniej 💎, ale więcej wiedzy!</div>
+
+                <div class="feedback" id="feedback"></div>
+
+                <!-- Visual hint area -->
+                <div class="visual-hint" id="visualHint"></div>
+
+                <!-- Wrong answer explanation -->
+                <div class="wrong-explain" id="wrongExplain"></div>
+
+                <!-- Continue button (shown after wrong answer) -->
+                <div id="continueRow" style="display:none; margin-top: 12px;">
+                    <button class="mc-btn primary" id="continueBtn" onclick="continueAfterWrong()" style="font-size: 11px; padding: 10px 24px;">
+                        ▶ ROZUMIEM, DALEJ!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mc-panel">
+            <div style="font-size: 8px; color: #555; text-align: center; margin-bottom: 6px;">EKWIPUNEK</div>
+            <div class="inventory" id="inventory"></div>
+        </div>
+    </div>
+
+    <!-- ═══ GAME OVER SCREEN ═══ -->
+    <div id="gameoverScreen" class="screen">
+        <div class="mc-panel gameover-screen">
+            <h2>🏁 KONIEC GRY!</h2>
+            <div class="final-stats" id="finalStats"></div>
+
+            <!-- Mistake review -->
+            <div class="mistakes-review" id="mistakesReview"></div>
+
+            <!-- Mastery overview -->
+            <div class="mastery-section" id="masterySection"></div>
+
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="mc-btn primary" onclick="startGame()">🔄 JESZCZE RAZ</button>
+                <button class="mc-btn" onclick="practiceWeakSpots()">🎯 ĆWICZ BŁĘDY</button>
+                <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ═══════════════════════════════════════════
+    // Game State
+    // ═══════════════════════════════════════════
+    let state = {
+        difficulty: 'easy',
+        score: 0,
+        xp: 0,
+        level: 1,
+        xpToNext: 100,
+        correct: 0,
+        total: 0,
+        lives: 5,
+        maxLives: 5,
+        streak: 0,
+        bestStreak: 0,
+        a: 0,
+        b: 0,
+        answer: 0,
+        items: { '💎': 0, '🥇': 0, '🟢': 0, '⭐': 0, '🔥': 0, '⚡': 0, '🎯': 0, '🏆': 0, '🍎': 0 },
+        timerInterval: null,
+        timeLeft: 0,
+        timerMax: 15,
+        achievements: new Set(),
+        playing: false,
+        hintUsed: false,       // czy użyto podpowiedzi w tym pytaniu
+        hintsUsedTotal: 0,
+        // ─── System nauki ───
+        mistakes: [],          // [{a, b, wrongAnswer, correctAnswer, count}]
+        mistakeMap: {},        // "a×b" -> count of mistakes
+        masteryMap: {},        // "a×b" -> {correct, total, streak}
+        questionQueue: [],     // pre-built queue for spaced repetition
+        practiceMode: false,   // ćwiczenie błędów
+        questionHistory: [],   // ostatnie pytania, żeby nie powtarzać
+    };
+
+    const diffSettings = {
+        easy:   { min: 1, max: 5,  timer: false, lives: 5 },
+        medium: { min: 1, max: 10, timer: false, lives: 5 },
+        hard:   { min: 1, max: 12, timer: true,  lives: 3, time: 15 }
+    };
+
+    const blockTypes = ['grass', 'dirt', 'stone', 'diamond', 'gold', 'wood'];
+
+    const achievementList = [
+        { id: 'first',     check: s => s.correct >= 1,         icon: '⭐', title: 'Pierwszy krok!',      desc: 'Pierwsza poprawna odpowiedź' },
+        { id: 'streak5',   check: s => s.streak >= 5,          icon: '🔥', title: 'W ogniu!',            desc: 'Seria 5 poprawnych' },
+        { id: 'streak10',  check: s => s.streak >= 10,         icon: '⚡', title: 'Niepokonany!',        desc: 'Seria 10 poprawnych' },
+        { id: 'dia10',     check: s => s.items['💎'] >= 10,    icon: '💎', title: 'Górnik diamentów!',   desc: 'Zdobądź 10 diamentów' },
+        { id: 'dia50',     check: s => s.items['💎'] >= 50,    icon: '💎', title: 'Koparka diamentowa!', desc: 'Zdobądź 50 diamentów' },
+        { id: 'lvl5',      check: s => s.level >= 5,           icon: '🏆', title: 'Mistrz matematyki!',  desc: 'Osiągnij poziom 5' },
+        { id: 'lvl10',     check: s => s.level >= 10,          icon: '👑', title: 'Legenda!',            desc: 'Osiągnij poziom 10' },
+        { id: 'perfect10', check: s => s.correct >= 10 && s.correct === s.total, icon: '🎯', title: 'Perfekcja!', desc: '10 bez błędu' },
+        { id: 'hint_learn',check: s => s.hintsUsedTotal >= 5,  icon: '📖', title: 'Badacz!',             desc: 'Użyj 5 podpowiedzi' },
+        { id: 'comeback',  check: s => s.streak >= 3 && s.lives === 1, icon: '💪', title: 'Nie poddaję się!', desc: 'Seria 3 z jednym życiem' },
+    ];
+
+    const goodMessages = [
+        'Świetnie! ⛏️', 'Brawo! 💎', 'Dobrze! ✅', 'Super! 🌟',
+        'Genialnie! 🔥', 'Tak trzymaj! 💪', 'Mistrz! 👑',
+        'Niesamowite! ⚡', 'Fantastycznie! 🎉', 'Wow! 🏆'
+    ];
+
+    const badMessages = [
+        'Spróbuj ponownie!', 'Prawie!',
+        'Nie poddawaj się!', 'Ćwicz dalej! 💪'
+    ];
+
+    // ═══════════════════════════════════════════
+    // Core Functions
+    // ═══════════════════════════════════════════
+
+    function setDifficulty(diff, btn) {
+        state.difficulty = diff;
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startGame() {
+        const settings = diffSettings[state.difficulty];
+        Object.assign(state, {
+            score: 0, xp: 0, level: 1, xpToNext: 100,
+            correct: 0, total: 0,
+            lives: settings.lives, maxLives: settings.lives,
+            streak: 0, bestStreak: 0,
+            playing: true, hintUsed: false, hintsUsedTotal: 0,
+            mistakes: [], mistakeMap: {}, masteryMap: {},
+            questionQueue: [], practiceMode: false, questionHistory: [],
+        });
+        Object.keys(state.items).forEach(k => state.items[k] = 0);
+
+        if (settings.timer) {
+            state.timerMax = settings.time;
+            document.getElementById('timerSection').classList.add('visible');
+        } else {
+            document.getElementById('timerSection').classList.remove('visible');
+        }
+
+        updateUI();
+        showScreen('gameScreen');
+        nextQuestion();
+    }
+
+    // Practice only weak spots
+    function practiceWeakSpots() {
+        const weakPairs = Object.entries(state.mistakeMap)
+            .filter(([_, count]) => count > 0)
+            .map(([key]) => key.split('×').map(Number));
+
+        if (weakPairs.length === 0) {
+            startGame();
+            return;
+        }
+
+        const settings = diffSettings[state.difficulty];
+        Object.assign(state, {
+            score: 0, xp: 0, level: 1, xpToNext: 100,
+            correct: 0, total: 0,
+            lives: Math.max(settings.lives, 5), maxLives: Math.max(settings.lives, 5),
+            streak: 0, bestStreak: 0,
+            playing: true, hintUsed: false,
+            practiceMode: true, questionHistory: [],
+        });
+        Object.keys(state.items).forEach(k => state.items[k] = 0);
+
+        // Build queue from weak pairs, repeated proportional to mistake count
+        state.questionQueue = [];
+        for (const [key, count] of Object.entries(state.mistakeMap)) {
+            if (count > 0) {
+                const [a, b] = key.split('×').map(Number);
+                for (let i = 0; i < Math.min(count + 1, 4); i++) {
+                    state.questionQueue.push({ a, b });
+                }
+            }
+        }
+        shuffle(state.questionQueue);
+
+        document.getElementById('timerSection').classList.remove('visible');
+        updateUI();
+        showScreen('gameScreen');
+        showAchievement('🎯', 'Tryb ćwiczeń!', 'Powtarzamy trudne zadania');
+        nextQuestion();
+    }
+
+    // ═══════════════════════════════════════════
+    // Spaced Repetition & Smart Question Selection
+    // ═══════════════════════════════════════════
+
+    function nextQuestion() {
+        hideHints();
+        state.hintUsed = false;
+
+        let a, b;
+
+        if (state.practiceMode && state.questionQueue.length > 0) {
+            // Practice mode: pull from queue
+            const q = state.questionQueue.shift();
+            a = q.a; b = q.b;
+            // End practice if queue empty after this
+        } else if (!state.practiceMode && state.total > 0 && Math.random() < getRepeatChance()) {
+            // Spaced repetition: re-ask a weak question
+            const weak = getWeakestQuestion();
+            if (weak) {
+                a = weak.a; b = weak.b;
+            }
+        }
+
+        if (!a || !b) {
+            // Normal random question
+            const settings = diffSettings[state.difficulty];
+            let attempts = 0;
+            do {
+                a = randInt(settings.min, settings.max);
+                b = randInt(settings.min, settings.max);
+                attempts++;
+            } while (attempts < 20 && isRecentQuestion(a, b));
+        }
+
+        state.a = a;
+        state.b = b;
+        state.answer = a * b;
+
+        // Track history to avoid immediate repeats
+        state.questionHistory.push(`${a}×${b}`);
+        if (state.questionHistory.length > 5) state.questionHistory.shift();
+
+        // Initialize mastery tracking
+        const key = masteryKey(a, b);
+        if (!state.masteryMap[key]) {
+            state.masteryMap[key] = { correct: 0, total: 0, streak: 0 };
+        }
+
+        document.getElementById('question').textContent = `${a} × ${b} = ?`;
+        const input = document.getElementById('answerInput');
+        input.value = '';
+        input.className = 'answer-input';
+        input.focus();
+        document.getElementById('feedback').textContent = '';
+
+        document.getElementById('hintCost').textContent = 'Podpowiedź = mniej 💎, ale więcej wiedzy!';
+
+        const settings = diffSettings[state.difficulty];
+        if (settings.timer) startTimer();
+
+        // End practice if queue empty
+        if (state.practiceMode && state.questionQueue.length === 0) {
+            state.practiceMode = false;
+        }
+    }
+
+    function getRepeatChance() {
+        // More mistakes = higher chance of repetition (20%-60%)
+        const totalMistakes = Object.values(state.mistakeMap).reduce((s, v) => s + v, 0);
+        return Math.min(0.6, 0.2 + totalMistakes * 0.05);
+    }
+
+    function getWeakestQuestion() {
+        const entries = Object.entries(state.mistakeMap).filter(([_, c]) => c > 0);
+        if (entries.length === 0) return null;
+
+        // Weight by mistake count, pick weighted random
+        const totalWeight = entries.reduce((s, [_, c]) => s + c, 0);
+        let r = Math.random() * totalWeight;
+        for (const [key, count] of entries) {
+            r -= count;
+            if (r <= 0) {
+                const [a, b] = key.split('×').map(Number);
+                if (!isRecentQuestion(a, b)) return { a, b };
+            }
+        }
+        // Fallback
+        const [key] = entries[0];
+        const [a, b] = key.split('×').map(Number);
+        return { a, b };
+    }
+
+    function isRecentQuestion(a, b) {
+        const k1 = `${a}×${b}`;
+        const k2 = `${b}×${a}`;
+        return state.questionHistory.includes(k1) || state.questionHistory.includes(k2);
+    }
+
+    function masteryKey(a, b) {
+        return `${Math.min(a,b)}×${Math.max(a,b)}`;
+    }
+
+    // ═══════════════════════════════════════════
+    // Hint System
+    // ═══════════════════════════════════════════
+
+    function showHint(type) {
+        if (!state.playing) return;
+
+        if (!state.hintUsed) {
+            state.hintUsed = true;
+            state.hintsUsedTotal++;
+        }
+
+        // Mark active hint button
+        document.querySelectorAll('.hint-btn').forEach(b => b.classList.remove('hint-active'));
+        const btnMap = { blocks: 'hintBlocksBtn', skip: 'hintSkipBtn', nearby: 'hintNearbyBtn' };
+        document.getElementById(btnMap[type]).classList.add('hint-active');
+
+        const hint = document.getElementById('visualHint');
+        hint.innerHTML = '';
+        hint.classList.add('show');
+        document.getElementById('hintCost').textContent = '📖 Podpowiedź użyta (mniej punktów) — klikaj inne aby porównać!';
+
+        if (type === 'blocks') buildBlocksHint(hint);
+        else if (type === 'skip') buildSkipCountHint(hint);
+        else if (type === 'nearby') buildNearbyHint(hint);
+
+        checkAchievements();
+    }
+
+    function buildBlocksHint(container) {
+        const a = state.a;
+        const b = state.b;
+        const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+
+        container.innerHTML = `
+            <div class="hint-title">🧱 WIZUALIZACJA: ${a} × ${b}</div>
+            <div class="hint-explanation">
+                ${a} × ${b} oznacza: ${a} rzędów po ${b} bloczków
+            </div>
+            <div class="grid-label">${a} rzędy ↓ × ${b} kolumny →</div>
+            <div id="blockGrid" class="block-grid" style="grid-template-columns: repeat(${b}, 22px);"></div>
+            <div class="grid-result" id="gridResult"></div>
+        `;
+
+        const grid = document.getElementById('blockGrid');
+        const total = a * b;
+        let count = 0;
+
+        // Animate blocks appearing one by one
+        for (let i = 0; i < a; i++) {
+            for (let j = 0; j < b; j++) {
+                count++;
+                const block = document.createElement('div');
+                block.className = `mc-block ${blockType}`;
+                const delay = count * 60;
+                const currentCount = count;
+                block.style.opacity = '0';
+                grid.appendChild(block);
+
+                setTimeout(() => {
+                    block.classList.add('highlight');
+                    block.style.opacity = '1';
+                    document.getElementById('gridResult').textContent =
+                        currentCount === total
+                            ? `= ${total} bloczków! ✅`
+                            : `${currentCount} / ${total}...`;
+                }, delay);
+            }
+        }
+    }
+
+    function buildSkipCountHint(container) {
+        const a = state.a;
+        const b = state.b;
+
+        container.innerHTML = `
+            <div class="hint-title">🔢 LICZENIE CO ${b}</div>
+            <div class="hint-explanation">
+                ${a} × ${b} = dodaj ${b} do siebie ${a} razy:
+            </div>
+            <div class="skip-count" id="skipCount"></div>
+            <div class="grid-result" id="skipResult"></div>
+        `;
+
+        const skipDiv = document.getElementById('skipCount');
+
+        // Show the skip-counting sequence
+        for (let i = 1; i <= a; i++) {
+            const num = document.createElement('div');
+            num.className = 'skip-num hidden';
+            num.textContent = i * b;
+            num.dataset.step = i;
+            skipDiv.appendChild(num);
+        }
+
+        // Animate revealing one by one
+        for (let i = 1; i <= a; i++) {
+            setTimeout(() => {
+                const el = skipDiv.children[i - 1];
+                el.classList.remove('hidden');
+                el.classList.add(i === a ? 'answer-num' : 'revealed');
+
+                const label = [];
+                for (let j = 1; j <= i; j++) label.push(b);
+                document.getElementById('skipResult').textContent =
+                    i === a
+                        ? `${label.join(' + ')} = ${i * b} ✅`
+                        : `${label.join(' + ')} = ${i * b}`;
+            }, i * 400);
+        }
+    }
+
+    function buildNearbyHint(container) {
+        const a = state.a;
+        const b = state.b;
+
+        // Show facts that are close to the answer
+        const facts = [];
+        if (a > 1) facts.push({ a: a - 1, b, result: (a - 1) * b, label: 'Wiesz że' });
+        facts.push({ a, b, result: a * b, label: '→ Szukane', current: true });
+        if (a <= 12) facts.push({ a: a + 1, b, result: (a + 1) * b, label: 'A potem' });
+
+        container.innerHTML = `
+            <div class="hint-title">📖 SĄSIEDNIE DZIAŁANIA</div>
+            <div class="hint-explanation">
+                Jeśli znasz sąsiednie mnożenia,<br>
+                wystarczy dodać lub odjąć ${b}!
+            </div>
+            <div class="nearby-facts" id="nearbyFacts"></div>
+            <div class="hint-explanation" style="margin-top: 8px; color: var(--diamond);">
+                ${a > 1 ? `${a-1} × ${b} = ${(a-1)*b}, więc dodaj ${b}...` : `1 × ${b} = ${b}, zacznij od tego!`}
+            </div>
+        `;
+
+        const factsDiv = document.getElementById('nearbyFacts');
+        facts.forEach((f, i) => {
+            setTimeout(() => {
+                const el = document.createElement('div');
+                el.className = 'nearby-fact' + (f.current ? ' current' : '');
+                if (f.current) {
+                    el.innerHTML = `${f.a} × ${f.b} <span class="op">=</span> <strong>?</strong>`;
+                } else {
+                    el.innerHTML = `${f.a} × ${f.b} <span class="op">=</span> ${f.result}`;
+                }
+                factsDiv.appendChild(el);
+            }, i * 300);
+        });
+    }
+
+    function showWrongHint(type) {
+        // Show a hint while wrong-explanation is visible (for extra learning)
+        const hint = document.getElementById('visualHint');
+        hint.innerHTML = '';
+        hint.classList.add('show');
+
+        if (type === 'blocks') buildBlocksHint(hint);
+        else if (type === 'skip') buildSkipCountHint(hint);
+        else if (type === 'nearby') buildNearbyHint(hint);
+    }
+
+    function hideHints() {
+        document.getElementById('visualHint').classList.remove('show');
+        document.getElementById('visualHint').innerHTML = '';
+        document.getElementById('wrongExplain').classList.remove('show');
+        document.getElementById('wrongExplain').innerHTML = '';
+        document.getElementById('continueRow').style.display = 'none';
+        document.querySelectorAll('.hint-btn').forEach(b => {
+            b.classList.remove('hint-active');
+            b.disabled = false;
+        });
+    }
+
+    // ═══════════════════════════════════════════
+    // Answer Handling
+    // ═══════════════════════════════════════════
+
+    function startTimer() {
+        clearInterval(state.timerInterval);
+        state.timeLeft = state.timerMax;
+        updateTimerBar();
+        state.timerInterval = setInterval(() => {
+            state.timeLeft -= 0.1;
+            if (state.timeLeft <= 0) {
+                state.timeLeft = 0;
+                clearInterval(state.timerInterval);
+                handleWrong();
+            }
+            updateTimerBar();
+        }, 100);
+    }
+
+    function updateTimerBar() {
+        const pct = (state.timeLeft / state.timerMax) * 100;
+        const bar = document.getElementById('timerBar');
+        bar.style.width = pct + '%';
+        bar.className = 'timer-bar-fill' + (pct < 30 ? ' warning' : '');
+    }
+
+    function checkAnswer() {
+        if (!state.playing) return;
+        const input = document.getElementById('answerInput');
+        const val = parseInt(input.value);
+        if (isNaN(val)) return;
+
+        clearInterval(state.timerInterval);
+        state.total++;
+
+        const key = masteryKey(state.a, state.b);
+        state.masteryMap[key].total++;
+
+        if (val === state.answer) {
+            handleCorrect(input);
+        } else {
+            handleWrong(input, val);
+        }
+    }
+
+    function handleCorrect(input) {
+        if (input) input.className = 'answer-input correct';
+        state.correct++;
+        state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+        const key = masteryKey(state.a, state.b);
+        state.masteryMap[key].correct++;
+        state.masteryMap[key].streak++;
+
+        // Reduce mistake weight if answered correctly
+        const mKey = `${state.a}×${state.b}`;
+        if (state.mistakeMap[mKey] && state.mistakeMap[mKey] > 0) {
+            state.mistakeMap[mKey]--;
+        }
+
+        // Score (less if hint was used)
+        let points = state.hintUsed ? 1 : (state.streak >= 10 ? 4 : state.streak >= 5 ? 3 : state.streak >= 3 ? 2 : 1);
+        state.score += points;
+        state.items['💎'] += points;
+
+        // XP (less with hint, but still something)
+        let xpGain = state.hintUsed ? 8 : (15 + state.streak * 3);
+        state.xp += xpGain;
+        while (state.xp >= state.xpToNext) {
+            state.xp -= state.xpToNext;
+            state.level++;
+            state.xpToNext = Math.floor(100 * Math.pow(1.3, state.level - 1));
+            showAchievement('⬆️', 'Nowy poziom!', `Osiągnąłeś poziom ${state.level}!`);
+            grantLevelReward();
+        }
+
+        if (state.streak === 3) state.items['🔥']++;
+        if (state.streak === 5) state.items['⚡']++;
+        if (state.streak === 10) state.items['🎯']++;
+
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback good';
+        let msg = goodMessages[Math.floor(Math.random() * goodMessages.length)];
+        if (state.hintUsed) msg = `Dobrze! Teraz zapamiętaj: ${state.a}×${state.b}=${state.answer} 📖`;
+        else if (state.streak >= 3) msg += ` (×${state.streak} seria!)`;
+        fb.textContent = msg;
+
+        spawnParticles(state.streak >= 5 ? 12 : 6, ['#5DECF5', '#17DD62', '#FCDB05']);
+        checkAchievements();
+        updateUI();
+        setTimeout(nextQuestion, state.hintUsed ? 2500 : 800);
+    }
+
+    function handleWrong(input, wrongVal) {
+        if (input) input.className = 'answer-input wrong';
+
+        const key = masteryKey(state.a, state.b);
+        state.masteryMap[key].streak = 0;
+
+        // Track mistake for spaced repetition
+        const mKey = `${state.a}×${state.b}`;
+        state.mistakeMap[mKey] = (state.mistakeMap[mKey] || 0) + 2; // weight of 2
+
+        // Record for review
+        const existing = state.mistakes.find(m => m.a === state.a && m.b === state.b);
+        if (existing) {
+            existing.count++;
+            existing.lastWrong = wrongVal;
+        } else {
+            state.mistakes.push({
+                a: state.a, b: state.b,
+                correctAnswer: state.answer,
+                lastWrong: wrongVal,
+                count: 1
+            });
+        }
+
+        state.streak = 0;
+        state.lives--;
+
+        // Animate heart
+        const hearts = document.querySelectorAll('.heart');
+        const lostHeart = hearts[state.lives];
+        if (lostHeart) {
+            lostHeart.classList.add('losing');
+            setTimeout(() => {
+                lostHeart.classList.remove('losing');
+                lostHeart.classList.add('lost');
+            }, 300);
+        }
+
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback bad';
+        fb.textContent = `${badMessages[Math.floor(Math.random() * badMessages.length)]}`;
+
+        spawnParticles(4, ['#FF0000', '#CC0000', '#880000']);
+
+        // Show visual explanation of the correct answer
+        showWrongExplanation(wrongVal);
+
+        // Disable input while studying
+        document.getElementById('answerInput').disabled = true;
+        document.querySelectorAll('.hint-btn').forEach(b => b.disabled = true);
+
+        // Show "continue" button — child decides when ready
+        const contRow = document.getElementById('continueRow');
+        contRow.style.display = 'block';
+        document.getElementById('continueBtn').textContent =
+            state.lives <= 0 ? '📊 ZOBACZ WYNIKI' : '▶ ROZUMIEM, DALEJ!';
+
+        updateUI();
+    }
+
+    function continueAfterWrong() {
+        document.getElementById('continueRow').style.display = 'none';
+        document.getElementById('answerInput').disabled = false;
+
+        if (state.lives <= 0) {
+            state.playing = false;
+            clearInterval(state.timerInterval);
+            showGameOver();
+        } else {
+            nextQuestion();
+        }
+    }
+
+    function showWrongExplanation(wrongVal) {
+        const el = document.getElementById('wrongExplain');
+        const a = state.a;
+        const b = state.b;
+        const correct = state.answer;
+        const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+
+        // Pick a teaching strategy
+        let explanation = '';
+
+        // Strategy 1: Show as addition
+        const addParts = [];
+        for (let i = 0; i < a; i++) addParts.push(b);
+        const addStr = addParts.join(' + ');
+
+        // Strategy 2: Relate to something they might know
+        let relateStr = '';
+        if (a > 1) {
+            relateStr = `<br>📖 ${a-1} × ${b} = ${(a-1)*b}, dodaj jeszcze ${b} → <strong>${correct}</strong>`;
+        }
+        if (a === 2) {
+            relateStr = `<br>📖 ${a} × ${b} to po prostu ${b} + ${b} = <strong>${correct}</strong>`;
+        }
+        if (b === 10) {
+            relateStr = `<br>📖 × 10 = dopisz zero! ${a}0 = <strong>${correct}</strong>`;
+        }
+        if (b === 5) {
+            relateStr = `<br>📖 × 5: to połowa z × 10. ${a}×10=${a*10}, podziel na 2 → <strong>${correct}</strong>`;
+        }
+        if (a === b) {
+            relateStr = `<br>📖 ${a}² (kwadrat ${a}) = <strong>${correct}</strong> — zapamiętaj!`;
+        }
+
+        // Build mini block grid (compact)
+        let gridHTML = '';
+        if (a * b <= 60) {
+            gridHTML = `<div class="block-grid" style="grid-template-columns: repeat(${b}, 18px); margin: 8px auto; display: inline-grid;">`;
+            for (let i = 0; i < a * b; i++) {
+                gridHTML += `<div class="mc-block ${blockType}" style="width:18px;height:18px;"></div>`;
+            }
+            gridHTML += '</div>';
+        }
+
+        el.innerHTML = `
+            <div class="explain-title">📚 NAUKA: ${a} × ${b} = ${correct}</div>
+            <div class="explain-text">
+                ${wrongVal !== undefined ? `Twoja odpowiedź: <span style="color:#FF6666;text-decoration:line-through;">${wrongVal}</span><br>` : 'Czas minął!<br>'}
+                Poprawna odpowiedź: <strong style="color:var(--emerald);font-size:14px;">${correct}</strong><br><br>
+                🔢 ${a} × ${b} = ${addStr} = <strong>${correct}</strong>
+                ${relateStr}
+            </div>
+            ${gridHTML}
+            <div style="font-size:7px; color:#888; margin-top:8px;">
+                💡 To pytanie pojawi się jeszcze raz — ćwiczenie czyni mistrza!
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                <button class="mc-btn hint-btn" style="font-size:8px; padding:5px 10px;" onclick="showWrongHint('blocks')">🧱 Bloczki</button>
+                <button class="mc-btn hint-btn" style="font-size:8px; padding:5px 10px;" onclick="showWrongHint('skip')">🔢 Licz co...</button>
+                <button class="mc-btn hint-btn" style="font-size:8px; padding:5px 10px;" onclick="showWrongHint('nearby')">📖 Blisko!</button>
+            </div>
+        `;
+        el.classList.add('show');
+    }
+
+    function grantLevelReward() {
+        if (state.level % 5 === 0) state.items['🏆']++;
+        else if (state.level % 3 === 0) state.items['🥇']++;
+        else state.items['🟢']++;
+
+        if (state.lives < state.maxLives) {
+            state.lives++;
+            state.items['🍎']++;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // Game Over with Review
+    // ═══════════════════════════════════════════
+
+    function showGameOver() {
+        const pct = state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0;
+        document.getElementById('finalStats').innerHTML = `
+            💎 Diamenty: <span class="val">${state.score}</span><br>
+            ✅ Poprawne: <span class="val">${state.correct} / ${state.total} (${pct}%)</span><br>
+            🔥 Najlepsza seria: <span class="val">${state.bestStreak}</span><br>
+            ⬆️ Poziom: <span class="val">${state.level}</span><br>
+            📖 Podpowiedzi: <span class="val">${state.hintsUsedTotal}</span><br>
+            🏆 Osiągnięcia: <span class="val">${state.achievements.size}</span>
+        `;
+
+        // Mistake review
+        const reviewEl = document.getElementById('mistakesReview');
+        if (state.mistakes.length > 0) {
+            let html = '<h3>❌ BŁĘDY DO POWTÓRZENIA:</h3>';
+            // Sort by most mistakes first
+            const sorted = [...state.mistakes].sort((a, b) => b.count - a.count);
+            for (const m of sorted) {
+                html += `
+                    <div class="mistake-item">
+                        <span class="mistake-q">${m.a} × ${m.b}</span>
+                        <span class="mistake-wrong">✗ ${m.lastWrong !== undefined ? m.lastWrong : '⏰'}</span>
+                        <span class="mistake-right">✓ ${m.correctAnswer}</span>
+                        <span class="mistake-count">×${m.count}</span>
+                    </div>
+                `;
+            }
+            html += '<div style="font-size:7px; color:#aaa; text-align:center; margin-top:8px;">Kliknij "🎯 ĆWICZ BŁĘDY" aby powtórzyć!</div>';
+            reviewEl.innerHTML = html;
+        } else {
+            reviewEl.innerHTML = '<div style="text-align:center; font-size:9px; color:var(--emerald); margin-top:10px;">🎯 Zero błędów! Perfekcja!</div>';
+        }
+
+        // Mastery grid
+        buildMasteryGrid();
+
+        showScreen('gameoverScreen');
+    }
+
+    function buildMasteryGrid() {
+        const section = document.getElementById('masterySection');
+        const entries = Object.entries(state.masteryMap);
+        if (entries.length === 0) { section.innerHTML = ''; return; }
+
+        let html = '<h3>📊 MAPA OPANOWANIA:</h3><div class="mastery-grid">';
+
+        // Sort entries
+        entries.sort((a, b) => {
+            const [a1, a2] = a[0].split('×').map(Number);
+            const [b1, b2] = b[0].split('×').map(Number);
+            return (a1 * 100 + a2) - (b1 * 100 + b2);
+        });
+
+        for (const [key, data] of entries) {
+            const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
+            let cls = 'untested';
+            let stars = '';
+
+            if (data.total > 0) {
+                if (pct >= 80) { cls = 'strong'; stars = '⭐'.repeat(Math.min(3, data.streak)); }
+                else if (pct >= 50) { cls = ''; stars = '⭐'; }
+                else { cls = 'weak'; stars = ''; }
+            }
+
+            html += `
+                <div class="mastery-cell ${cls}">
+                    ${key.replace('×', ' × ')}<br>
+                    <span class="mastery-stars">${stars || '—'}</span><br>
+                    ${data.total > 0 ? `${pct}%` : '—'}
+                </div>
+            `;
+        }
+
+        html += '</div>';
+        section.innerHTML = html;
+    }
+
+    // ═══════════════════════════════════════════
+    // UI
+    // ═══════════════════════════════════════════
+
+    function updateUI() {
+        document.getElementById('score').textContent = state.score;
+        document.getElementById('correct').textContent = state.correct;
+        document.getElementById('total').textContent = state.total;
+
+        // Hearts
+        const heartsEl = document.getElementById('hearts');
+        heartsEl.innerHTML = '';
+        for (let i = 0; i < state.maxLives; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart' + (i >= state.lives ? ' lost' : '');
+            heart.innerHTML = `<svg viewBox="0 0 20 18"><path d="M10 18L8.5 16.6C3.4 12 0 9 0 5.2C0 2.3 2.3 0 5.2 0C6.8 0 8.4 0.7 10 2.1C11.6 0.7 13.2 0 14.8 0C17.7 0 20 2.3 20 5.2C20 9 16.6 12 11.5 16.6L10 18Z" fill="${i >= state.lives ? '#555' : '#FF1744'}"/></svg>`;
+            heartsEl.appendChild(heart);
+        }
+
+        // XP
+        const xpPct = (state.xp / state.xpToNext) * 100;
+        document.getElementById('xpBar').style.width = xpPct + '%';
+        document.getElementById('xpText').textContent = `${state.xp} / ${state.xpToNext} XP`;
+        document.getElementById('xpBarText').textContent = `Poziom ${state.level}`;
+
+        // Streak
+        const streakEl = document.getElementById('streakDisplay');
+        if (state.streak >= 3) streakEl.textContent = `🔥 SERIA: ${state.streak} 🔥`;
+        else if (state.streak > 0) streakEl.textContent = `seria: ${state.streak}`;
+        else streakEl.textContent = '';
+
+        // Inventory
+        const inv = document.getElementById('inventory');
+        inv.innerHTML = '';
+        for (const key of Object.keys(state.items)) {
+            const slot = document.createElement('div');
+            slot.className = 'inv-slot' + (state.items[key] > 0 ? ' active' : '');
+            slot.innerHTML = state.items[key] > 0 ? `${key}<span class="count">${state.items[key]}</span>` : '';
+            inv.appendChild(slot);
+        }
+    }
+
+    function checkAchievements() {
+        for (const ach of achievementList) {
+            if (!state.achievements.has(ach.id) && ach.check(state)) {
+                state.achievements.add(ach.id);
+                showAchievement(ach.icon, ach.title, ach.desc);
+                state.items['⭐']++;
+            }
+        }
+    }
+
+    function showAchievement(icon, title, desc) {
+        const el = document.getElementById('achievement');
+        document.getElementById('achIcon').textContent = icon;
+        document.getElementById('achTitle').textContent = title;
+        document.getElementById('achDesc').textContent = desc;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    function spawnParticles(count, colors) {
+        const container = document.getElementById('particles');
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = (cx + (Math.random() - 0.5) * 200) + 'px';
+            p.style.top = (cy + (Math.random() - 0.5) * 100) + 'px';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 1000);
+        }
+    }
+
+    function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+</script>
+
+</body>
+</html>
