@@ -7,354 +7,193 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --dirt: #8B6914;
-            --dirt-dark: #6B4F0A;
-            --grass: #5D9B2A;
-            --grass-dark: #4A7B20;
-            --stone: #7F7F7F;
-            --stone-dark: #5F5F5F;
-            --wood: #BC9862;
-            --wood-dark: #8B6914;
-            --diamond: #5DECF5;
-            --gold: #FCDB05;
-            --emerald: #17DD62;
-            --redstone: #FF0000;
-            --obsidian: #1B1029;
-            --sky-top: #78A7FF;
-            --sky-bottom: #C9E4FF;
+            --dirt: #8B6914; --dirt-dark: #6B4F0A;
+            --grass: #5D9B2A; --grass-dark: #4A7B20;
+            --stone: #7F7F7F; --stone-dark: #5F5F5F;
+            --wood: #BC9862; --wood-dark: #8B6914;
+            --diamond: #5DECF5; --gold: #FCDB05; --emerald: #17DD62;
+            --redstone: #FF0000; --obsidian: #1B1029;
+            --sky-top: #78A7FF; --sky-bottom: #C9E4FF;
         }
 
         body {
             font-family: 'Press Start 2P', monospace;
             background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--grass) 60%, var(--grass-dark) 62%, var(--dirt) 62%, var(--dirt-dark) 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-            image-rendering: pixelated;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden; image-rendering: pixelated;
         }
 
-        /* Pixel art clouds */
-        .clouds {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 60vh;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .cloud {
-            position: absolute;
-            background: white;
-            opacity: 0.9;
-            animation: float-cloud linear infinite;
-        }
-
-        .cloud::before, .cloud::after {
-            content: '';
-            position: absolute;
-            background: white;
-        }
-
+        .clouds { position: fixed; top: 0; left: 0; width: 100%; height: 60vh; pointer-events: none; z-index: 0; overflow: hidden; }
+        .cloud { position: absolute; background: white; opacity: 0.9; animation: float-cloud linear infinite; }
+        .cloud::before, .cloud::after { content: ''; position: absolute; background: white; }
         .cloud-1 { width: 80px; height: 30px; top: 40px; animation-duration: 45s; }
         .cloud-1::before { width: 40px; height: 20px; top: -15px; left: 10px; }
         .cloud-1::after { width: 30px; height: 15px; top: -10px; left: 40px; }
-
         .cloud-2 { width: 100px; height: 35px; top: 100px; animation-duration: 60s; animation-delay: -20s; }
         .cloud-2::before { width: 50px; height: 25px; top: -18px; left: 15px; }
         .cloud-2::after { width: 35px; height: 18px; top: -12px; left: 55px; }
-
         .cloud-3 { width: 60px; height: 25px; top: 70px; animation-duration: 55s; animation-delay: -35s; }
         .cloud-3::before { width: 30px; height: 15px; top: -10px; left: 8px; }
         .cloud-3::after { width: 25px; height: 12px; top: -8px; left: 30px; }
-
         @keyframes float-cloud { from { left: -150px; } to { left: 110%; } }
 
-        /* Particles */
-        .particles {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 100;
-        }
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        .particle { position: absolute; width: 8px; height: 8px; pointer-events: none; animation: particle-fall 1s ease-out forwards; }
+        @keyframes particle-fall { 0% { opacity: 1; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.3) translateY(60px); } }
 
-        .particle {
-            position: absolute;
-            width: 8px; height: 8px;
-            pointer-events: none;
-            animation: particle-fall 1s ease-out forwards;
-        }
+        .game-container { position: relative; z-index: 1; width: 100%; max-width: 700px; padding: 20px; margin-top: 20px; }
 
-        @keyframes particle-fall {
-            0% { opacity: 1; transform: scale(1) translateY(0); }
-            100% { opacity: 0; transform: scale(0.3) translateY(60px); }
-        }
-
-        /* Main container */
-        .game-container {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 700px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        /* Title */
         .title { text-align: center; margin-bottom: 20px; }
-
-        .title h1 {
-            font-size: 18px;
-            color: #333;
-            text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff;
-            line-height: 1.6;
-        }
-
+        .title h1 { font-size: 18px; color: #333; text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff; line-height: 1.6; }
         .title h1 .green { color: var(--grass-dark); }
         .title h1 .brown { color: var(--dirt-dark); }
 
-        /* Minecraft-style panel */
         .mc-panel {
-            background: #C6C6C6;
-            border: 3px solid #000;
+            background: #C6C6C6; border: 3px solid #000;
             box-shadow: inset 2px 2px 0 #FFFFFF, inset -2px -2px 0 #555555;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 16px; margin-bottom: 16px;
         }
 
-        /* Stats bar */
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+        .stats-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .stat { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #333; }
 
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 10px;
-            color: #333;
-        }
-
-        /* XP bar */
         .xp-section { margin-top: 10px; }
+        .xp-label { font-size: 9px; color: #333; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .xp-bar-bg { height: 16px; background: #222; border: 2px solid #000; box-shadow: inset 1px 1px 0 #444; position: relative; overflow: hidden; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(180deg, #7FFF00, #32CD32); transition: width 0.5s ease; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); }
+        .xp-bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000; }
 
-        .xp-label {
-            font-size: 9px; color: #333;
-            margin-bottom: 4px;
-            display: flex; justify-content: space-between;
-        }
-
-        .xp-bar-bg {
-            height: 16px;
-            background: #222;
-            border: 2px solid #000;
-            box-shadow: inset 1px 1px 0 #444;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .xp-bar-fill {
-            height: 100%;
-            background: linear-gradient(180deg, #7FFF00, #32CD32);
-            transition: width 0.5s ease;
-            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
-        }
-
-        .xp-bar-text {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 7px; color: #fff;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        /* Question area */
         .question-area { text-align: center; padding: 20px 10px; }
-
-        .question-text {
-            font-size: 28px;
-            color: #3F3F3F;
-            text-shadow: 2px 2px 0 #aaa;
-            margin-bottom: 20px;
-            letter-spacing: 4px;
-        }
-
-        .answer-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+        .question-text { font-size: 28px; color: #3F3F3F; text-shadow: 2px 2px 0 #aaa; margin-bottom: 20px; letter-spacing: 4px; }
+        .answer-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
 
         .answer-input {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 22px;
-            width: 140px;
-            padding: 10px;
-            text-align: center;
-            background: #000;
-            color: #fff;
-            border: 3px solid #555;
-            box-shadow: inset 2px 2px 0 #333;
-            outline: none;
+            font-family: 'Press Start 2P', monospace; font-size: 22px; width: 140px; padding: 10px;
+            text-align: center; background: #000; color: #fff; border: 3px solid #555;
+            box-shadow: inset 2px 2px 0 #333; outline: none;
         }
+        .answer-input:focus { border-color: var(--diamond); box-shadow: inset 2px 2px 0 #333, 0 0 10px rgba(93,236,245,0.5); }
+        .answer-input.correct { border-color: var(--emerald); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(23,221,98,0.6); }
+        .answer-input.wrong { border-color: var(--redstone); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(255,0,0,0.6); animation: shake 0.4s ease; }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
 
-        .answer-input:focus {
-            border-color: var(--diamond);
-            box-shadow: inset 2px 2px 0 #333, 0 0 10px rgba(93, 236, 245, 0.5);
-        }
-
-        .answer-input.correct {
-            border-color: var(--emerald);
-            box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(23, 221, 98, 0.6);
-        }
-
-        .answer-input.wrong {
-            border-color: var(--redstone);
-            box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(255, 0, 0, 0.6);
-            animation: shake 0.4s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-8px); }
-            40% { transform: translateX(8px); }
-            60% { transform: translateX(-6px); }
-            80% { transform: translateX(4px); }
-        }
-
-        /* MC Button */
         .mc-btn {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 12px;
-            padding: 10px 20px;
-            background: #999;
-            color: #fff;
-            border: 3px solid #000;
+            font-family: 'Press Start 2P', monospace; font-size: 12px; padding: 10px 20px;
+            background: #999; color: #fff; border: 3px solid #000;
             box-shadow: inset 2px 2px 0 #CCC, inset -2px -2px 0 #555;
-            cursor: pointer;
-            text-shadow: 1px 1px 0 #333;
-            transition: background 0.1s;
+            cursor: pointer; text-shadow: 1px 1px 0 #333; transition: background 0.1s;
         }
-
-        .mc-btn:hover { background: #AAA; box-shadow: inset 2px 2px 0 #DDD, inset -2px -2px 0 #666; }
+        .mc-btn:hover { background: #AAA; }
         .mc-btn:active { background: #777; box-shadow: inset -2px -2px 0 #CCC, inset 2px 2px 0 #555; }
-
-        .mc-btn.primary {
-            background: #5A9E2F;
-            box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E;
-        }
+        .mc-btn.primary { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; }
         .mc-btn.primary:hover { background: #6AB33A; }
 
-        .mc-btn.hint-btn {
-            background: #B8860B;
-            box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508;
-            font-size: 10px;
-            padding: 8px 14px;
-        }
+        .mc-btn.hint-btn { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; font-size: 10px; padding: 8px 14px; }
         .mc-btn.hint-btn:hover { background: #CC9A1E; }
         .mc-btn.hint-btn:disabled { background: #666; opacity: 0.5; cursor: default; }
-        .mc-btn.hint-btn.hint-active {
-            background: #DAA520;
-            border-color: var(--gold);
-            box-shadow: inset 2px 2px 0 #FFD700, inset -2px -2px 0 #8B6508, 0 0 8px rgba(218,165,32,0.4);
-        }
+        .mc-btn.hint-btn.hint-active { background: #DAA520; border-color: var(--gold); box-shadow: inset 2px 2px 0 #FFD700, inset -2px -2px 0 #8B6508, 0 0 8px rgba(218,165,32,0.4); }
 
-        /* Feedback */
-        .feedback {
-            text-align: center;
-            min-height: 30px;
-            margin-top: 15px;
-            font-size: 11px;
-            transition: opacity 0.3s;
-        }
+        .feedback { text-align: center; min-height: 30px; margin-top: 15px; font-size: 11px; transition: opacity 0.3s; }
         .feedback.good { color: #17DD62; text-shadow: 1px 1px 0 #000; }
         .feedback.bad { color: #FF4444; text-shadow: 1px 1px 0 #000; }
 
-        /* Hearts */
         .hearts { display: flex; gap: 4px; align-items: center; }
         .heart { width: 20px; height: 18px; position: relative; }
         .heart svg { width: 100%; height: 100%; }
         .heart.lost svg { opacity: 0.25; }
         .heart.losing svg { animation: heart-break 0.3s ease; }
+        @keyframes heart-break { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); opacity: 0.25; } }
 
-        @keyframes heart-break {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); opacity: 0.25; }
-        }
-
-        /* Inventory */
+        /* ═══ INVENTORY ═══ */
         .inventory { display: flex; justify-content: center; gap: 2px; margin-top: 12px; flex-wrap: wrap; }
-
         .inv-slot {
-            width: 44px; height: 44px;
-            background: #555;
-            border: 2px solid #000;
+            width: 48px; height: 48px; background: #555; border: 2px solid #000;
             box-shadow: inset 1px 1px 0 #777, inset -1px -1px 0 #333;
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px;
-            position: relative;
+            font-size: 22px; position: relative; cursor: default;
+        }
+        .inv-slot .count { position: absolute; bottom: 1px; right: 3px; font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000; }
+        .inv-slot.active { border-color: #fff; box-shadow: inset 1px 1px 0 #aaa, inset -1px -1px 0 #555, 0 0 8px rgba(255,255,255,0.3); }
+        .inv-slot.legendary { border-color: #FF00FF; box-shadow: inset 1px 1px 0 #FF88FF, inset -1px -1px 0 #880088, 0 0 12px rgba(255,0,255,0.4); animation: legendary-glow 2s ease infinite; }
+        @keyframes legendary-glow { 0%,100% { box-shadow: inset 1px 1px 0 #FF88FF, inset -1px -1px 0 #880088, 0 0 8px rgba(255,0,255,0.3); } 50% { box-shadow: inset 1px 1px 0 #FF88FF, inset -1px -1px 0 #880088, 0 0 16px rgba(255,0,255,0.6); } }
+
+        /* Tooltip */
+        .inv-tooltip {
+            display: none; position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%);
+            background: #1A0A2E; border: 2px solid #5500AA; padding: 6px 10px; z-index: 50;
+            white-space: nowrap; pointer-events: none; min-width: 120px;
+        }
+        .inv-slot:hover .inv-tooltip { display: block; }
+        .inv-tooltip .tt-name { font-size: 7px; color: #fff; margin-bottom: 3px; }
+        .inv-tooltip .tt-name.rare { color: var(--diamond); }
+        .inv-tooltip .tt-name.epic { color: #FF00FF; }
+        .inv-tooltip .tt-name.legendary { color: var(--gold); }
+        .inv-tooltip .tt-desc { font-size: 6px; color: #888; line-height: 1.6; }
+        .inv-tooltip .tt-rarity { font-size: 6px; color: #666; margin-top: 2px; font-style: italic; }
+
+        /* ═══ FLOATING SCORE ═══ */
+        .float-score {
+            position: fixed; pointer-events: none; z-index: 150;
+            font-family: 'Press Start 2P', monospace; font-size: 14px;
+            text-shadow: 2px 2px 0 #000;
+            animation: float-up 1.2s ease-out forwards;
+        }
+        @keyframes float-up { 0% { opacity: 1; transform: translateY(0) scale(1); } 40% { transform: translateY(-30px) scale(1.2); } 100% { opacity: 0; transform: translateY(-80px) scale(0.8); } }
+
+        /* ═══ SPEED INDICATOR ═══ */
+        .speed-badge {
+            display: inline-block; padding: 3px 8px; font-size: 8px; margin-top: 6px;
+            border: 2px solid; text-align: center;
+        }
+        .speed-badge.lightning { color: #FCDB05; border-color: #FCDB05; background: rgba(252,219,5,0.15); }
+        .speed-badge.fast { color: #5DECF5; border-color: #5DECF5; background: rgba(93,236,245,0.1); }
+        .speed-badge.good { color: var(--emerald); border-color: var(--emerald); background: rgba(23,221,98,0.1); }
+        .speed-badge.ok { color: #aaa; border-color: #777; background: rgba(255,255,255,0.05); }
+
+        /* ═══ COMBO METER ═══ */
+        .combo-container { text-align: center; min-height: 24px; margin-top: 6px; }
+        .combo-text { font-size: 12px; text-shadow: 2px 2px 0 #000; }
+        .combo-text.x2 { color: #5DECF5; }
+        .combo-text.x3 { color: var(--gold); }
+        .combo-text.x4 { color: #FF00FF; }
+        .combo-text.x5 { color: #FF4444; animation: combo-pulse 0.5s ease infinite; }
+        @keyframes combo-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .combo-bar-bg { height: 6px; background: #333; border: 1px solid #555; margin-top: 3px; overflow: hidden; }
+        .combo-bar-fill { height: 100%; transition: width 0.3s ease; }
+
+        /* ═══ LOOT DROP ANIMATION ═══ */
+        .loot-drop {
+            position: fixed; pointer-events: none; z-index: 150;
+            font-size: 28px;
+            animation: loot-bounce 1s ease forwards;
+        }
+        @keyframes loot-bounce {
+            0% { opacity: 0; transform: translateY(-40px) scale(0.3) rotate(-20deg); }
+            30% { opacity: 1; transform: translateY(10px) scale(1.3) rotate(10deg); }
+            50% { transform: translateY(-10px) scale(1) rotate(-5deg); }
+            70% { transform: translateY(5px) scale(1.05) rotate(2deg); }
+            85% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+            100% { opacity: 0; transform: translateY(-20px) scale(0.5); }
         }
 
-        .inv-slot .count {
-            position: absolute;
-            bottom: 1px; right: 3px;
-            font-size: 7px; color: #fff;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        .inv-slot.active {
-            border-color: #fff;
-            box-shadow: inset 1px 1px 0 #aaa, inset -1px -1px 0 #555, 0 0 8px rgba(255,255,255,0.3);
-        }
-
-        /* Difficulty selector */
+        /* Difficulty */
         .difficulty { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
-
         .diff-btn {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px; padding: 8px 14px; cursor: pointer;
-            background: #666; color: #aaa;
-            border: 2px solid #000;
+            font-family: 'Press Start 2P', monospace; font-size: 9px; padding: 8px 14px; cursor: pointer;
+            background: #666; color: #aaa; border: 2px solid #000;
             box-shadow: inset 1px 1px 0 #888, inset -1px -1px 0 #444;
         }
-
-        .diff-btn.active {
-            background: #5A9E2F; color: #fff;
-            box-shadow: inset 1px 1px 0 #7BCF44, inset -1px -1px 0 #3B6B1E;
-        }
-
+        .diff-btn.active { background: #5A9E2F; color: #fff; box-shadow: inset 1px 1px 0 #7BCF44, inset -1px -1px 0 #3B6B1E; }
         .diff-btn:hover { background: #777; color: #ddd; }
         .diff-btn.active:hover { background: #6AB33A; color: #fff; }
 
-        /* Achievement popup */
-        .achievement {
-            position: fixed;
-            top: -80px; left: 50%;
-            transform: translateX(-50%);
-            background: #222;
-            border: 2px solid #555;
-            padding: 12px 20px;
-            display: flex; align-items: center; gap: 12px;
-            z-index: 200;
-            transition: top 0.5s ease;
-            max-width: 90vw;
-        }
+        /* Achievement */
+        .achievement { position: fixed; top: -80px; left: 50%; transform: translateX(-50%); background: #222; border: 2px solid #555; padding: 12px 20px; display: flex; align-items: center; gap: 12px; z-index: 200; transition: top 0.5s ease; max-width: 90vw; }
         .achievement.show { top: 20px; }
         .achievement-icon { font-size: 28px; }
         .achievement-text { color: #fff; }
@@ -364,15 +203,9 @@
         /* Screens */
         .screen { display: none; }
         .screen.active { display: block; }
-
         .start-screen { text-align: center; }
         .start-screen .big-icon { font-size: 60px; margin: 20px 0; animation: bob 2s ease-in-out infinite; }
-
-        @keyframes bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
+        @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         .start-screen p { font-size: 9px; color: #555; margin: 12px 0; line-height: 1.8; }
 
         .gameover-screen { text-align: center; }
@@ -380,272 +213,85 @@
         .gameover-screen .final-stats { font-size: 10px; color: #555; line-height: 2.2; }
         .gameover-screen .final-stats .val { color: var(--grass-dark); }
 
-        /* Streak */
-        .streak-display {
-            text-align: center; font-size: 10px; color: #FF8800;
-            text-shadow: 1px 1px 0 #000; min-height: 18px; margin-top: 6px;
-        }
+        .streak-display { text-align: center; font-size: 10px; color: #FF8800; text-shadow: 1px 1px 0 #000; min-height: 18px; margin-top: 6px; }
 
-        /* Timer */
         .timer-section { margin-top: 8px; display: none; }
         .timer-section.visible { display: block; }
         .timer-bar-bg { height: 10px; background: #222; border: 2px solid #000; overflow: hidden; }
         .timer-bar-fill { height: 100%; background: linear-gradient(180deg, #FF6B00, #FF4400); transition: width 0.1s linear; }
         .timer-bar-fill.warning { background: linear-gradient(180deg, #FF0000, #CC0000); animation: pulse-red 0.5s ease infinite; }
+        @keyframes pulse-red { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
-        /* ═══════════════════════════════════════════
-           NOWE: System podpowiedzi i nauki
-           ═══════════════════════════════════════════ */
-
-        /* Hint button row */
-        .hint-row {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        /* Visual block grid (shows multiplication as blocks) */
-        .visual-hint {
-            margin-top: 16px;
-            padding: 12px;
-            background: #3A3A3A;
-            border: 2px solid #555;
-            display: none;
-            text-align: center;
-        }
-
+        /* Hint system */
+        .hint-row { display: flex; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .visual-hint { margin-top: 16px; padding: 12px; background: #3A3A3A; border: 2px solid #555; display: none; text-align: center; }
         .visual-hint.show { display: block; animation: fadeIn 0.3s ease; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .hint-title {
-            font-size: 8px;
-            color: var(--gold);
-            margin-bottom: 10px;
-        }
-
-        .hint-explanation {
-            font-size: 8px;
-            color: #ccc;
-            margin-bottom: 10px;
-            line-height: 1.8;
-        }
-
-        /* Block grid visualization */
-        .block-grid {
-            display: inline-grid;
-            gap: 2px;
-            margin: 8px auto;
-        }
-
-        .mc-block {
-            width: 22px;
-            height: 22px;
-            border: 1px solid rgba(0,0,0,0.4);
-            image-rendering: pixelated;
-            transition: all 0.15s ease;
-        }
-
+        .hint-title { font-size: 8px; color: var(--gold); margin-bottom: 10px; }
+        .hint-explanation { font-size: 8px; color: #ccc; margin-bottom: 10px; line-height: 1.8; }
+        .block-grid { display: inline-grid; gap: 2px; margin: 8px auto; }
+        .mc-block { width: 22px; height: 22px; border: 1px solid rgba(0,0,0,0.4); image-rendering: pixelated; transition: all 0.15s ease; }
         .mc-block.grass { background: linear-gradient(180deg, #5D9B2A 0%, #5D9B2A 30%, #8B6914 30%); }
         .mc-block.dirt { background: #8B6914; }
         .mc-block.stone { background: linear-gradient(135deg, #888 25%, #777 50%, #999 75%); }
         .mc-block.diamond { background: linear-gradient(135deg, #5DECF5 0%, #2BC4D8 50%, #5DECF5 100%); }
         .mc-block.gold { background: linear-gradient(135deg, #FCDB05 0%, #D4A800 50%, #FCDB05 100%); }
         .mc-block.wood { background: linear-gradient(0deg, #8B6914 0%, #BC9862 50%, #8B6914 100%); }
-
-        .mc-block.highlight {
-            animation: block-pop 0.3s ease forwards;
-            box-shadow: 0 0 6px rgba(255,255,255,0.5);
-        }
-
-        @keyframes block-pop {
-            0% { transform: scale(0); opacity: 0; }
-            60% { transform: scale(1.15); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .grid-label {
-            font-size: 8px;
-            color: #aaa;
-            margin: 4px 0;
-        }
-
-        .grid-result {
-            font-size: 12px;
-            color: var(--emerald);
-            margin-top: 8px;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        /* Skip counting hint */
-        .skip-count {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px;
-            margin: 10px 0;
-        }
-
-        .skip-num {
-            background: #555;
-            border: 2px solid #777;
-            padding: 5px 8px;
-            font-size: 10px;
-            color: #ccc;
-            min-width: 36px;
-            text-align: center;
-        }
-
-        .skip-num.revealed {
-            background: #2B6B1E;
-            border-color: var(--emerald);
-            color: #fff;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .skip-num.answer-num {
-            background: #8B6508;
-            border-color: var(--gold);
-            color: var(--gold);
-            font-size: 12px;
-        }
-
-        .skip-num.hidden {
-            color: #555;
-        }
-
-        /* Nearby facts hint */
-        .nearby-facts {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin: 8px 0;
-            align-items: center;
-        }
-
-        .nearby-fact {
-            font-size: 9px;
-            color: #aaa;
-            padding: 3px 10px;
-        }
-
-        .nearby-fact.current {
-            color: var(--gold);
-            font-size: 11px;
-            background: rgba(252,219,5,0.1);
-            border: 1px solid rgba(252,219,5,0.3);
-        }
-
+        .mc-block.highlight { animation: block-pop 0.3s ease forwards; box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+        @keyframes block-pop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+        .grid-label { font-size: 8px; color: #aaa; margin: 4px 0; }
+        .grid-result { font-size: 12px; color: var(--emerald); margin-top: 8px; text-shadow: 1px 1px 0 #000; }
+        .skip-count { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; }
+        .skip-num { background: #555; border: 2px solid #777; padding: 5px 8px; font-size: 10px; color: #ccc; min-width: 36px; text-align: center; }
+        .skip-num.revealed { background: #2B6B1E; border-color: var(--emerald); color: #fff; animation: fadeIn 0.3s ease; }
+        .skip-num.answer-num { background: #8B6508; border-color: var(--gold); color: var(--gold); font-size: 12px; }
+        .skip-num.hidden { color: #555; }
+        .nearby-facts { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; align-items: center; }
+        .nearby-fact { font-size: 9px; color: #aaa; padding: 3px 10px; }
+        .nearby-fact.current { color: var(--gold); font-size: 11px; background: rgba(252,219,5,0.1); border: 1px solid rgba(252,219,5,0.3); }
         .nearby-fact .op { color: #888; }
 
-        /* Wrong answer visual explanation */
-        .wrong-explain {
-            margin-top: 12px;
-            padding: 12px;
-            background: #2A1A1A;
-            border: 2px solid #FF4444;
-            display: none;
-            text-align: center;
-        }
-
+        .wrong-explain { margin-top: 12px; padding: 12px; background: #2A1A1A; border: 2px solid #FF4444; display: none; text-align: center; }
         .wrong-explain.show { display: block; animation: fadeIn 0.4s ease; }
+        .wrong-explain .explain-title { font-size: 8px; color: #FF8888; margin-bottom: 8px; }
+        .wrong-explain .explain-text { font-size: 8px; color: #ccc; line-height: 1.8; margin-bottom: 8px; }
 
-        .wrong-explain .explain-title {
-            font-size: 8px;
-            color: #FF8888;
-            margin-bottom: 8px;
-        }
-
-        .wrong-explain .explain-text {
-            font-size: 8px;
-            color: #ccc;
-            line-height: 1.8;
-            margin-bottom: 8px;
-        }
-
-        /* Game over: mistake review */
-        .mistakes-review {
-            margin-top: 16px;
-            text-align: left;
-        }
-
-        .mistakes-review h3 {
-            font-size: 10px;
-            color: #FF8888;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .mistake-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 10px;
-            margin-bottom: 4px;
-            background: #555;
-            border: 1px solid #777;
-            font-size: 9px;
-            gap: 8px;
-        }
-
+        .mistakes-review { margin-top: 16px; text-align: left; }
+        .mistakes-review h3 { font-size: 10px; color: #FF8888; margin-bottom: 10px; text-align: center; }
+        .mistake-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; margin-bottom: 4px; background: #555; border: 1px solid #777; font-size: 9px; gap: 8px; }
         .mistake-item .mistake-q { color: #fff; }
         .mistake-item .mistake-wrong { color: #FF6666; text-decoration: line-through; }
         .mistake-item .mistake-right { color: var(--emerald); }
         .mistake-item .mistake-count { color: var(--gold); font-size: 7px; }
 
-        /* Hint cost indicator */
-        .hint-cost {
-            font-size: 7px;
-            color: #aaa;
-            text-align: center;
-            margin-top: 4px;
-        }
+        .hint-cost { font-size: 7px; color: #aaa; text-align: center; margin-top: 4px; }
 
-        /* Mastery stars on game over */
-        .mastery-section {
-            margin-top: 16px;
-            text-align: center;
-        }
-
-        .mastery-section h3 {
-            font-size: 10px;
-            color: var(--gold);
-            margin-bottom: 10px;
-        }
-
-        .mastery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 4px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .mastery-cell {
-            background: #444;
-            border: 1px solid #666;
-            padding: 4px;
-            font-size: 7px;
-            text-align: center;
-            color: #ccc;
-        }
-
+        .mastery-section { margin-top: 16px; text-align: center; }
+        .mastery-section h3 { font-size: 10px; color: var(--gold); margin-bottom: 10px; }
+        .mastery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 4px; max-width: 400px; margin: 0 auto; }
+        .mastery-cell { background: #444; border: 1px solid #666; padding: 4px; font-size: 7px; text-align: center; color: #ccc; }
         .mastery-cell .mastery-stars { color: var(--gold); font-size: 8px; }
         .mastery-cell.strong { background: #1A3A1A; border-color: var(--emerald); }
         .mastery-cell.weak { background: #3A1A1A; border-color: #FF4444; }
-        .mastery-cell.untested { background: #333; color: #666; }
 
-        /* Responsive */
+        /* Loot summary on game over */
+        .loot-summary { margin-top: 12px; }
+        .loot-summary h3 { font-size: 10px; color: var(--diamond); margin-bottom: 8px; }
+        .loot-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+        .loot-card { background: #444; border: 2px solid #666; padding: 6px 10px; text-align: center; min-width: 70px; }
+        .loot-card.rare { border-color: var(--diamond); }
+        .loot-card.epic { border-color: #FF00FF; }
+        .loot-card.legendary { border-color: var(--gold); }
+        .loot-card .loot-icon { font-size: 20px; }
+        .loot-card .loot-name { font-size: 6px; color: #ccc; margin-top: 3px; }
+        .loot-card .loot-qty { font-size: 7px; color: var(--gold); }
+
         @media (max-width: 500px) {
             .title h1 { font-size: 13px; }
             .question-text { font-size: 22px; }
             .answer-input { font-size: 18px; width: 110px; }
             .stat { font-size: 8px; }
-            .inv-slot { width: 36px; height: 36px; font-size: 18px; }
+            .inv-slot { width: 40px; height: 40px; font-size: 18px; }
             .mc-btn { font-size: 10px; padding: 8px 14px; }
             .mc-block { width: 16px; height: 16px; }
         }
@@ -653,145 +299,95 @@
 </head>
 <body>
 
-<div class="clouds">
-    <div class="cloud cloud-1"></div>
-    <div class="cloud cloud-2"></div>
-    <div class="cloud cloud-3"></div>
-</div>
-
+<div class="clouds"><div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div></div>
 <div class="particles" id="particles"></div>
 
 <div id="achievement" class="achievement">
     <div class="achievement-icon" id="achIcon">🏆</div>
     <div class="achievement-text">
-        <div class="ach-title" id="achTitle">Osiągnięcie odblokowane!</div>
+        <div class="ach-title" id="achTitle"></div>
         <div class="ach-desc" id="achDesc"></div>
     </div>
 </div>
 
 <div class="game-container">
-    <div class="title">
-        <h1>
-            ⛏️ <span class="green">TABLICZKA</span> <span class="brown">MNOŻENIA</span> ⛏️
-            <br>Minecraft Edition
-        </h1>
-    </div>
+    <div class="title"><h1>⛏️ <span class="green">TABLICZKA</span> <span class="brown">MNOŻENIA</span> ⛏️<br>Minecraft Edition</h1></div>
 
-    <!-- ═══ START SCREEN ═══ -->
+    <!-- START -->
     <div id="startScreen" class="screen active">
         <div class="mc-panel start-screen">
             <div class="big-icon">⛏️</div>
             <p>
                 Rozwiązuj zadania z tabliczki mnożenia,<br>
-                zbieraj diamenty i zdobywaj poziomy!<br><br>
-                Każda poprawna odpowiedź = +1 💎<br>
-                Seria poprawnych = bonus punkty!<br><br>
-                📖 Nie wiesz? Użyj podpowiedzi!<br>
-                Gra uczy i powtarza trudne zadania.
+                zbieraj Minecraftowe przedmioty!<br><br>
+                ⚡ Im szybciej odpowiesz, tym więcej punktów!<br>
+                🔥 Buduj serię combo dla mnożnika!<br>
+                📖 Nie wiesz? Użyj podpowiedzi!
             </p>
-
             <div style="margin: 16px 0;">
                 <div style="font-size: 9px; color: #555; margin-bottom: 8px;">WYBIERZ POZIOM:</div>
-                <div class="difficulty" id="diffSelect">
-                    <button class="diff-btn active" data-diff="easy" onclick="setDifficulty('easy', this)">😊 Łatwy<br><span style="font-size:7px;">1-5</span></button>
-                    <button class="diff-btn" data-diff="medium" onclick="setDifficulty('medium', this)">😎 Średni<br><span style="font-size:7px;">1-10</span></button>
-                    <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard', this)">💀 Trudny<br><span style="font-size:7px;">1-12 + czas</span></button>
+                <div class="difficulty">
+                    <button class="diff-btn active" onclick="setDifficulty('easy', this)">😊 Łatwy<br><span style="font-size:7px;">2-5</span></button>
+                    <button class="diff-btn" onclick="setDifficulty('medium', this)">😎 Średni<br><span style="font-size:7px;">2-10</span></button>
+                    <button class="diff-btn" onclick="setDifficulty('hard', this)">💀 Trudny<br><span style="font-size:7px;">2-12 + czas</span></button>
                 </div>
             </div>
-
-            <button class="mc-btn primary" onclick="startGame()" style="font-size: 14px; padding: 14px 30px;">
-                ▶ GRAJ!
-            </button>
+            <button class="mc-btn primary" onclick="startGame()" style="font-size: 14px; padding: 14px 30px;">▶ GRAJ!</button>
         </div>
     </div>
 
-    <!-- ═══ GAME SCREEN ═══ -->
+    <!-- GAME -->
     <div id="gameScreen" class="screen">
         <div class="mc-panel">
             <div class="stats-bar">
-                <div class="stat">
-                    <span>💎</span>
-                    <span id="score">0</span>
-                </div>
-                <div class="stat">
-                    <span>✅</span>
-                    <span id="correct">0</span> / <span id="total">0</span>
-                </div>
+                <div class="stat">💎 <span id="score">0</span></div>
+                <div class="stat">✅ <span id="correct">0</span>/<span id="total">0</span></div>
                 <div class="hearts" id="hearts"></div>
             </div>
-
             <div class="xp-section">
-                <div class="xp-label">
-                    <span>DOŚWIADCZENIE</span>
-                    <span id="xpText">0 / 100 XP</span>
-                </div>
-                <div class="xp-bar-bg">
-                    <div class="xp-bar-fill" id="xpBar" style="width: 0%"></div>
-                    <div class="xp-bar-text" id="xpBarText">Poziom 1</div>
-                </div>
+                <div class="xp-label"><span>DOŚWIADCZENIE</span><span id="xpText">0 / 100 XP</span></div>
+                <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBar" style="width:0%"></div><div class="xp-bar-text" id="xpBarText">Poziom 1</div></div>
             </div>
-
-            <div class="timer-section" id="timerSection">
-                <div class="timer-bar-bg">
-                    <div class="timer-bar-fill" id="timerBar" style="width: 100%"></div>
-                </div>
-            </div>
-
-            <div class="streak-display" id="streakDisplay"></div>
+            <div class="timer-section" id="timerSection"><div class="timer-bar-bg"><div class="timer-bar-fill" id="timerBar" style="width:100%"></div></div></div>
+            <div class="combo-container" id="comboContainer"></div>
         </div>
 
         <div class="mc-panel">
             <div class="question-area">
                 <div class="question-text" id="question">? × ? = ?</div>
                 <div class="answer-row">
-                    <input type="number" class="answer-input" id="answerInput" autocomplete="off" placeholder="?"
-                           onkeydown="if(event.key==='Enter') checkAnswer()">
+                    <input type="number" class="answer-input" id="answerInput" autocomplete="off" placeholder="?" onkeydown="if(event.key==='Enter') checkAnswer()">
                     <button class="mc-btn primary" onclick="checkAnswer()">OK</button>
                 </div>
-
-                <!-- Hint buttons -->
                 <div class="hint-row">
                     <button class="mc-btn hint-btn" id="hintBlocksBtn" onclick="showHint('blocks')">🧱 Bloczki</button>
                     <button class="mc-btn hint-btn" id="hintSkipBtn" onclick="showHint('skip')">🔢 Licz co...</button>
                     <button class="mc-btn hint-btn" id="hintNearbyBtn" onclick="showHint('nearby')">📖 Blisko!</button>
                 </div>
                 <div class="hint-cost" id="hintCost">Podpowiedź = mniej 💎, ale więcej wiedzy!</div>
-
                 <div class="feedback" id="feedback"></div>
-
-                <!-- Visual hint area -->
                 <div class="visual-hint" id="visualHint"></div>
-
-                <!-- Wrong answer explanation -->
                 <div class="wrong-explain" id="wrongExplain"></div>
-
-                <!-- Continue button (shown after wrong answer) -->
                 <div id="continueRow" style="display:none; margin-top: 12px;">
-                    <button class="mc-btn primary" id="continueBtn" onclick="continueAfterWrong()" style="font-size: 11px; padding: 10px 24px;">
-                        ▶ ROZUMIEM, DALEJ!
-                    </button>
+                    <button class="mc-btn primary" id="continueBtn" onclick="continueAfterWrong()" style="font-size: 11px; padding: 10px 24px;">▶ ROZUMIEM, DALEJ!</button>
                 </div>
             </div>
         </div>
 
         <div class="mc-panel">
-            <div style="font-size: 8px; color: #555; text-align: center; margin-bottom: 6px;">EKWIPUNEK</div>
+            <div style="font-size: 8px; color: #555; text-align: center; margin-bottom: 6px;">⚔️ EKWIPUNEK ⚔️</div>
             <div class="inventory" id="inventory"></div>
         </div>
     </div>
 
-    <!-- ═══ GAME OVER SCREEN ═══ -->
+    <!-- GAME OVER -->
     <div id="gameoverScreen" class="screen">
         <div class="mc-panel gameover-screen">
             <h2>🏁 KONIEC GRY!</h2>
             <div class="final-stats" id="finalStats"></div>
-
-            <!-- Mistake review -->
+            <div class="loot-summary" id="lootSummary"></div>
             <div class="mistakes-review" id="mistakesReview"></div>
-
-            <!-- Mastery overview -->
             <div class="mastery-section" id="masterySection"></div>
-
             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button class="mc-btn primary" onclick="startGame()">🔄 JESZCZE RAZ</button>
                 <button class="mc-btn" onclick="practiceWeakSpots()">🎯 ĆWICZ BŁĘDY</button>
@@ -803,40 +399,81 @@
 
 <script>
     // ═══════════════════════════════════════════
+    // Minecraft Items Database
+    // ═══════════════════════════════════════════
+    const MC_ITEMS = {
+        // Common drops
+        cobblestone:  { icon: '🪨', name: 'Cobblestone',      rarity: 'common',    desc: 'Podstawowy blok' },
+        wood:         { icon: '🪵', name: 'Drewno',           rarity: 'common',    desc: 'Zawsze się przyda' },
+        coal:         { icon: '�ite', name: 'Węgiel',          rarity: 'common',    desc: 'Dobry na pochodnie' },
+        iron:         { icon: '🔩', name: 'Żelazo',           rarity: 'common',    desc: 'Mocny metal' },
+        apple:        { icon: '🍎', name: 'Jabłko',           rarity: 'common',    desc: '+1 ❤️ życia!' },
+        bread:        { icon: '🍞', name: 'Chleb',            rarity: 'common',    desc: 'Energia na dalszą grę' },
+        // Uncommon
+        gold_ingot:   { icon: '🥇', name: 'Sztabka złota',    rarity: 'uncommon',  desc: 'Lśniące złoto' },
+        lapis:        { icon: '🔵', name: 'Lapis Lazuli',     rarity: 'uncommon',  desc: 'Do zaklęć' },
+        redstone:     { icon: '🔴', name: 'Redstone',         rarity: 'uncommon',  desc: 'Moc elektryczna!' },
+        bow:          { icon: '🏹', name: 'Łuk',              rarity: 'uncommon',  desc: 'Broń na dystans' },
+        // Rare
+        diamond:      { icon: '💎', name: 'Diament',          rarity: 'rare',      desc: 'Najcenniejszy kryształ!' },
+        emerald:      { icon: '💚', name: 'Szmaragd',         rarity: 'rare',      desc: 'Waluta u wieśniaków' },
+        ench_book:    { icon: '📖', name: 'Księga zaklęć',    rarity: 'rare',      desc: 'Magiczna wiedza' },
+        golden_apple: { icon: '🍏', name: 'Złote jabłko',     rarity: 'rare',      desc: 'Pełne życie!' },
+        // Epic
+        diamond_sword:{ icon: '⚔️', name: 'Diamentowy miecz', rarity: 'epic',      desc: 'Legendarny oręż!' },
+        diamond_pick: { icon: '⛏️', name: 'Diamentowy kilof',  rarity: 'epic',      desc: 'Wykopie wszystko!' },
+        elytra:       { icon: '🪽', name: 'Elytra',           rarity: 'epic',      desc: 'Możesz latać!' },
+        trident:      { icon: '🔱', name: 'Trójząb',          rarity: 'epic',      desc: 'Broń z oceanu!' },
+        // Legendary
+        nether_star:  { icon: '⭐', name: 'Gwiazda Netheru',  rarity: 'legendary', desc: 'Z Withera! Ultra rzadka!' },
+        dragon_egg:   { icon: '🥚', name: 'Smocze jajo',      rarity: 'legendary', desc: 'Jedyne w świecie!' },
+        totem:        { icon: '🗿', name: 'Totem nieśmiertelności', rarity: 'legendary', desc: 'Chroni przed śmiercią!' },
+        beacon:       { icon: '🔦', name: 'Beacon',           rarity: 'legendary', desc: 'Świeci na cały świat!' },
+    };
+
+    // Loot tables based on speed and streak
+    const LOOT_TABLES = {
+        lightning: { // < 2s
+            common: 0.05, uncommon: 0.15, rare: 0.40, epic: 0.30, legendary: 0.10
+        },
+        fast: { // < 4s
+            common: 0.10, uncommon: 0.30, rare: 0.35, epic: 0.20, legendary: 0.05
+        },
+        good: { // < 8s
+            common: 0.25, uncommon: 0.35, rare: 0.25, epic: 0.12, legendary: 0.03
+        },
+        ok: { // >= 8s or hint
+            common: 0.50, uncommon: 0.30, rare: 0.15, epic: 0.04, legendary: 0.01
+        }
+    };
+
+    const SPEED_LABELS = {
+        lightning: { label: '⚡ BŁYSKAWICA!', cls: 'lightning', points: 5 },
+        fast:      { label: '🏃 Szybko!',      cls: 'fast',      points: 3 },
+        good:      { label: '👍 Dobrze',        cls: 'good',      points: 2 },
+        ok:        { label: '🐢 Powoli...',     cls: 'ok',        points: 1 },
+    };
+
+    // ═══════════════════════════════════════════
     // Game State
     // ═══════════════════════════════════════════
     let state = {
-        difficulty: 'easy',
-        score: 0,
-        xp: 0,
-        level: 1,
-        xpToNext: 100,
-        correct: 0,
-        total: 0,
-        lives: 5,
-        maxLives: 5,
-        streak: 0,
-        bestStreak: 0,
-        a: 0,
-        b: 0,
-        answer: 0,
-        items: { '💎': 0, '🥇': 0, '🟢': 0, '⭐': 0, '🔥': 0, '⚡': 0, '🎯': 0, '🏆': 0, '🍎': 0 },
-        timerInterval: null,
-        timeLeft: 0,
-        timerMax: 15,
-        achievements: new Set(),
-        playing: false,
-        hintUsed: false,       // czy użyto podpowiedzi w tym pytaniu
-        hintsUsedTotal: 0,
-        // ─── System nauki ───
-        mistakes: [],          // [{a, b, wrongAnswer, correctAnswer, count}]
-        mistakeMap: {},        // "a×b" -> count of mistakes
-        masteryMap: {},        // "a×b" -> {correct, total, streak}
-        questionQueue: [],     // pre-built queue for spaced repetition
-        practiceMode: false,   // ćwiczenie błędów
-        questionHistory: [],   // ostatnie pytania, żeby nie powtarzać
-        freshPool: [],         // pula nieużytych jeszcze pytań w sesji
-        askedSet: new Set(),   // zbiór już zadanych par "a×b" w sesji
+        difficulty: 'easy', score: 0, xp: 0, level: 1, xpToNext: 100,
+        correct: 0, total: 0, lives: 5, maxLives: 5,
+        streak: 0, bestStreak: 0, combo: 1,
+        a: 0, b: 0, answer: 0,
+        timerInterval: null, timeLeft: 0, timerMax: 15,
+        achievements: new Set(), playing: false,
+        hintUsed: false, hintsUsedTotal: 0,
+        // Timing
+        questionStartTime: 0,
+        // Items
+        inventory: {}, // itemKey -> count
+        lootLog: [],   // [{itemKey, rarity}] for game-over summary
+        // Learning
+        mistakes: [], mistakeMap: {}, masteryMap: {},
+        questionQueue: [], practiceMode: false, questionHistory: [],
+        freshPool: [], askedSet: new Set(),
     };
 
     const diffSettings = {
@@ -848,28 +485,124 @@
     const blockTypes = ['grass', 'dirt', 'stone', 'diamond', 'gold', 'wood'];
 
     const achievementList = [
-        { id: 'first',     check: s => s.correct >= 1,         icon: '⭐', title: 'Pierwszy krok!',      desc: 'Pierwsza poprawna odpowiedź' },
-        { id: 'streak5',   check: s => s.streak >= 5,          icon: '🔥', title: 'W ogniu!',            desc: 'Seria 5 poprawnych' },
-        { id: 'streak10',  check: s => s.streak >= 10,         icon: '⚡', title: 'Niepokonany!',        desc: 'Seria 10 poprawnych' },
-        { id: 'dia10',     check: s => s.items['💎'] >= 10,    icon: '💎', title: 'Górnik diamentów!',   desc: 'Zdobądź 10 diamentów' },
-        { id: 'dia50',     check: s => s.items['💎'] >= 50,    icon: '💎', title: 'Koparka diamentowa!', desc: 'Zdobądź 50 diamentów' },
-        { id: 'lvl5',      check: s => s.level >= 5,           icon: '🏆', title: 'Mistrz matematyki!',  desc: 'Osiągnij poziom 5' },
-        { id: 'lvl10',     check: s => s.level >= 10,          icon: '👑', title: 'Legenda!',            desc: 'Osiągnij poziom 10' },
-        { id: 'perfect10', check: s => s.correct >= 10 && s.correct === s.total, icon: '🎯', title: 'Perfekcja!', desc: '10 bez błędu' },
-        { id: 'hint_learn',check: s => s.hintsUsedTotal >= 5,  icon: '📖', title: 'Badacz!',             desc: 'Użyj 5 podpowiedzi' },
-        { id: 'comeback',  check: s => s.streak >= 3 && s.lives === 1, icon: '💪', title: 'Nie poddaję się!', desc: 'Seria 3 z jednym życiem' },
+        { id: 'first',      check: s => s.correct >= 1,          icon: '⭐', title: 'Pierwszy krok!',      desc: 'Pierwsza poprawna odpowiedź' },
+        { id: 'streak5',    check: s => s.streak >= 5,           icon: '🔥', title: 'W ogniu!',            desc: 'Seria 5 poprawnych' },
+        { id: 'streak10',   check: s => s.streak >= 10,          icon: '⚡', title: 'Niepokonany!',        desc: 'Seria 10 poprawnych' },
+        { id: 'dia10',      check: s => s.score >= 30,           icon: '💎', title: 'Górnik diamentów!',   desc: 'Zdobądź 30 punktów' },
+        { id: 'dia50',      check: s => s.score >= 100,          icon: '💎', title: 'Koparka diamentowa!', desc: 'Zdobądź 100 punktów' },
+        { id: 'lvl5',       check: s => s.level >= 5,            icon: '🏆', title: 'Mistrz matematyki!',  desc: 'Osiągnij poziom 5' },
+        { id: 'lvl10',      check: s => s.level >= 10,           icon: '👑', title: 'Legenda!',            desc: 'Osiągnij poziom 10' },
+        { id: 'perfect10',  check: s => s.correct >= 10 && s.correct === s.total, icon: '🎯', title: 'Perfekcja!', desc: '10 bez błędu' },
+        { id: 'hint_learn', check: s => s.hintsUsedTotal >= 5,   icon: '📖', title: 'Badacz!',             desc: 'Użyj 5 podpowiedzi' },
+        { id: 'comeback',   check: s => s.streak >= 3 && s.lives === 1, icon: '💪', title: 'Nie poddaję się!', desc: 'Seria 3 z 1 życiem' },
+        { id: 'lightning5',  check: s => s._lightningCount >= 5,  icon: '⚡', title: 'Prędkość światła!',  desc: '5 odpowiedzi w <2s' },
+        { id: 'combo_x5',   check: s => s.combo >= 5,            icon: '💥', title: 'MEGA COMBO!',         desc: 'Osiągnij combo ×5' },
+        { id: 'legendary',  check: s => s._hasLegendary,         icon: '🥚', title: 'Legendarny łup!',    desc: 'Zdobądź legendarny przedmiot' },
     ];
 
-    const goodMessages = [
-        'Świetnie! ⛏️', 'Brawo! 💎', 'Dobrze! ✅', 'Super! 🌟',
-        'Genialnie! 🔥', 'Tak trzymaj! 💪', 'Mistrz! 👑',
-        'Niesamowite! ⚡', 'Fantastycznie! 🎉', 'Wow! 🏆'
-    ];
+    const goodMessages = ['Świetnie! ⛏️','Brawo! 💎','Dobrze! ✅','Super! 🌟','Genialnie! 🔥','Tak trzymaj! 💪','Mistrz! 👑','Niesamowite! ⚡','Fantastycznie! 🎉','Wow! 🏆'];
+    const badMessages = ['Spróbuj ponownie!','Prawie!','Nie poddawaj się!','Ćwicz dalej! 💪'];
 
-    const badMessages = [
-        'Spróbuj ponownie!', 'Prawie!',
-        'Nie poddawaj się!', 'Ćwicz dalej! 💪'
-    ];
+    // ═══════════════════════════════════════════
+    // Speed & Combo System
+    // ═══════════════════════════════════════════
+
+    function getSpeedTier(ms) {
+        if (ms < 2000) return 'lightning';
+        if (ms < 4000) return 'fast';
+        if (ms < 8000) return 'good';
+        return 'ok';
+    }
+
+    function updateCombo(correct) {
+        if (correct) {
+            state.streak++;
+            if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+            // Combo grows every 3 correct, max 5
+            state.combo = Math.min(5, 1 + Math.floor(state.streak / 3));
+        } else {
+            state.streak = 0;
+            state.combo = 1;
+        }
+        renderCombo();
+    }
+
+    function renderCombo() {
+        const el = document.getElementById('comboContainer');
+        if (state.combo >= 2) {
+            const cls = state.combo >= 5 ? 'x5' : state.combo >= 4 ? 'x4' : state.combo >= 3 ? 'x3' : 'x2';
+            const pct = ((state.streak % 3) / 3) * 100;
+            const nextCombo = state.combo < 5 ? ` → ×${state.combo + 1}` : ' MAX!';
+            el.innerHTML = `
+                <div class="combo-text ${cls}">🔥 COMBO ×${state.combo} 🔥</div>
+                <div class="combo-bar-bg"><div class="combo-bar-fill" style="width:${state.combo >= 5 ? 100 : pct}%;background:${
+                    state.combo >= 5 ? '#FF4444' : state.combo >= 4 ? '#FF00FF' : state.combo >= 3 ? '#FCDB05' : '#5DECF5'
+                }"></div></div>
+            `;
+        } else if (state.streak > 0) {
+            const pct = (state.streak / 3) * 100;
+            el.innerHTML = `
+                <div style="font-size:8px;color:#888;">seria: ${state.streak} (combo za ${3 - state.streak}...)</div>
+                <div class="combo-bar-bg"><div class="combo-bar-fill" style="width:${pct}%;background:#888"></div></div>
+            `;
+        } else {
+            el.innerHTML = '';
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // Loot System
+    // ═══════════════════════════════════════════
+
+    function rollLoot(speedTier) {
+        const table = LOOT_TABLES[speedTier];
+        const roll = Math.random();
+        let rarity;
+        let cumul = 0;
+        for (const [r, chance] of Object.entries(table)) {
+            cumul += chance;
+            if (roll <= cumul) { rarity = r; break; }
+        }
+        if (!rarity) rarity = 'common';
+
+        // Combo bonus: extra roll chance for better rarity
+        if (state.combo >= 3 && rarity === 'common') rarity = 'uncommon';
+        if (state.combo >= 5 && rarity === 'uncommon' && Math.random() < 0.5) rarity = 'rare';
+
+        // Pick random item of that rarity
+        const candidates = Object.entries(MC_ITEMS).filter(([_, v]) => v.rarity === rarity);
+        const [itemKey, item] = candidates[Math.floor(Math.random() * candidates.length)];
+
+        // Add to inventory
+        state.inventory[itemKey] = (state.inventory[itemKey] || 0) + 1;
+        state.lootLog.push({ itemKey, rarity });
+
+        if (rarity === 'legendary') state._hasLegendary = true;
+
+        return { itemKey, item };
+    }
+
+    function spawnLootDrop(item) {
+        const el = document.createElement('div');
+        el.className = 'loot-drop';
+        el.textContent = item.icon;
+        el.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 150) + 'px';
+        el.style.top = (window.innerHeight / 2 - 50) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function spawnFloatScore(points, speedTier, x, y) {
+        const el = document.createElement('div');
+        el.className = 'float-score';
+        const colors = { lightning: '#FCDB05', fast: '#5DECF5', good: '#17DD62', ok: '#aaa' };
+        el.style.color = colors[speedTier];
+        el.textContent = `+${points}`;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1200);
+    }
 
     // ═══════════════════════════════════════════
     // Core Functions
@@ -892,13 +625,14 @@
             score: 0, xp: 0, level: 1, xpToNext: 100,
             correct: 0, total: 0,
             lives: settings.lives, maxLives: settings.lives,
-            streak: 0, bestStreak: 0,
+            streak: 0, bestStreak: 0, combo: 1,
             playing: true, hintUsed: false, hintsUsedTotal: 0,
+            inventory: {}, lootLog: [],
             mistakes: [], mistakeMap: {}, masteryMap: {},
             questionQueue: [], practiceMode: false, questionHistory: [],
             freshPool: [], askedSet: new Set(),
+            _lightningCount: 0, _hasLegendary: false,
         });
-        Object.keys(state.items).forEach(k => state.items[k] = 0);
         buildFreshPool();
 
         if (settings.timer) {
@@ -913,7 +647,6 @@
         nextQuestion();
     }
 
-    // Build pool of all unique pairs (a×b where a<=b to avoid duplicates like 3×4 and 4×3)
     function buildFreshPool() {
         const settings = diffSettings[state.difficulty];
         state.freshPool = [];
@@ -927,48 +660,35 @@
     }
 
     function pullFromPool() {
-        // 1. Try fresh (never asked) question
         if (state.freshPool.length > 0) {
             const q = state.freshPool.shift();
-            // Randomly swap a,b for variety (3×5 vs 5×3)
-            if (Math.random() < 0.5) return { a: q.a, b: q.b };
-            return { a: q.b, b: q.a };
+            return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
         }
-        // 2. Pool exhausted — refill with all pairs, reshuffle
         buildFreshPool();
         if (state.freshPool.length > 0) {
             const q = state.freshPool.shift();
-            if (Math.random() < 0.5) return { a: q.a, b: q.b };
-            return { a: q.b, b: q.a };
+            return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
         }
-        // 3. Fallback
-        const settings = diffSettings[state.difficulty];
-        return { a: randInt(settings.min, settings.max), b: randInt(settings.min, settings.max) };
+        const s = diffSettings[state.difficulty];
+        return { a: randInt(s.min, s.max), b: randInt(s.min, s.max) };
     }
 
-    // Practice only weak spots
     function practiceWeakSpots() {
-        const weakPairs = Object.entries(state.mistakeMap)
-            .filter(([_, count]) => count > 0)
-            .map(([key]) => key.split('×').map(Number));
-
-        if (weakPairs.length === 0) {
-            startGame();
-            return;
-        }
+        const weakPairs = Object.entries(state.mistakeMap).filter(([_, c]) => c > 0);
+        if (weakPairs.length === 0) { startGame(); return; }
 
         const settings = diffSettings[state.difficulty];
         Object.assign(state, {
             score: 0, xp: 0, level: 1, xpToNext: 100,
             correct: 0, total: 0,
             lives: Math.max(settings.lives, 5), maxLives: Math.max(settings.lives, 5),
-            streak: 0, bestStreak: 0,
+            streak: 0, bestStreak: 0, combo: 1,
             playing: true, hintUsed: false,
             practiceMode: true, questionHistory: [],
+            inventory: {}, lootLog: [],
+            _lightningCount: 0, _hasLegendary: false,
         });
-        Object.keys(state.items).forEach(k => state.items[k] = 0);
 
-        // Build queue from weak pairs, repeated proportional to mistake count
         state.questionQueue = [];
         for (const [key, count] of Object.entries(state.mistakeMap)) {
             if (count > 0) {
@@ -981,14 +701,13 @@
         shuffle(state.questionQueue);
 
         document.getElementById('timerSection').classList.remove('visible');
-        updateUI();
-        showScreen('gameScreen');
+        updateUI(); showScreen('gameScreen');
         showAchievement('🎯', 'Tryb ćwiczeń!', 'Powtarzamy trudne zadania');
         nextQuestion();
     }
 
     // ═══════════════════════════════════════════
-    // Spaced Repetition & Smart Question Selection
+    // Question Selection
     // ═══════════════════════════════════════════
 
     function nextQuestion() {
@@ -996,60 +715,38 @@
         state.hintUsed = false;
 
         let a, b;
-
         if (state.practiceMode && state.questionQueue.length > 0) {
-            // Practice mode: pull from queue
             const q = state.questionQueue.shift();
             a = q.a; b = q.b;
         } else if (!state.practiceMode && state.total > 0 && Math.random() < getRepeatChance()) {
-            // Spaced repetition: re-ask a weak question (only already-asked ones)
             const weak = getWeakestQuestion();
-            if (weak) {
-                a = weak.a; b = weak.b;
-            }
+            if (weak) { a = weak.a; b = weak.b; }
         }
+        if (!a || !b) { const q = pullFromPool(); a = q.a; b = q.b; }
 
-        if (!a || !b) {
-            // Pull unique question from pool
-            const q = pullFromPool();
-            a = q.a; b = q.b;
-        }
-
-        state.a = a;
-        state.b = b;
-        state.answer = a * b;
+        state.a = a; state.b = b; state.answer = a * b;
         state.askedSet.add(masteryKey(a, b));
-
-        // Track recent history (for spaced repetition to avoid back-to-back)
         state.questionHistory.push(`${a}×${b}`);
         if (state.questionHistory.length > 5) state.questionHistory.shift();
 
-        // Initialize mastery tracking
         const key = masteryKey(a, b);
-        if (!state.masteryMap[key]) {
-            state.masteryMap[key] = { correct: 0, total: 0, streak: 0 };
-        }
+        if (!state.masteryMap[key]) state.masteryMap[key] = { correct: 0, total: 0, streak: 0 };
 
         document.getElementById('question').textContent = `${a} × ${b} = ?`;
         const input = document.getElementById('answerInput');
-        input.value = '';
-        input.className = 'answer-input';
-        input.focus();
+        input.value = ''; input.className = 'answer-input'; input.focus();
         document.getElementById('feedback').textContent = '';
-
         document.getElementById('hintCost').textContent = 'Podpowiedź = mniej 💎, ale więcej wiedzy!';
+
+        // Start measuring answer time
+        state.questionStartTime = Date.now();
 
         const settings = diffSettings[state.difficulty];
         if (settings.timer) startTimer();
-
-        // End practice if queue empty
-        if (state.practiceMode && state.questionQueue.length === 0) {
-            state.practiceMode = false;
-        }
+        if (state.practiceMode && state.questionQueue.length === 0) state.practiceMode = false;
     }
 
     function getRepeatChance() {
-        // More mistakes = higher chance of repetition (20%-60%)
         const totalMistakes = Object.values(state.mistakeMap).reduce((s, v) => s + v, 0);
         return Math.min(0.6, 0.2 + totalMistakes * 0.05);
     }
@@ -1057,8 +754,6 @@
     function getWeakestQuestion() {
         const entries = Object.entries(state.mistakeMap).filter(([_, c]) => c > 0);
         if (entries.length === 0) return null;
-
-        // Weight by mistake count, pick weighted random
         const totalWeight = entries.reduce((s, [_, c]) => s + c, 0);
         let r = Math.random() * totalWeight;
         for (const [key, count] of entries) {
@@ -1068,21 +763,16 @@
                 if (!isRecentQuestion(a, b)) return { a, b };
             }
         }
-        // Fallback
         const [key] = entries[0];
         const [a, b] = key.split('×').map(Number);
         return { a, b };
     }
 
     function isRecentQuestion(a, b) {
-        const k1 = `${a}×${b}`;
-        const k2 = `${b}×${a}`;
-        return state.questionHistory.includes(k1) || state.questionHistory.includes(k2);
+        return state.questionHistory.includes(`${a}×${b}`) || state.questionHistory.includes(`${b}×${a}`);
     }
 
-    function masteryKey(a, b) {
-        return `${Math.min(a,b)}×${Math.max(a,b)}`;
-    }
+    function masteryKey(a, b) { return `${Math.min(a,b)}×${Math.max(a,b)}`; }
 
     // ═══════════════════════════════════════════
     // Hint System
@@ -1090,158 +780,59 @@
 
     function showHint(type) {
         if (!state.playing) return;
-
-        if (!state.hintUsed) {
-            state.hintUsed = true;
-            state.hintsUsedTotal++;
-        }
-
-        // Mark active hint button
+        if (!state.hintUsed) { state.hintUsed = true; state.hintsUsedTotal++; }
         document.querySelectorAll('.hint-btn').forEach(b => b.classList.remove('hint-active'));
         const btnMap = { blocks: 'hintBlocksBtn', skip: 'hintSkipBtn', nearby: 'hintNearbyBtn' };
         document.getElementById(btnMap[type]).classList.add('hint-active');
-
         const hint = document.getElementById('visualHint');
-        hint.innerHTML = '';
-        hint.classList.add('show');
+        hint.innerHTML = ''; hint.classList.add('show');
         document.getElementById('hintCost').textContent = '📖 Podpowiedź użyta (mniej punktów) — klikaj inne aby porównać!';
-
         if (type === 'blocks') buildBlocksHint(hint);
         else if (type === 'skip') buildSkipCountHint(hint);
         else if (type === 'nearby') buildNearbyHint(hint);
-
         checkAchievements();
     }
 
     function buildBlocksHint(container) {
-        const a = state.a;
-        const b = state.b;
-        const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
-
-        container.innerHTML = `
-            <div class="hint-title">🧱 WIZUALIZACJA: ${a} × ${b}</div>
-            <div class="hint-explanation">
-                ${a} × ${b} oznacza: ${a} rzędów po ${b} bloczków
-            </div>
-            <div class="grid-label">${a} rzędy ↓ × ${b} kolumny →</div>
-            <div id="blockGrid" class="block-grid" style="grid-template-columns: repeat(${b}, 22px);"></div>
-            <div class="grid-result" id="gridResult"></div>
-        `;
-
+        const a = state.a, b = state.b;
+        const bt = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+        container.innerHTML = `<div class="hint-title">🧱 WIZUALIZACJA: ${a} × ${b}</div><div class="hint-explanation">${a} × ${b} oznacza: ${a} rzędów po ${b} bloczków</div><div class="grid-label">${a} rzędy ↓ × ${b} kolumny →</div><div id="blockGrid" class="block-grid" style="grid-template-columns: repeat(${b}, 22px);"></div><div class="grid-result" id="gridResult"></div>`;
         const grid = document.getElementById('blockGrid');
-        const total = a * b;
-        let count = 0;
-
-        // Animate blocks appearing one by one
-        for (let i = 0; i < a; i++) {
-            for (let j = 0; j < b; j++) {
-                count++;
-                const block = document.createElement('div');
-                block.className = `mc-block ${blockType}`;
-                const delay = count * 60;
-                const currentCount = count;
-                block.style.opacity = '0';
-                grid.appendChild(block);
-
-                setTimeout(() => {
-                    block.classList.add('highlight');
-                    block.style.opacity = '1';
-                    document.getElementById('gridResult').textContent =
-                        currentCount === total
-                            ? `= ${total} bloczków! ✅`
-                            : `${currentCount} / ${total}...`;
-                }, delay);
-            }
-        }
+        const total = a * b; let count = 0;
+        for (let i = 0; i < a; i++) { for (let j = 0; j < b; j++) { count++;
+            const block = document.createElement('div'); block.className = `mc-block ${bt}`;
+            const delay = count * 60, cc = count; block.style.opacity = '0'; grid.appendChild(block);
+            setTimeout(() => { block.classList.add('highlight'); block.style.opacity = '1';
+                document.getElementById('gridResult').textContent = cc === total ? `= ${total} bloczków! ✅` : `${cc} / ${total}...`; }, delay);
+        }}
     }
 
     function buildSkipCountHint(container) {
-        const a = state.a;
-        const b = state.b;
-
-        container.innerHTML = `
-            <div class="hint-title">🔢 LICZENIE CO ${b}</div>
-            <div class="hint-explanation">
-                ${a} × ${b} = dodaj ${b} do siebie ${a} razy:
-            </div>
-            <div class="skip-count" id="skipCount"></div>
-            <div class="grid-result" id="skipResult"></div>
-        `;
-
-        const skipDiv = document.getElementById('skipCount');
-
-        // Show the skip-counting sequence
-        for (let i = 1; i <= a; i++) {
-            const num = document.createElement('div');
-            num.className = 'skip-num hidden';
-            num.textContent = i * b;
-            num.dataset.step = i;
-            skipDiv.appendChild(num);
-        }
-
-        // Animate revealing one by one
-        for (let i = 1; i <= a; i++) {
-            setTimeout(() => {
-                const el = skipDiv.children[i - 1];
-                el.classList.remove('hidden');
-                el.classList.add(i === a ? 'answer-num' : 'revealed');
-
-                const label = [];
-                for (let j = 1; j <= i; j++) label.push(b);
-                document.getElementById('skipResult').textContent =
-                    i === a
-                        ? `${label.join(' + ')} = ${i * b} ✅`
-                        : `${label.join(' + ')} = ${i * b}`;
-            }, i * 400);
-        }
+        const a = state.a, b = state.b;
+        container.innerHTML = `<div class="hint-title">🔢 LICZENIE CO ${b}</div><div class="hint-explanation">${a} × ${b} = dodaj ${b} do siebie ${a} razy:</div><div class="skip-count" id="skipCount"></div><div class="grid-result" id="skipResult"></div>`;
+        const sd = document.getElementById('skipCount');
+        for (let i = 1; i <= a; i++) { const n = document.createElement('div'); n.className = 'skip-num hidden'; n.textContent = i * b; sd.appendChild(n); }
+        for (let i = 1; i <= a; i++) { setTimeout(() => { const el = sd.children[i-1]; el.classList.remove('hidden'); el.classList.add(i === a ? 'answer-num' : 'revealed');
+            const l = []; for (let j = 1; j <= i; j++) l.push(b);
+            document.getElementById('skipResult').textContent = i === a ? `${l.join(' + ')} = ${i*b} ✅` : `${l.join(' + ')} = ${i*b}`; }, i * 400); }
     }
 
     function buildNearbyHint(container) {
-        const a = state.a;
-        const b = state.b;
-
-        // Show facts that are close to the answer
+        const a = state.a, b = state.b;
         const facts = [];
-        if (a > 1) facts.push({ a: a - 1, b, result: (a - 1) * b, label: 'Wiesz że' });
-        facts.push({ a, b, result: a * b, label: '→ Szukane', current: true });
-        if (a <= 12) facts.push({ a: a + 1, b, result: (a + 1) * b, label: 'A potem' });
-
-        container.innerHTML = `
-            <div class="hint-title">📖 SĄSIEDNIE DZIAŁANIA</div>
-            <div class="hint-explanation">
-                Jeśli znasz sąsiednie mnożenia,<br>
-                wystarczy dodać lub odjąć ${b}!
-            </div>
-            <div class="nearby-facts" id="nearbyFacts"></div>
-            <div class="hint-explanation" style="margin-top: 8px; color: var(--diamond);">
-                ${a > 1 ? `${a-1} × ${b} = ${(a-1)*b}, więc dodaj ${b}...` : `1 × ${b} = ${b}, zacznij od tego!`}
-            </div>
-        `;
-
-        const factsDiv = document.getElementById('nearbyFacts');
-        facts.forEach((f, i) => {
-            setTimeout(() => {
-                const el = document.createElement('div');
-                el.className = 'nearby-fact' + (f.current ? ' current' : '');
-                if (f.current) {
-                    el.innerHTML = `${f.a} × ${f.b} <span class="op">=</span> <strong>?</strong>`;
-                } else {
-                    el.innerHTML = `${f.a} × ${f.b} <span class="op">=</span> ${f.result}`;
-                }
-                factsDiv.appendChild(el);
-            }, i * 300);
-        });
+        if (a > 1) facts.push({ a: a-1, b, result: (a-1)*b, current: false });
+        facts.push({ a, b, result: a*b, current: true });
+        if (a <= 12) facts.push({ a: a+1, b, result: (a+1)*b, current: false });
+        container.innerHTML = `<div class="hint-title">📖 SĄSIEDNIE DZIAŁANIA</div><div class="hint-explanation">Jeśli znasz sąsiednie mnożenia,<br>wystarczy dodać lub odjąć ${b}!</div><div class="nearby-facts" id="nearbyFacts"></div><div class="hint-explanation" style="margin-top:8px;color:var(--diamond);">${a > 1 ? `${a-1} × ${b} = ${(a-1)*b}, więc dodaj ${b}...` : `1 × ${b} = ${b}, zacznij od tego!`}</div>`;
+        const fd = document.getElementById('nearbyFacts');
+        facts.forEach((f, i) => { setTimeout(() => { const el = document.createElement('div'); el.className = 'nearby-fact' + (f.current ? ' current' : '');
+            el.innerHTML = f.current ? `${f.a} × ${f.b} <span class="op">=</span> <strong>?</strong>` : `${f.a} × ${f.b} <span class="op">=</span> ${f.result}`;
+            fd.appendChild(el); }, i * 300); });
     }
 
     function showWrongHint(type) {
-        // Show a hint while wrong-explanation is visible (for extra learning)
-        const hint = document.getElementById('visualHint');
-        hint.innerHTML = '';
-        hint.classList.add('show');
-
-        if (type === 'blocks') buildBlocksHint(hint);
-        else if (type === 'skip') buildSkipCountHint(hint);
-        else if (type === 'nearby') buildNearbyHint(hint);
+        const hint = document.getElementById('visualHint'); hint.innerHTML = ''; hint.classList.add('show');
+        if (type === 'blocks') buildBlocksHint(hint); else if (type === 'skip') buildSkipCountHint(hint); else if (type === 'nearby') buildNearbyHint(hint);
     }
 
     function hideHints() {
@@ -1250,10 +841,7 @@
         document.getElementById('wrongExplain').classList.remove('show');
         document.getElementById('wrongExplain').innerHTML = '';
         document.getElementById('continueRow').style.display = 'none';
-        document.querySelectorAll('.hint-btn').forEach(b => {
-            b.classList.remove('hint-active');
-            b.disabled = false;
-        });
+        document.querySelectorAll('.hint-btn').forEach(b => { b.classList.remove('hint-active'); b.disabled = false; });
     }
 
     // ═══════════════════════════════════════════
@@ -1261,16 +849,10 @@
     // ═══════════════════════════════════════════
 
     function startTimer() {
-        clearInterval(state.timerInterval);
-        state.timeLeft = state.timerMax;
-        updateTimerBar();
+        clearInterval(state.timerInterval); state.timeLeft = state.timerMax; updateTimerBar();
         state.timerInterval = setInterval(() => {
             state.timeLeft -= 0.1;
-            if (state.timeLeft <= 0) {
-                state.timeLeft = 0;
-                clearInterval(state.timerInterval);
-                handleWrong();
-            }
+            if (state.timeLeft <= 0) { state.timeLeft = 0; clearInterval(state.timerInterval); handleWrong(); }
             updateTimerBar();
         }, 100);
     }
@@ -1287,43 +869,42 @@
         const input = document.getElementById('answerInput');
         const val = parseInt(input.value);
         if (isNaN(val)) return;
-
         clearInterval(state.timerInterval);
         state.total++;
-
         const key = masteryKey(state.a, state.b);
         state.masteryMap[key].total++;
-
-        if (val === state.answer) {
-            handleCorrect(input);
-        } else {
-            handleWrong(input, val);
-        }
+        if (val === state.answer) handleCorrect(input);
+        else handleWrong(input, val);
     }
 
     function handleCorrect(input) {
         if (input) input.className = 'answer-input correct';
         state.correct++;
-        state.streak++;
-        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
 
         const key = masteryKey(state.a, state.b);
         state.masteryMap[key].correct++;
         state.masteryMap[key].streak++;
 
-        // Reduce mistake weight if answered correctly
         const mKey = `${state.a}×${state.b}`;
-        if (state.mistakeMap[mKey] && state.mistakeMap[mKey] > 0) {
-            state.mistakeMap[mKey]--;
-        }
+        if (state.mistakeMap[mKey] && state.mistakeMap[mKey] > 0) state.mistakeMap[mKey]--;
 
-        // Score (less if hint was used)
-        let points = state.hintUsed ? 1 : (state.streak >= 10 ? 4 : state.streak >= 5 ? 3 : state.streak >= 3 ? 2 : 1);
+        // Speed calculation
+        const answerTime = Date.now() - state.questionStartTime;
+        const speedTier = state.hintUsed ? 'ok' : getSpeedTier(answerTime);
+        const speedInfo = SPEED_LABELS[speedTier];
+
+        if (speedTier === 'lightning') state._lightningCount = (state._lightningCount || 0) + 1;
+
+        // Update combo
+        updateCombo(true);
+
+        // Points: speed × combo
+        const basePoints = speedInfo.points;
+        const points = basePoints * state.combo;
         state.score += points;
-        state.items['💎'] += points;
 
-        // XP (less with hint, but still something)
-        let xpGain = state.hintUsed ? 8 : (15 + state.streak * 3);
+        // XP
+        const xpGain = state.hintUsed ? 8 : (10 + basePoints * 3 + state.combo * 2);
         state.xp += xpGain;
         while (state.xp >= state.xpToNext) {
             state.xp -= state.xpToNext;
@@ -1333,21 +914,32 @@
             grantLevelReward();
         }
 
-        if (state.streak === 3) state.items['🔥']++;
-        if (state.streak === 5) state.items['⚡']++;
-        if (state.streak === 10) state.items['🎯']++;
+        // Loot drop!
+        const loot = rollLoot(speedTier);
+        spawnLootDrop(loot.item);
 
+        // Floating score
+        spawnFloatScore(points, speedTier, window.innerWidth / 2 - 20, window.innerHeight / 2 - 80);
+
+        // Feedback
         const fb = document.getElementById('feedback');
         fb.className = 'feedback good';
-        let msg = goodMessages[Math.floor(Math.random() * goodMessages.length)];
-        if (state.hintUsed) msg = `Dobrze! Teraz zapamiętaj: ${state.a}×${state.b}=${state.answer} 📖`;
-        else if (state.streak >= 3) msg += ` (×${state.streak} seria!)`;
+        let msg;
+        if (state.hintUsed) {
+            msg = `Dobrze! Zapamiętaj: ${state.a}×${state.b}=${state.answer} 📖`;
+        } else {
+            msg = `${speedInfo.label} +${points}💎`;
+            if (state.combo >= 2) msg += ` (×${state.combo} combo!)`;
+            msg += ` → ${loot.item.icon} ${loot.item.name}`;
+        }
         fb.textContent = msg;
 
-        spawnParticles(state.streak >= 5 ? 12 : 6, ['#5DECF5', '#17DD62', '#FCDB05']);
+        spawnParticles(speedTier === 'lightning' ? 16 : speedTier === 'fast' ? 10 : 6,
+            ['#5DECF5', '#17DD62', '#FCDB05', '#FF00FF']);
+
         checkAchievements();
         updateUI();
-        setTimeout(nextQuestion, state.hintUsed ? 2500 : 800);
+        setTimeout(nextQuestion, state.hintUsed ? 2500 : 1000);
     }
 
     function handleWrong(input, wrongVal) {
@@ -1356,56 +948,32 @@
         const key = masteryKey(state.a, state.b);
         state.masteryMap[key].streak = 0;
 
-        // Track mistake for spaced repetition
         const mKey = `${state.a}×${state.b}`;
-        state.mistakeMap[mKey] = (state.mistakeMap[mKey] || 0) + 2; // weight of 2
+        state.mistakeMap[mKey] = (state.mistakeMap[mKey] || 0) + 2;
 
-        // Record for review
         const existing = state.mistakes.find(m => m.a === state.a && m.b === state.b);
-        if (existing) {
-            existing.count++;
-            existing.lastWrong = wrongVal;
-        } else {
-            state.mistakes.push({
-                a: state.a, b: state.b,
-                correctAnswer: state.answer,
-                lastWrong: wrongVal,
-                count: 1
-            });
-        }
+        if (existing) { existing.count++; existing.lastWrong = wrongVal; }
+        else { state.mistakes.push({ a: state.a, b: state.b, correctAnswer: state.answer, lastWrong: wrongVal, count: 1 }); }
 
-        state.streak = 0;
+        updateCombo(false);
         state.lives--;
 
-        // Animate heart
         const hearts = document.querySelectorAll('.heart');
         const lostHeart = hearts[state.lives];
-        if (lostHeart) {
-            lostHeart.classList.add('losing');
-            setTimeout(() => {
-                lostHeart.classList.remove('losing');
-                lostHeart.classList.add('lost');
-            }, 300);
-        }
+        if (lostHeart) { lostHeart.classList.add('losing'); setTimeout(() => { lostHeart.classList.remove('losing'); lostHeart.classList.add('lost'); }, 300); }
 
         const fb = document.getElementById('feedback');
         fb.className = 'feedback bad';
-        fb.textContent = `${badMessages[Math.floor(Math.random() * badMessages.length)]}`;
+        fb.textContent = badMessages[Math.floor(Math.random() * badMessages.length)];
 
         spawnParticles(4, ['#FF0000', '#CC0000', '#880000']);
-
-        // Show visual explanation of the correct answer
         showWrongExplanation(wrongVal);
 
-        // Disable input while studying
         document.getElementById('answerInput').disabled = true;
         document.querySelectorAll('.hint-btn').forEach(b => b.disabled = true);
-
-        // Show "continue" button — child decides when ready
         const contRow = document.getElementById('continueRow');
         contRow.style.display = 'block';
-        document.getElementById('continueBtn').textContent =
-            state.lives <= 0 ? '📊 ZOBACZ WYNIKI' : '▶ ROZUMIEM, DALEJ!';
+        document.getElementById('continueBtn').textContent = state.lives <= 0 ? '📊 ZOBACZ WYNIKI' : '▶ ROZUMIEM, DALEJ!';
 
         updateUI();
     }
@@ -1413,170 +981,133 @@
     function continueAfterWrong() {
         document.getElementById('continueRow').style.display = 'none';
         document.getElementById('answerInput').disabled = false;
-
-        if (state.lives <= 0) {
-            state.playing = false;
-            clearInterval(state.timerInterval);
-            showGameOver();
-        } else {
-            nextQuestion();
-        }
+        if (state.lives <= 0) { state.playing = false; clearInterval(state.timerInterval); showGameOver(); }
+        else nextQuestion();
     }
 
     function showWrongExplanation(wrongVal) {
         const el = document.getElementById('wrongExplain');
-        const a = state.a;
-        const b = state.b;
-        const correct = state.answer;
-        const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
-
-        // Pick a teaching strategy
-        let explanation = '';
-
-        // Strategy 1: Show as addition
-        const addParts = [];
-        for (let i = 0; i < a; i++) addParts.push(b);
+        const a = state.a, b = state.b, correct = state.answer;
+        const bt = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+        const addParts = []; for (let i = 0; i < a; i++) addParts.push(b);
         const addStr = addParts.join(' + ');
-
-        // Strategy 2: Relate to something they might know
         let relateStr = '';
-        if (a > 1) {
-            relateStr = `<br>📖 ${a-1} × ${b} = ${(a-1)*b}, dodaj jeszcze ${b} → <strong>${correct}</strong>`;
-        }
-        if (a === 2) {
-            relateStr = `<br>📖 ${a} × ${b} to po prostu ${b} + ${b} = <strong>${correct}</strong>`;
-        }
-        if (b === 10) {
-            relateStr = `<br>📖 × 10 = dopisz zero! ${a}0 = <strong>${correct}</strong>`;
-        }
-        if (b === 5) {
-            relateStr = `<br>📖 × 5: to połowa z × 10. ${a}×10=${a*10}, podziel na 2 → <strong>${correct}</strong>`;
-        }
-        if (a === b) {
-            relateStr = `<br>📖 ${a}² (kwadrat ${a}) = <strong>${correct}</strong> — zapamiętaj!`;
-        }
-
-        // Build mini block grid (compact)
+        if (a > 1) relateStr = `<br>📖 ${a-1} × ${b} = ${(a-1)*b}, dodaj jeszcze ${b} → <strong>${correct}</strong>`;
+        if (a === 2) relateStr = `<br>📖 ${a} × ${b} to po prostu ${b} + ${b} = <strong>${correct}</strong>`;
+        if (b === 10) relateStr = `<br>📖 × 10 = dopisz zero! ${a}0 = <strong>${correct}</strong>`;
+        if (b === 5) relateStr = `<br>📖 × 5: to połowa z × 10. ${a}×10=${a*10}, podziel na 2 → <strong>${correct}</strong>`;
+        if (a === b) relateStr = `<br>📖 ${a}² (kwadrat ${a}) = <strong>${correct}</strong> — zapamiętaj!`;
         let gridHTML = '';
         if (a * b <= 60) {
-            gridHTML = `<div class="block-grid" style="grid-template-columns: repeat(${b}, 18px); margin: 8px auto; display: inline-grid;">`;
-            for (let i = 0; i < a * b; i++) {
-                gridHTML += `<div class="mc-block ${blockType}" style="width:18px;height:18px;"></div>`;
-            }
+            gridHTML = `<div class="block-grid" style="grid-template-columns:repeat(${b},18px);margin:8px auto;display:inline-grid;">`;
+            for (let i = 0; i < a * b; i++) gridHTML += `<div class="mc-block ${bt}" style="width:18px;height:18px;"></div>`;
             gridHTML += '</div>';
         }
-
         el.innerHTML = `
             <div class="explain-title">📚 NAUKA: ${a} × ${b} = ${correct}</div>
             <div class="explain-text">
                 ${wrongVal !== undefined ? `Twoja odpowiedź: <span style="color:#FF6666;text-decoration:line-through;">${wrongVal}</span><br>` : 'Czas minął!<br>'}
-                Poprawna odpowiedź: <strong style="color:var(--emerald);font-size:14px;">${correct}</strong><br><br>
-                🔢 ${a} × ${b} = ${addStr} = <strong>${correct}</strong>
-                ${relateStr}
-            </div>
-            ${gridHTML}
-            <div style="font-size:7px; color:#888; margin-top:8px;">
-                💡 To pytanie pojawi się jeszcze raz — ćwiczenie czyni mistrza!
-            </div>
-            <div style="margin-top: 10px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
-                <button class="mc-btn hint-btn" style="font-size:8px; padding:5px 10px;" onclick="showWrongHint('blocks')">🧱 Bloczki</button>
-                <button class="mc-btn hint-btn" style="font-size:8px; padding:5px 10px;" onclick="showWrongHint('skip')">🔢 Licz co...</button>
-                <button class="mc-btn hint-btn" style="font-size:8px; padding:5px 10px;" onclick="showWrongHint('nearby')">📖 Blisko!</button>
-            </div>
-        `;
+                Poprawna: <strong style="color:var(--emerald);font-size:14px;">${correct}</strong><br><br>
+                🔢 ${a} × ${b} = ${addStr} = <strong>${correct}</strong>${relateStr}
+            </div>${gridHTML}
+            <div style="font-size:7px;color:#888;margin-top:8px;">💡 To pytanie pojawi się jeszcze raz!</div>
+            <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                <button class="mc-btn hint-btn" style="font-size:8px;padding:5px 10px;" onclick="showWrongHint('blocks')">🧱 Bloczki</button>
+                <button class="mc-btn hint-btn" style="font-size:8px;padding:5px 10px;" onclick="showWrongHint('skip')">🔢 Licz co...</button>
+                <button class="mc-btn hint-btn" style="font-size:8px;padding:5px 10px;" onclick="showWrongHint('nearby')">📖 Blisko!</button>
+            </div>`;
         el.classList.add('show');
     }
 
     function grantLevelReward() {
-        if (state.level % 5 === 0) state.items['🏆']++;
-        else if (state.level % 3 === 0) state.items['🥇']++;
-        else state.items['🟢']++;
+        // Level up: guaranteed rare+ item
+        const rarity = state.level % 5 === 0 ? 'legendary' : state.level % 3 === 0 ? 'epic' : 'rare';
+        const candidates = Object.entries(MC_ITEMS).filter(([_, v]) => v.rarity === rarity);
+        const [itemKey, item] = candidates[Math.floor(Math.random() * candidates.length)];
+        state.inventory[itemKey] = (state.inventory[itemKey] || 0) + 1;
+        state.lootLog.push({ itemKey, rarity });
+        if (rarity === 'legendary') state._hasLegendary = true;
+        spawnLootDrop(item);
+        showAchievement(item.icon, `Nagroda za poziom ${state.level}!`, item.name);
 
-        if (state.lives < state.maxLives) {
-            state.lives++;
-            state.items['🍎']++;
-        }
+        if (state.lives < state.maxLives) state.lives++;
     }
 
     // ═══════════════════════════════════════════
-    // Game Over with Review
+    // Game Over
     // ═══════════════════════════════════════════
 
     function showGameOver() {
         const pct = state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0;
         document.getElementById('finalStats').innerHTML = `
-            💎 Diamenty: <span class="val">${state.score}</span><br>
+            💎 Punkty: <span class="val">${state.score}</span><br>
             ✅ Poprawne: <span class="val">${state.correct} / ${state.total} (${pct}%)</span><br>
             🔥 Najlepsza seria: <span class="val">${state.bestStreak}</span><br>
+            💥 Max combo: <span class="val">×${Math.min(5, 1 + Math.floor(state.bestStreak / 3))}</span><br>
             ⬆️ Poziom: <span class="val">${state.level}</span><br>
-            📖 Podpowiedzi: <span class="val">${state.hintsUsedTotal}</span><br>
             🏆 Osiągnięcia: <span class="val">${state.achievements.size}</span>
         `;
 
-        // Mistake review
+        // Loot summary
+        buildLootSummary();
+
+        // Mistakes
         const reviewEl = document.getElementById('mistakesReview');
         if (state.mistakes.length > 0) {
             let html = '<h3>❌ BŁĘDY DO POWTÓRZENIA:</h3>';
-            // Sort by most mistakes first
             const sorted = [...state.mistakes].sort((a, b) => b.count - a.count);
             for (const m of sorted) {
-                html += `
-                    <div class="mistake-item">
-                        <span class="mistake-q">${m.a} × ${m.b}</span>
-                        <span class="mistake-wrong">✗ ${m.lastWrong !== undefined ? m.lastWrong : '⏰'}</span>
-                        <span class="mistake-right">✓ ${m.correctAnswer}</span>
-                        <span class="mistake-count">×${m.count}</span>
-                    </div>
-                `;
+                html += `<div class="mistake-item"><span class="mistake-q">${m.a} × ${m.b}</span><span class="mistake-wrong">✗ ${m.lastWrong !== undefined ? m.lastWrong : '⏰'}</span><span class="mistake-right">✓ ${m.correctAnswer}</span><span class="mistake-count">×${m.count}</span></div>`;
             }
-            html += '<div style="font-size:7px; color:#aaa; text-align:center; margin-top:8px;">Kliknij "🎯 ĆWICZ BŁĘDY" aby powtórzyć!</div>';
+            html += '<div style="font-size:7px;color:#aaa;text-align:center;margin-top:8px;">Kliknij "🎯 ĆWICZ BŁĘDY" aby powtórzyć!</div>';
             reviewEl.innerHTML = html;
         } else {
-            reviewEl.innerHTML = '<div style="text-align:center; font-size:9px; color:var(--emerald); margin-top:10px;">🎯 Zero błędów! Perfekcja!</div>';
+            reviewEl.innerHTML = '<div style="text-align:center;font-size:9px;color:var(--emerald);margin-top:10px;">🎯 Zero błędów! Perfekcja!</div>';
         }
 
-        // Mastery grid
         buildMasteryGrid();
-
         showScreen('gameoverScreen');
+    }
+
+    function buildLootSummary() {
+        const section = document.getElementById('lootSummary');
+        if (state.lootLog.length === 0) { section.innerHTML = ''; return; }
+
+        // Count unique items
+        const counts = {};
+        for (const l of state.lootLog) {
+            counts[l.itemKey] = (counts[l.itemKey] || 0) + 1;
+        }
+
+        // Sort by rarity
+        const rarityOrder = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 };
+        const sorted = Object.entries(counts).sort((a, b) =>
+            rarityOrder[MC_ITEMS[a[0]].rarity] - rarityOrder[MC_ITEMS[b[0]].rarity]
+        );
+
+        let html = '<h3>🎁 ZDOBYTE PRZEDMIOTY:</h3><div class="loot-grid">';
+        for (const [itemKey, qty] of sorted) {
+            const item = MC_ITEMS[itemKey];
+            const cls = item.rarity === 'rare' ? 'rare' : item.rarity === 'epic' ? 'epic' : item.rarity === 'legendary' ? 'legendary' : '';
+            html += `<div class="loot-card ${cls}"><div class="loot-icon">${item.icon}</div><div class="loot-name">${item.name}</div><div class="loot-qty">×${qty}</div></div>`;
+        }
+        html += '</div>';
+        section.innerHTML = html;
     }
 
     function buildMasteryGrid() {
         const section = document.getElementById('masterySection');
         const entries = Object.entries(state.masteryMap);
         if (entries.length === 0) { section.innerHTML = ''; return; }
-
         let html = '<h3>📊 MAPA OPANOWANIA:</h3><div class="mastery-grid">';
-
-        // Sort entries
-        entries.sort((a, b) => {
-            const [a1, a2] = a[0].split('×').map(Number);
-            const [b1, b2] = b[0].split('×').map(Number);
-            return (a1 * 100 + a2) - (b1 * 100 + b2);
-        });
-
+        entries.sort((a, b) => { const [a1,a2]=a[0].split('×').map(Number); const [b1,b2]=b[0].split('×').map(Number); return (a1*100+a2)-(b1*100+b2); });
         for (const [key, data] of entries) {
             const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
-            let cls = 'untested';
-            let stars = '';
-
-            if (data.total > 0) {
-                if (pct >= 80) { cls = 'strong'; stars = '⭐'.repeat(Math.min(3, data.streak)); }
-                else if (pct >= 50) { cls = ''; stars = '⭐'; }
-                else { cls = 'weak'; stars = ''; }
-            }
-
-            html += `
-                <div class="mastery-cell ${cls}">
-                    ${key.replace('×', ' × ')}<br>
-                    <span class="mastery-stars">${stars || '—'}</span><br>
-                    ${data.total > 0 ? `${pct}%` : '—'}
-                </div>
-            `;
+            let cls = '', stars = '';
+            if (data.total > 0) { if (pct >= 80) { cls = 'strong'; stars = '⭐'.repeat(Math.min(3, data.streak)); } else if (pct >= 50) { stars = '⭐'; } else { cls = 'weak'; } }
+            html += `<div class="mastery-cell ${cls}">${key.replace('×',' × ')}<br><span class="mastery-stars">${stars||'—'}</span><br>${data.total > 0 ? `${pct}%` : '—'}</div>`;
         }
-
-        html += '</div>';
-        section.innerHTML = html;
+        html += '</div>'; section.innerHTML = html;
     }
 
     // ═══════════════════════════════════════════
@@ -1588,7 +1119,6 @@
         document.getElementById('correct').textContent = state.correct;
         document.getElementById('total').textContent = state.total;
 
-        // Hearts
         const heartsEl = document.getElementById('hearts');
         heartsEl.innerHTML = '';
         for (let i = 0; i < state.maxLives; i++) {
@@ -1598,27 +1128,48 @@
             heartsEl.appendChild(heart);
         }
 
-        // XP
         const xpPct = (state.xp / state.xpToNext) * 100;
         document.getElementById('xpBar').style.width = xpPct + '%';
         document.getElementById('xpText').textContent = `${state.xp} / ${state.xpToNext} XP`;
         document.getElementById('xpBarText').textContent = `Poziom ${state.level}`;
 
-        // Streak
-        const streakEl = document.getElementById('streakDisplay');
-        if (state.streak >= 3) streakEl.textContent = `🔥 SERIA: ${state.streak} 🔥`;
-        else if (state.streak > 0) streakEl.textContent = `seria: ${state.streak}`;
-        else streakEl.textContent = '';
+        renderCombo();
+        renderInventory();
+    }
 
-        // Inventory
+    function renderInventory() {
         const inv = document.getElementById('inventory');
         inv.innerHTML = '';
-        for (const key of Object.keys(state.items)) {
+        // Sort by rarity (best first)
+        const rarityOrder = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 };
+        const entries = Object.entries(state.inventory)
+            .filter(([_, c]) => c > 0)
+            .sort((a, b) => rarityOrder[MC_ITEMS[a[0]].rarity] - rarityOrder[MC_ITEMS[b[0]].rarity]);
+
+        if (entries.length === 0) {
+            // Show empty slots
+            for (let i = 0; i < 9; i++) { const s = document.createElement('div'); s.className = 'inv-slot'; inv.appendChild(s); }
+            return;
+        }
+
+        for (const [itemKey, count] of entries) {
+            const item = MC_ITEMS[itemKey];
             const slot = document.createElement('div');
-            slot.className = 'inv-slot' + (state.items[key] > 0 ? ' active' : '');
-            slot.innerHTML = state.items[key] > 0 ? `${key}<span class="count">${state.items[key]}</span>` : '';
+            const isLeg = item.rarity === 'legendary';
+            slot.className = 'inv-slot active' + (isLeg ? ' legendary' : '');
+            slot.innerHTML = `
+                ${item.icon}<span class="count">${count}</span>
+                <div class="inv-tooltip">
+                    <div class="tt-name ${item.rarity === 'rare' ? 'rare' : item.rarity === 'epic' ? 'epic' : item.rarity === 'legendary' ? 'legendary' : ''}">${item.name}</div>
+                    <div class="tt-desc">${item.desc}</div>
+                    <div class="tt-rarity">${item.rarity.toUpperCase()}</div>
+                </div>
+            `;
             inv.appendChild(slot);
         }
+        // Fill remaining slots
+        const remaining = Math.max(0, 9 - entries.length);
+        for (let i = 0; i < remaining; i++) { const s = document.createElement('div'); s.className = 'inv-slot'; inv.appendChild(s); }
     }
 
     function checkAchievements() {
@@ -1626,7 +1177,6 @@
             if (!state.achievements.has(ach.id) && ach.check(state)) {
                 state.achievements.add(ach.id);
                 showAchievement(ach.icon, ach.title, ach.desc);
-                state.items['⭐']++;
             }
         }
     }
@@ -1641,31 +1191,19 @@
     }
 
     function spawnParticles(count, colors) {
-        const container = document.getElementById('particles');
-        const cx = window.innerWidth / 2;
-        const cy = window.innerHeight / 2;
+        const c = document.getElementById('particles');
+        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
         for (let i = 0; i < count; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
+            const p = document.createElement('div'); p.className = 'particle';
             p.style.left = (cx + (Math.random() - 0.5) * 200) + 'px';
             p.style.top = (cy + (Math.random() - 0.5) * 100) + 'px';
             p.style.background = colors[Math.floor(Math.random() * colors.length)];
-            container.appendChild(p);
-            setTimeout(() => p.remove(), 1000);
+            c.appendChild(p); setTimeout(() => p.remove(), 1000);
         }
     }
 
-    function randInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function shuffle(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-    }
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
 </script>
-
 </body>
 </html>
