@@ -96,21 +96,21 @@
         .mc-display .cursor { animation: blink 0.8s step-end infinite; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .mc-numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 280px; margin: 0 auto; }
+        .mc-numpad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 280px; margin: 0 auto; }
         .mc-numkey {
             font-family: 'Press Start 2P', monospace; font-size: 18px; padding: 14px 0;
             background: #7F7F7F; color: #fff; border: 3px solid #000;
             box-shadow: inset 2px 2px 0 #AAA, inset -2px -2px 0 #555;
             cursor: pointer; text-shadow: 1px 1px 0 #333; transition: background 0.1s;
             user-select: none; -webkit-user-select: none; touch-action: manipulation;
-            text-align: center;
+            text-align: center; min-width: 0; overflow: hidden;
         }
         .mc-numkey:hover { background: #999; }
         .mc-numkey:active { background: #666; box-shadow: inset -2px -2px 0 #AAA, inset 2px 2px 0 #555; transform: translateY(1px); }
-        .mc-numkey.key-ok { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; font-size: 14px; }
+        .mc-numkey.key-ok { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; font-size: 18px; }
         .mc-numkey.key-ok:hover { background: #6AB33A; }
         .mc-numkey.key-ok:active { background: #4A8B22; }
-        .mc-numkey.key-del { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; font-size: 14px; }
+        .mc-numkey.key-del { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; font-size: 18px; }
         .mc-numkey.key-del:hover { background: #CC9A1E; }
         .mc-numkey.key-del:active { background: #9A7209; }
         .mc-numkey.key-0 { grid-column: 2; }
@@ -513,9 +513,9 @@
                     <button class="mc-numkey" onclick="numPress('7')">7</button>
                     <button class="mc-numkey" onclick="numPress('8')">8</button>
                     <button class="mc-numkey" onclick="numPress('9')">9</button>
-                    <button class="mc-numkey key-del" onclick="numPress('del')">⬅ Cofnij</button>
+                    <button class="mc-numkey key-del" onclick="numPress('del')">⌫</button>
                     <button class="mc-numkey key-0" onclick="numPress('0')">0</button>
-                    <button class="mc-numkey key-ok" onclick="numPress('ok')">✅ OK</button>
+                    <button class="mc-numkey key-ok" onclick="numPress('ok')">✔</button>
                 </div>
                 <div class="hint-row">
                     <button class="mc-btn hint-btn" id="hintBlocksBtn" onclick="showHint('blocks')">🧱 Bloczki</button>
@@ -911,8 +911,9 @@
     function buildFreshPool() {
         const settings = diffSettings[state.difficulty];
         state.freshPool = [];
+        // Include BOTH orderings (a×b AND b×a) for more variety
         for (let a = settings.min; a <= settings.max; a++) {
-            for (let b = a; b <= settings.max; b++) {
+            for (let b = settings.min; b <= settings.max; b++) {
                 state.freshPool.push({ a, b });
             }
         }
@@ -922,17 +923,27 @@
 
     function pullFromPool() {
         if (state.freshPool.length > 0) {
-            const q = state.freshPool.shift();
-            return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
+            return state.freshPool.shift();
         }
-        // Pool exhausted within round - rebuild but that's ok, all unique were asked
-        buildFreshPool();
+        // Pool exhausted - rebuild (all pairs seen, start fresh cycle)
+        rebuildExhaustedPool();
         if (state.freshPool.length > 0) {
-            const q = state.freshPool.shift();
-            return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
+            return state.freshPool.shift();
         }
         const s = diffSettings[state.difficulty];
         return { a: randInt(s.min, s.max), b: randInt(s.min, s.max) };
+    }
+
+    function rebuildExhaustedPool() {
+        // All pairs asked once - rebuild with both orderings again
+        const settings = diffSettings[state.difficulty];
+        state.freshPool = [];
+        for (let a = settings.min; a <= settings.max; a++) {
+            for (let b = settings.min; b <= settings.max; b++) {
+                state.freshPool.push({ a, b });
+            }
+        }
+        shuffle(state.freshPool);
     }
 
     function practiceWeakSpots() {
