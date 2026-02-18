@@ -923,6 +923,7 @@
             const q = state.freshPool.shift();
             return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
         }
+        // Pool exhausted within round - rebuild but that's ok, all unique were asked
         buildFreshPool();
         if (state.freshPool.length > 0) {
             const q = state.freshPool.shift();
@@ -993,10 +994,8 @@
         if (state.practiceMode && state.questionQueue.length > 0) {
             const q = state.questionQueue.shift();
             a = q.a; b = q.b;
-        } else if (!state.practiceMode && state.total > 0 && Math.random() < getRepeatChance()) {
-            const weak = getWeakestQuestion();
-            if (weak) { a = weak.a; b = weak.b; }
         }
+        // In normal mode: only pull from pool (no repeats unless wrong answer re-added it)
         if (!a || !b) { const q = pullFromPool(); a = q.a; b = q.b; }
 
         state.a = a; state.b = b; state.answer = a * b;
