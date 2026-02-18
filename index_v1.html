@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabliczka Mnożenia - Minecraft Edition v2</title>
+    <title>Tabliczka Mnożenia - Minecraft Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -371,58 +371,18 @@
         .leaderboard { margin-top: 16px; }
         .leaderboard h3 { font-size: 10px; color: var(--gold); margin-bottom: 10px; text-align: center; }
         .lb-table { width: 100%; border-collapse: collapse; }
-        .lb-table th { font-size: 7px; color: #555; text-align: left; padding: 4px 6px; border-bottom: 2px solid #999; }
-        .lb-table td { font-size: 8px; color: #333; padding: 5px 6px; border-bottom: 1px solid #aaa; }
-        .lb-table tr.current { background: rgba(252,219,5,0.25); }
-        .lb-table tr.current td { color: #8B6508; font-weight: bold; }
-        .lb-rank { color: #555; width: 30px; }
+        .lb-table th { font-size: 7px; color: #888; text-align: left; padding: 4px 6px; border-bottom: 2px solid #666; }
+        .lb-table td { font-size: 8px; color: #ccc; padding: 5px 6px; border-bottom: 1px solid #555; }
+        .lb-table tr.current { background: rgba(252,219,5,0.15); }
+        .lb-table tr.current td { color: var(--gold); }
+        .lb-rank { color: #888; width: 30px; }
         .lb-rank.gold { color: var(--gold); }
         .lb-rank.silver { color: #C0C0C0; }
         .lb-rank.bronze { color: #CD7F32; }
         .lb-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lb-score { color: #0088AA; text-align: right; font-weight: bold; }
-        .lb-diff { font-size: 6px; color: #666; }
+        .lb-score { color: var(--diamond); text-align: right; }
+        .lb-diff { font-size: 6px; color: #888; }
         .player-greeting { text-align: center; font-size: 9px; color: var(--gold); margin-bottom: 6px; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
-
-        /* ═══ MAIN TIMER (3 min) ═══ */
-        .main-timer { text-align: center; font-size: 20px; color: #fff; text-shadow: 2px 2px 0 #000; margin-bottom: 4px; letter-spacing: 2px; }
-        .main-timer.warning { color: #FF4444; animation: pulse-red 0.5s ease infinite; }
-        .main-timer-bar-bg { height: 12px; background: #222; border: 2px solid #000; overflow: hidden; margin-bottom: 8px; }
-        .main-timer-bar-fill { height: 100%; background: linear-gradient(180deg, #5DECF5, #2BC4D8); transition: width 0.5s linear; }
-        .main-timer-bar-fill.low { background: linear-gradient(180deg, #FF6B00, #FF4400); }
-        .main-timer-bar-fill.critical { background: linear-gradient(180deg, #FF0000, #CC0000); animation: pulse-red 0.5s ease infinite; }
-
-        /* ═══ BRAINROT CATALOG ═══ */
-        .brainrot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
-        .brainrot-card {
-            background: #444; border: 3px solid #666; padding: 10px; text-align: center; position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .brainrot-card:hover { transform: translateY(-2px); }
-        .brainrot-card.owned { border-color: var(--emerald); background: #1A3A1A; box-shadow: 0 0 10px rgba(23,221,98,0.3); }
-        .brainrot-card.common { border-color: #aaa; }
-        .brainrot-card.rare { border-color: var(--diamond); }
-        .brainrot-card.epic { border-color: #FF00FF; }
-        .brainrot-card.legendary { border-color: var(--gold); }
-        .brainrot-card.god { border-color: #FF4444; box-shadow: 0 0 15px rgba(255,0,0,0.3); animation: legendary-glow 2s ease infinite; }
-        .brainrot-icon { width: 80px; height: 80px; margin: 0 auto 6px; border-radius: 8px; overflow: hidden; border: 2px solid #555; }
-        .brainrot-icon img { width: 100%; height: 100%; object-fit: cover; image-rendering: auto; }
-        .brainrot-icon.locked { filter: grayscale(1) brightness(0.3); }
-        .brainrot-name { font-size: 8px; color: #fff; margin-bottom: 4px; }
-        .brainrot-desc { font-size: 6px; color: #aaa; margin-bottom: 6px; line-height: 1.6; }
-        .brainrot-rarity { font-size: 6px; font-style: italic; margin-bottom: 4px; }
-        .brainrot-rarity.common { color: #aaa; }
-        .brainrot-rarity.rare { color: var(--diamond); }
-        .brainrot-rarity.epic { color: #FF00FF; }
-        .brainrot-rarity.legendary { color: var(--gold); }
-        .brainrot-rarity.god { color: #FF4444; }
-        .brainrot-goal { font-size: 7px; color: #888; margin-bottom: 4px; }
-        .brainrot-progress-bg { height: 10px; background: #222; border: 1px solid #555; overflow: hidden; }
-        .brainrot-progress-fill { height: 100%; background: linear-gradient(180deg, var(--diamond), #2BC4D8); transition: width 0.3s; }
-        .brainrot-progress-fill.full { background: linear-gradient(180deg, #7FFF00, #32CD32); }
-        .brainrot-owned-badge { font-size: 7px; color: var(--emerald); margin-top: 4px; }
-        .brainrot-stats { font-size: 6px; color: #777; margin-top: 4px; line-height: 1.6; }
-        .nav-links { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
 
         @media (max-width: 500px) {
             .title h1 { font-size: 13px; }
@@ -432,7 +392,6 @@
             .inv-slot { width: 40px; height: 40px; font-size: 18px; }
             .mc-btn { font-size: 10px; padding: 8px 14px; }
             .mc-block { width: 16px; height: 16px; }
-            .brainrot-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
         }
     </style>
 </head>
@@ -451,10 +410,10 @@
             <div class="big-icon">⛏️</div>
             <p>
                 Rozwiązuj zadania z tabliczki mnożenia,<br>
-                zbieraj Minecraftowe przedmioty i brainroty!<br><br>
-                ⏱️ Masz 2 minuty na rundę!<br>
-                ⚡ Im szybciej, tym więcej punktów!<br>
-                🔥 Buduj combo! 🧠 Odblokuj brainroty!
+                zbieraj Minecraftowe przedmioty!<br><br>
+                ⚡ Im szybciej odpowiesz, tym więcej punktów!<br>
+                🔥 Buduj serię combo dla mnożnika!<br>
+                📖 Nie wiesz? Użyj podpowiedzi!
             </p>
             <div style="margin: 16px 0;">
                 <div style="font-size: 9px; color: #555; margin-bottom: 8px;">TWOJE IMIĘ:</div>
@@ -465,13 +424,12 @@
                 <div class="difficulty">
                     <button class="diff-btn active" onclick="setDifficulty('easy', this)">😊 Łatwy<br><span style="font-size:7px;">2-5</span></button>
                     <button class="diff-btn" onclick="setDifficulty('medium', this)">😎 Średni<br><span style="font-size:7px;">2-10</span></button>
-                    <button class="diff-btn" onclick="setDifficulty('hard', this)">💀 Trudny<br><span style="font-size:7px;">2-12 + timer/pyt</span></button>
+                    <button class="diff-btn" onclick="setDifficulty('hard', this)">💀 Trudny<br><span style="font-size:7px;">2-12 + czas</span></button>
                 </div>
             </div>
             <button class="mc-btn primary" onclick="startGame()" style="font-size: 14px; padding: 14px 30px;">▶ GRAJ!</button>
-            <div class="nav-links">
+            <div style="margin-top: 12px;">
                 <button class="mc-btn" onclick="showScreen('leaderboardScreen')" style="font-size: 9px;">🏆 RANKING</button>
-                <button class="mc-btn" onclick="showScreen('catalogScreen')" style="font-size: 9px;">🧠 KOLEKCJA BRAINROT</button>
             </div>
         </div>
     </div>
@@ -479,12 +437,10 @@
     <!-- GAME -->
     <div id="gameScreen" class="screen">
         <div class="mc-panel">
-            <div class="main-timer" id="mainTimer">⏱️ 2:00</div>
-            <div class="main-timer-bar-bg"><div class="main-timer-bar-fill" id="mainTimerBar" style="width:100%"></div></div>
             <div class="stats-bar">
                 <div class="stat">💎 <span id="score">0</span></div>
                 <div class="stat">✅ <span id="correct">0</span>/<span id="total">0</span></div>
-                <div class="stat">⬆️ Poz. <span id="levelDisplay">1</span></div>
+                <div class="hearts" id="hearts"></div>
             </div>
             <div class="xp-section">
                 <div class="xp-label"><span>DOŚWIADCZENIE</span><span id="xpText">0 / 100 XP</span></div>
@@ -555,7 +511,6 @@
             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button class="mc-btn primary" onclick="startGame()">🔄 JESZCZE RAZ</button>
                 <button class="mc-btn" onclick="practiceWeakSpots()">🎯 ĆWICZ BŁĘDY</button>
-                <button class="mc-btn" onclick="showScreen('catalogScreen')">🧠 BRAINROTY</button>
                 <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
             </div>
         </div>
@@ -571,18 +526,6 @@
                 <button class="diff-btn" onclick="showLeaderboardTab('hard',this)">💀 Trudny</button>
             </div>
             <div id="leaderboardContent"></div>
-            <div style="margin-top:16px;text-align:center;">
-                <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- BRAINROT CATALOG -->
-    <div id="catalogScreen" class="screen">
-        <div class="mc-panel">
-            <h2 style="font-size:14px;color:#333;text-align:center;margin-bottom:8px;">🧠 KOLEKCJA BRAINROT 🧠</h2>
-            <div style="font-size:7px;color:#888;text-align:center;margin-bottom:12px;">Zdobywaj punkty aby odblokować postacie!</div>
-            <div id="catalogContent" class="brainrot-grid"></div>
             <div style="margin-top:16px;text-align:center;">
                 <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
             </div>
@@ -624,29 +567,6 @@
         beacon:       { icon: '🔦', name: 'Beacon',           rarity: 'legendary', desc: 'Świeci na cały świat!' },
     };
 
-    // ═══════════════════════════════════════════
-    // Brainrot Characters Database
-    // ═══════════════════════════════════════════
-    const BRAINROT_CHARS = [
-        { id: 'tralalero',    name: 'Tralalero Tralala',        rarity: 'common',    desc: 'Rekin w adidasach, chodzi po lądzie',            goal: 15,  power: 'Shark dance',        catchphrase: 'Tralalero tralala!',        img: 'https://brainrots.icu/characters/Tralalero%20Tralala.webp' },
-        { id: 'bombardiro',   name: 'Bombardiro Crocodilo',     rarity: 'common',    desc: 'Krokodyl-bombowiec, lata i bombarduje',          goal: 30,  power: 'Bombardowanie',      catchphrase: 'Bombardiro crocodilo!',     img: 'https://brainrots.icu/characters/Bombardino%20Crocodilo.jpg' },
-        { id: 'trippi',       name: 'Trippi Troppi',            rarity: 'common',    desc: 'Tropikalny koleś, zawsze na vibie',              goal: 50,  power: 'Tropical vibes',     catchphrase: 'Trippi troppi!',            img: 'https://brainrots.icu/characters/Trippi-Troppi.webp' },
-        { id: 'tungtung',     name: 'Tung Tung Tung Sahur',     rarity: 'rare',      desc: 'Drewniana deska z twarzą, budzi na sahur',       goal: 80,  power: 'Tung attack',        catchphrase: 'Tung tung tung sahur!',     img: 'https://brainrots.icu/characters/Tung%20Tung%20Tung%20Tung%20Tung%20Tung%20Tung%20Sahur.webp' },
-        { id: 'lirili',       name: 'Lirilì Larilà',            rarity: 'rare',      desc: 'Tajemnicza postać, śpiewa dziwne melodie',       goal: 120, power: 'Hypno song',         catchphrase: 'Lirilì larilà~!',          img: 'https://brainrots.icu/characters/Lirili%20Larila.jpg' },
-        { id: 'boneca',       name: 'Boneca Ambalabu',          rarity: 'rare',      desc: 'Lalka z innego wymiaru, trochę creepy',          goal: 170, power: 'Cursed stare',       catchphrase: 'Ambalabu!',                 img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-15.webp' },
-        { id: 'patapim',      name: 'Brr Brr Patapim',          rarity: 'epic',      desc: 'Małpa-mech w zbroi, robi brr brr',              goal: 230, power: 'Mech mode',          catchphrase: 'Brr brr patapim!',          img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-12.webp' },
-        { id: 'bombombini',   name: 'Bombombini Gusini',        rarity: 'epic',      desc: 'Gęś z bombami, nie pytaj dlaczego',             goal: 300, power: 'Goose bomb',         catchphrase: 'Bombombini gusini!',        img: 'https://brainrots.icu/characters/Bombombini%20Gusini.jpg' },
-        { id: 'chimpanzini',  name: 'Chimpanzini Bananini',     rarity: 'legendary', desc: 'Włoski szympans z bananem, szef mafii bananowej', goal: 400, power: 'Banana barrage',    catchphrase: 'Chimpanzini bananini!',     img: 'https://brainrots.icu/characters/Chimpanzini%20Bananini.png' },
-        { id: 'capuccino',    name: 'Capuccino Assassino',      rarity: 'god',       desc: 'Zabójcze cappuccino, ostateczny boss brainrotu', goal: 600, power: 'Espresso kill shot', catchphrase: 'Capuccino... assassino!',   img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-08.webp' },
-    ];
-
-    function getBrainrotCollection() {
-        try { return JSON.parse(localStorage.getItem('mc_brainrot_collection') || '{}'); } catch(e) { return {}; }
-    }
-    function saveBrainrotCollection(col) {
-        localStorage.setItem('mc_brainrot_collection', JSON.stringify(col));
-    }
-
     // Loot tables based on speed and streak
     const LOOT_TABLES = {
         lightning: { // < 2s
@@ -673,29 +593,29 @@
     // ═══════════════════════════════════════════
     // Game State
     // ═══════════════════════════════════════════
-    const ROUND_TIME = 120; // 2 minutes in seconds
-
     let state = {
         difficulty: 'easy', score: 0, xp: 0, level: 1, xpToNext: 100,
-        correct: 0, total: 0,
+        correct: 0, total: 0, lives: 5, maxLives: 5,
         streak: 0, bestStreak: 0, combo: 1,
         a: 0, b: 0, answer: 0,
         timerInterval: null, timeLeft: 0, timerMax: 15,
-        roundTimerInterval: null, roundTimeLeft: ROUND_TIME,
         achievements: new Set(), playing: false,
         hintUsed: false, hintsUsedTotal: 0,
+        // Timing
         questionStartTime: 0,
-        inventory: {},
-        lootLog: [],
+        // Items
+        inventory: {}, // itemKey -> count
+        lootLog: [],   // [{itemKey, rarity}] for game-over summary
+        // Learning
         mistakes: [], mistakeMap: {}, masteryMap: {},
         questionQueue: [], practiceMode: false, questionHistory: [],
         freshPool: [], askedSet: new Set(),
     };
 
     const diffSettings = {
-        easy:   { min: 2, max: 5,  timer: false },
-        medium: { min: 2, max: 10, timer: false },
-        hard:   { min: 2, max: 12, timer: true, time: 15 }
+        easy:   { min: 2, max: 5,  timer: false, lives: 5 },
+        medium: { min: 2, max: 10, timer: false, lives: 5 },
+        hard:   { min: 2, max: 12, timer: true,  lives: 3, time: 15 }
     };
 
     const blockTypes = ['grass', 'dirt', 'stone', 'diamond', 'gold', 'wood'];
@@ -707,7 +627,7 @@
         { id: 'hint_learn', check: s => s.hintsUsedTotal >= 5,   icon: '📖', title: 'Badacz!',             desc: 'Użyj 5 podpowiedzi',           progress: s => ({ cur: s.hintsUsedTotal, max: 5, label: 'Podpowiedzi' }) },
         { id: 'perfect10',  check: s => s.correct >= 10 && s.correct === s.total, icon: '🎯', title: 'Perfekcja!', desc: '10 poprawnych bez błędu', progress: s => ({ cur: s.correct === s.total ? s.correct : 0, max: 10, label: 'Bez błędu' }) },
         { id: 'streak10',   check: s => s.streak >= 10,          icon: '⚡', title: 'Niepokonany!',        desc: 'Seria 10 poprawnych z rzędu',  progress: s => ({ cur: s.streak, max: 10, label: 'Seria' }) },
-        { id: 'fast_round', check: s => s.correct >= 5 && s.total === s.correct, icon: '💪', title: 'Nie poddaję się!', desc: '5 poprawnych bez błędu pod rząd', progress: s => ({ cur: s.correct === s.total ? s.correct : 0, max: 5, label: 'Czyste' }) },
+        { id: 'comeback',   check: s => s.streak >= 3 && s.lives === 1, icon: '💪', title: 'Nie poddaję się!', desc: 'Seria 3 z ostatnim życiem', progress: s => ({ cur: s.lives === 1 ? s.streak : 0, max: 3, label: 'Seria (1❤️)' }) },
         { id: 'lightning5',  check: s => s._lightningCount >= 5,  icon: '⚡', title: 'Prędkość światła!',  desc: '5 odpowiedzi poniżej 2s',      progress: s => ({ cur: s._lightningCount || 0, max: 5, label: 'Błyskawice' }) },
         { id: 'dia50',      check: s => s.score >= 100,          icon: '💎', title: 'Koparka diamentowa!', desc: 'Zdobądź 100 punktów',          progress: s => ({ cur: s.score, max: 100, label: 'Punkty' }) },
         { id: 'combo_x5',   check: s => s.combo >= 5,            icon: '💥', title: 'MEGA COMBO!',         desc: 'Osiągnij combo ×5',            progress: s => ({ cur: s.combo, max: 5, label: 'Combo' }) },
@@ -835,30 +755,27 @@
         document.getElementById(id).classList.add('active');
         if (id === 'leaderboardScreen') {
             showLeaderboardTab(currentLbTab || 'easy');
-        } else if (id === 'catalogScreen') {
-            renderCatalog();
         }
     }
 
     function startGame() {
+        // Get player name
         const nameInput = document.getElementById('playerName');
         const name = (nameInput.value || '').trim() || 'Gracz';
         state.playerName = name;
         localStorage.setItem('mc_tabliczka_name', name);
 
         const settings = diffSettings[state.difficulty];
-        clearInterval(state.roundTimerInterval);
-        clearInterval(state.timerInterval);
         Object.assign(state, {
             score: 0, xp: 0, level: 1, xpToNext: 100,
             correct: 0, total: 0,
+            lives: settings.lives, maxLives: settings.lives,
             streak: 0, bestStreak: 0, combo: 1,
             playing: true, hintUsed: false, hintsUsedTotal: 0,
             inventory: {}, lootLog: [],
             mistakes: [], mistakeMap: {}, masteryMap: {},
             questionQueue: [], practiceMode: false, questionHistory: [],
             freshPool: [], askedSet: new Set(),
-            roundTimeLeft: ROUND_TIME,
             _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
             _mistakePracticeCount: {}, _waitingForContinue: false,
         });
@@ -873,39 +790,7 @@
 
         updateUI();
         showScreen('gameScreen');
-        startRoundTimer();
         nextQuestion();
-    }
-
-    function startRoundTimer() {
-        state.roundTimeLeft = ROUND_TIME;
-        updateRoundTimerDisplay();
-        state.roundTimerInterval = setInterval(() => {
-            state.roundTimeLeft -= 0.5;
-            if (state.roundTimeLeft <= 0) {
-                state.roundTimeLeft = 0;
-                clearInterval(state.roundTimerInterval);
-                clearInterval(state.timerInterval);
-                state.playing = false;
-                showGameOver();
-                return;
-            }
-            updateRoundTimerDisplay();
-        }, 500);
-    }
-
-    function updateRoundTimerDisplay() {
-        const t = Math.max(0, Math.ceil(state.roundTimeLeft));
-        const min = Math.floor(t / 60);
-        const sec = t % 60;
-        const timerEl = document.getElementById('mainTimer');
-        timerEl.textContent = `⏱️ ${min}:${sec.toString().padStart(2, '0')}`;
-        timerEl.className = 'main-timer' + (t <= 30 ? ' warning' : '');
-
-        const pct = (state.roundTimeLeft / ROUND_TIME) * 100;
-        const bar = document.getElementById('mainTimerBar');
-        bar.style.width = pct + '%';
-        bar.className = 'main-timer-bar-fill' + (pct < 15 ? ' critical' : pct < 33 ? ' low' : '');
     }
 
     function buildFreshPool() {
@@ -925,7 +810,6 @@
             const q = state.freshPool.shift();
             return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
         }
-        // Pool exhausted within round - rebuild but that's ok, all unique were asked
         buildFreshPool();
         if (state.freshPool.length > 0) {
             const q = state.freshPool.shift();
@@ -939,16 +823,15 @@
         const weakPairs = Object.entries(state.mistakeMap).filter(([_, c]) => c > 0);
         if (weakPairs.length === 0) { startGame(); return; }
 
-        clearInterval(state.roundTimerInterval);
-        clearInterval(state.timerInterval);
+        const settings = diffSettings[state.difficulty];
         Object.assign(state, {
             score: 0, xp: 0, level: 1, xpToNext: 100,
             correct: 0, total: 0,
+            lives: Math.max(settings.lives, 5), maxLives: Math.max(settings.lives, 5),
             streak: 0, bestStreak: 0, combo: 1,
             playing: true, hintUsed: false,
             practiceMode: true, questionHistory: [],
             inventory: {}, lootLog: [],
-            roundTimeLeft: ROUND_TIME,
             _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
             _mistakePracticeCount: {}, _waitingForContinue: false,
         });
@@ -979,7 +862,6 @@
 
         document.getElementById('timerSection').classList.remove('visible');
         updateUI(); showScreen('gameScreen');
-        startRoundTimer();
         showAchievement('🎯', 'Tryb ćwiczeń!', 'Błędy + nowe zadania');
         nextQuestion();
     }
@@ -996,8 +878,10 @@
         if (state.practiceMode && state.questionQueue.length > 0) {
             const q = state.questionQueue.shift();
             a = q.a; b = q.b;
+        } else if (!state.practiceMode && state.total > 0 && Math.random() < getRepeatChance()) {
+            const weak = getWeakestQuestion();
+            if (weak) { a = weak.a; b = weak.b; }
         }
-        // In normal mode: only pull from pool (no repeats unless wrong answer re-added it)
         if (!a || !b) { const q = pullFromPool(); a = q.a; b = q.b; }
 
         state.a = a; state.b = b; state.answer = a * b;
@@ -1130,10 +1014,7 @@
         clearInterval(state.timerInterval); state.timeLeft = state.timerMax; updateTimerBar();
         state.timerInterval = setInterval(() => {
             state.timeLeft -= 0.1;
-            if (state.timeLeft <= 0) {
-                state.timeLeft = 0; clearInterval(state.timerInterval);
-                if (state.playing) handleWrong();
-            }
+            if (state.timeLeft <= 0) { state.timeLeft = 0; clearInterval(state.timerInterval); handleWrong(); }
             updateTimerBar();
         }, 100);
     }
@@ -1162,10 +1043,7 @@
 
     function numPress(key) {
         if (!state.playing) return;
-        if (state._waitingForContinue) {
-            if (key === 'ok') continueAfterWrong();
-            return;
-        }
+        if (state._waitingForContinue) return;
 
         if (key === 'del') {
             numpadValue = numpadValue.slice(0, -1);
@@ -1183,11 +1061,6 @@
 
     function handleKeyboard(event) {
         if (!state.playing) return;
-        if (event.key === 'Enter' && state._waitingForContinue) {
-            event.preventDefault();
-            continueAfterWrong();
-            return;
-        }
         if (event.key === 'Enter') {
             event.preventDefault();
             checkAnswer();
@@ -1312,9 +1185,11 @@
         else { state.mistakes.push({ a: state.a, b: state.b, correctAnswer: state.answer, lastWrong: wrongVal, count: 1 }); }
 
         updateCombo(false);
+        state.lives--;
 
-        // Re-add this question to freshPool so it repeats (wrong answer = re-ask)
-        state.freshPool.unshift({ a: state.a, b: state.b });
+        const hearts = document.querySelectorAll('.heart');
+        const lostHeart = hearts[state.lives];
+        if (lostHeart) { lostHeart.classList.add('losing'); setTimeout(() => { lostHeart.classList.remove('losing'); lostHeart.classList.add('lost'); }, 300); }
 
         const fb = document.getElementById('feedback');
         fb.className = 'feedback bad';
@@ -1327,7 +1202,7 @@
         document.querySelectorAll('.hint-btn').forEach(b => b.disabled = true);
         const contRow = document.getElementById('continueRow');
         contRow.style.display = 'block';
-        document.getElementById('continueBtn').textContent = '▶ ROZUMIEM, DALEJ!';
+        document.getElementById('continueBtn').textContent = state.lives <= 0 ? '📊 ZOBACZ WYNIKI' : '▶ ROZUMIEM, DALEJ!';
 
         updateUI();
     }
@@ -1335,8 +1210,8 @@
     function continueAfterWrong() {
         document.getElementById('continueRow').style.display = 'none';
         state._waitingForContinue = false;
-        if (!state.playing) { showGameOver(); return; }
-        nextQuestion();
+        if (state.lives <= 0) { state.playing = false; clearInterval(state.timerInterval); showGameOver(); }
+        else nextQuestion();
     }
 
     function showWrongExplanation(wrongVal) {
@@ -1383,6 +1258,8 @@
         if (rarity === 'legendary') state._hasLegendary = true;
         spawnLootDrop(item);
         showAchievement(item.icon, `Nagroda za poziom ${state.level}!`, item.name);
+
+        if (state.lives < state.maxLives) state.lives++;
     }
 
     // ═══════════════════════════════════════════
@@ -1390,20 +1267,10 @@
     // ═══════════════════════════════════════════
 
     function showGameOver() {
-        clearInterval(state.roundTimerInterval);
-        clearInterval(state.timerInterval);
-        state.playing = false;
-
         const pct = state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0;
+
+        // Save to leaderboard
         const savedName = saveToLeaderboard(state.difficulty, state.playerName, state.score, state.level, pct);
-
-        // Check brainrot unlocks
-        const brainrotUnlocked = checkBrainrotUnlocks(state.score);
-
-        let brainrotHTML = '';
-        if (brainrotUnlocked.length > 0) {
-            brainrotHTML = '<br>🧠 Nowe brainroty: <span class="val">' + brainrotUnlocked.map(b => `<img src="${b.img}" style="width:24px;height:24px;border-radius:4px;vertical-align:middle;"> ${b.name}`).join(', ') + '</span>';
-        }
 
         document.getElementById('finalStats').innerHTML = `
             👤 Gracz: <span class="val">${savedName}</span><br>
@@ -1412,7 +1279,7 @@
             🔥 Najlepsza seria: <span class="val">${state.bestStreak}</span><br>
             💥 Max combo: <span class="val">×${Math.min(5, 1 + Math.floor(state.bestStreak / 3))}</span><br>
             ⬆️ Poziom: <span class="val">${state.level}</span><br>
-            🏆 Osiągnięcia: <span class="val">${state.achievements.size}</span>${brainrotHTML}
+            🏆 Osiągnięcia: <span class="val">${state.achievements.size}</span>
         `;
 
         // Leaderboard on game over
@@ -1491,7 +1358,15 @@
         document.getElementById('score').textContent = state.score;
         document.getElementById('correct').textContent = state.correct;
         document.getElementById('total').textContent = state.total;
-        document.getElementById('levelDisplay').textContent = state.level;
+
+        const heartsEl = document.getElementById('hearts');
+        heartsEl.innerHTML = '';
+        for (let i = 0; i < state.maxLives; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart' + (i >= state.lives ? ' lost' : '');
+            heart.innerHTML = `<svg viewBox="0 0 20 18"><path d="M10 18L8.5 16.6C3.4 12 0 9 0 5.2C0 2.3 2.3 0 5.2 0C6.8 0 8.4 0.7 10 2.1C11.6 0.7 13.2 0 14.8 0C17.7 0 20 2.3 20 5.2C20 9 16.6 12 11.5 16.6L10 18Z" fill="${i >= state.lives ? '#555' : '#FF1744'}"/></svg>`;
+            heartsEl.appendChild(heart);
+        }
 
         const xpPct = (state.xp / state.xpToNext) * 100;
         document.getElementById('xpBar').style.width = xpPct + '%';
@@ -1692,7 +1567,7 @@
     function renderLeaderboard(difficulty, highlightName) {
         const lb = getLeaderboard(difficulty);
         if (lb.length === 0) {
-            return '<div style="text-align:center;font-size:8px;color:#555;padding:16px;">Brak wyników. Zagraj żeby się tu pojawić!</div>';
+            return '<div style="text-align:center;font-size:8px;color:#888;padding:16px;">Brak wyników. Zagraj żeby się tu pojawić!</div>';
         }
 
         let html = '<table class="lb-table"><thead><tr><th>#</th><th>Gracz</th><th>💎</th><th>⬆️</th><th>✅</th></tr></thead><tbody>';
@@ -1721,65 +1596,6 @@
             btn.classList.add('active');
         }
         document.getElementById('leaderboardContent').innerHTML = renderLeaderboard(diff);
-    }
-
-    // ═══════════════════════════════════════════
-    // Brainrot Collection System
-    // ═══════════════════════════════════════════
-
-    function checkBrainrotUnlocks(score) {
-        const collection = getBrainrotCollection();
-        const newlyUnlocked = [];
-
-        for (const br of BRAINROT_CHARS) {
-            if (score >= br.goal) {
-                const prev = collection[br.id];
-                if (!prev || score > prev.bestScore) {
-                    const wasOwned = prev && prev.owned;
-                    collection[br.id] = { owned: true, bestScore: score, date: Date.now() };
-                    if (!wasOwned) {
-                        newlyUnlocked.push(br);
-                    }
-                }
-            }
-        }
-
-        saveBrainrotCollection(collection);
-        return newlyUnlocked;
-    }
-
-    function renderCatalog() {
-        const container = document.getElementById('catalogContent');
-        const collection = getBrainrotCollection();
-        // Get best score ever across all sessions for progress display
-        let bestEver = 0;
-        try { const lb = ['easy','medium','hard'].flatMap(d => getLeaderboard(d)); bestEver = lb.reduce((m,e) => Math.max(m, e.score), 0); } catch(e) {}
-
-        let html = '';
-        for (const br of BRAINROT_CHARS) {
-            const data = collection[br.id];
-            const isOwned = data && data.owned;
-            const rarCls = br.rarity;
-
-            html += `<div class="brainrot-card ${rarCls}${isOwned ? ' owned' : ''}">`;
-            html += `<div class="brainrot-icon${isOwned ? '' : ' locked'}"><img src="${br.img}" alt="${br.name}" loading="lazy"></div>`;
-            html += `<div class="brainrot-name">${isOwned ? br.name : '???'}</div>`;
-            html += `<div class="brainrot-rarity ${rarCls}">${rarCls === 'god' ? 'GOD TIER' : rarCls.toUpperCase()}</div>`;
-
-            if (isOwned) {
-                html += `<div class="brainrot-desc">${br.desc}</div>`;
-                html += `<div class="brainrot-stats">⚡ ${br.power}<br>💬 "${br.catchphrase}"</div>`;
-                html += `<div class="brainrot-owned-badge">✅ STILL THE BRAINROT! (${data.bestScore}💎)</div>`;
-            } else {
-                const pct = Math.min(100, Math.round((bestEver / br.goal) * 100));
-                html += `<div class="brainrot-goal">🔒 Potrzebujesz ${br.goal}💎 w jednej rundzie</div>`;
-                html += `<div class="brainrot-progress-bg"><div class="brainrot-progress-fill${pct >= 100 ? ' full' : ''}" style="width:${pct}%"></div></div>`;
-                html += `<div style="font-size:6px;color:#666;margin-top:2px;">Twój rekord: ${bestEver}💎</div>`;
-            }
-
-            html += '</div>';
-        }
-        container.innerHTML = html;
     }
 
     // ═══════════════════════════════════════════
