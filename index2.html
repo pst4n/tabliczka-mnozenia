@@ -405,7 +405,9 @@
         .brainrot-card.epic { border-color: #FF00FF; }
         .brainrot-card.legendary { border-color: var(--gold); }
         .brainrot-card.god { border-color: #FF4444; box-shadow: 0 0 15px rgba(255,0,0,0.3); animation: legendary-glow 2s ease infinite; }
-        .brainrot-icon { font-size: 32px; margin-bottom: 6px; line-height: 1.3; }
+        .brainrot-icon { width: 80px; height: 80px; margin: 0 auto 6px; border-radius: 8px; overflow: hidden; border: 2px solid #555; }
+        .brainrot-icon img { width: 100%; height: 100%; object-fit: cover; image-rendering: auto; }
+        .brainrot-icon.locked { filter: grayscale(1) brightness(0.3); }
         .brainrot-name { font-size: 8px; color: #fff; margin-bottom: 4px; }
         .brainrot-desc { font-size: 6px; color: #aaa; margin-bottom: 6px; line-height: 1.6; }
         .brainrot-rarity { font-size: 6px; font-style: italic; margin-bottom: 4px; }
@@ -626,16 +628,16 @@
     // Brainrot Characters Database
     // ═══════════════════════════════════════════
     const BRAINROT_CHARS = [
-        { id: 'skibidi',      icon: '🚽🗣️', name: 'Skibidi Toilet',           rarity: 'common',    desc: 'Taki koleś z głową w kiblu',          goal: 15,  power: 'Splashes enemies',   catchphrase: 'Skibidi dop dop yes yes!' },
-        { id: 'sigma',        icon: '🐺😤', name: 'Sigma Boy',                rarity: 'common',    desc: 'Samotny wilk, Patrick Bateman vibes', goal: 30,  power: 'Sigma stare',        catchphrase: 'I am the storm that is approaching...' },
-        { id: 'tralalero',    icon: '🦈👟', name: 'Tralalero Tralala',        rarity: 'common',    desc: 'Rekin w adidasach, chodzi po lądzie', goal: 50,  power: 'Shark dance',        catchphrase: 'Tralalero tralala!' },
-        { id: 'bombardiro',   icon: '🐊💣', name: 'Bombardiro Crocodilo',     rarity: 'rare',      desc: 'Krokodyl-bombowiec, lata i bombarduje', goal: 80,  power: 'Bombardowanie',   catchphrase: 'Bombardiro crocodilo!' },
-        { id: 'tungtung',     icon: '🪵👊', name: 'Tung Tung Tung Sahur',     rarity: 'rare',      desc: 'Drewniana deska z twarzą, budzi na sahur', goal: 120, power: 'Tung attack',  catchphrase: 'Tung tung tung sahur!' },
-        { id: 'fanum',        icon: '🍔💰', name: 'Fanum Tax',                rarity: 'rare',      desc: 'Kradnie ci jedzenie, pobiera podatek', goal: 170, power: 'Food steal',       catchphrase: 'Fanum tax! Gimme that!' },
-        { id: 'ballerina',    icon: '🩰☕', name: 'Ballerina Cappuccina',     rarity: 'epic',      desc: 'Baletnica z cappuccino, tańczy elegancko', goal: 230, power: 'Graceful spin', catchphrase: 'Ballerina cappuccina~!' },
-        { id: 'patapim',      icon: '🐒🤖', name: 'Brr Brr Patapim',         rarity: 'epic',      desc: 'Małpa-mech w zbroi, robi brr brr',   goal: 300, power: 'Mech mode',          catchphrase: 'Brr brr patapim!' },
-        { id: 'chimpanzini',  icon: '🐵🍌', name: 'Chimpanzini Bananini',     rarity: 'legendary', desc: 'Włoski szympans z bananem, szef mafii', goal: 400, power: 'Banana barrage', catchphrase: 'Chimpanzini bananini!' },
-        { id: 'lavaca',       icon: '🐄🪐', name: 'La Vaca Saturno Saturnita', rarity: 'god',      desc: 'Kosmiczna krowa z pierścieniami Saturna, bóstwo', goal: 600, power: 'Cosmic moo', catchphrase: 'Muuuu saturnita~!' },
+        { id: 'tralalero',    name: 'Tralalero Tralala',        rarity: 'common',    desc: 'Rekin w adidasach, chodzi po lądzie',            goal: 15,  power: 'Shark dance',        catchphrase: 'Tralalero tralala!',        img: 'https://brainrots.icu/characters/Tralalero%20Tralala.webp' },
+        { id: 'bombardiro',   name: 'Bombardiro Crocodilo',     rarity: 'common',    desc: 'Krokodyl-bombowiec, lata i bombarduje',          goal: 30,  power: 'Bombardowanie',      catchphrase: 'Bombardiro crocodilo!',     img: 'https://brainrots.icu/characters/Bombardino%20Crocodilo.jpg' },
+        { id: 'trippi',       name: 'Trippi Troppi',            rarity: 'common',    desc: 'Tropikalny koleś, zawsze na vibie',              goal: 50,  power: 'Tropical vibes',     catchphrase: 'Trippi troppi!',            img: 'https://brainrots.icu/characters/Trippi-Troppi.webp' },
+        { id: 'tungtung',     name: 'Tung Tung Tung Sahur',     rarity: 'rare',      desc: 'Drewniana deska z twarzą, budzi na sahur',       goal: 80,  power: 'Tung attack',        catchphrase: 'Tung tung tung sahur!',     img: 'https://brainrots.icu/characters/Tung%20Tung%20Tung%20Tung%20Tung%20Tung%20Tung%20Sahur.webp' },
+        { id: 'lirili',       name: 'Lirilì Larilà',            rarity: 'rare',      desc: 'Tajemnicza postać, śpiewa dziwne melodie',       goal: 120, power: 'Hypno song',         catchphrase: 'Lirilì larilà~!',          img: 'https://brainrots.icu/characters/Lirili%20Larila.jpg' },
+        { id: 'boneca',       name: 'Boneca Ambalabu',          rarity: 'rare',      desc: 'Lalka z innego wymiaru, trochę creepy',          goal: 170, power: 'Cursed stare',       catchphrase: 'Ambalabu!',                 img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-15.webp' },
+        { id: 'patapim',      name: 'Brr Brr Patapim',          rarity: 'epic',      desc: 'Małpa-mech w zbroi, robi brr brr',              goal: 230, power: 'Mech mode',          catchphrase: 'Brr brr patapim!',          img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-12.webp' },
+        { id: 'bombombini',   name: 'Bombombini Gusini',        rarity: 'epic',      desc: 'Gęś z bombami, nie pytaj dlaczego',             goal: 300, power: 'Goose bomb',         catchphrase: 'Bombombini gusini!',        img: 'https://brainrots.icu/characters/Bombombini%20Gusini.jpg' },
+        { id: 'chimpanzini',  name: 'Chimpanzini Bananini',     rarity: 'legendary', desc: 'Włoski szympans z bananem, szef mafii bananowej', goal: 400, power: 'Banana barrage',    catchphrase: 'Chimpanzini bananini!',     img: 'https://brainrots.icu/characters/Chimpanzini%20Bananini.png' },
+        { id: 'capuccino',    name: 'Capuccino Assassino',      rarity: 'god',       desc: 'Zabójcze cappuccino, ostateczny boss brainrotu', goal: 600, power: 'Espresso kill shot', catchphrase: 'Capuccino... assassino!',   img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-08.webp' },
     ];
 
     function getBrainrotCollection() {
@@ -1400,7 +1402,7 @@
 
         let brainrotHTML = '';
         if (brainrotUnlocked.length > 0) {
-            brainrotHTML = '<br>🧠 Nowe brainroty: <span class="val">' + brainrotUnlocked.map(b => b.icon + ' ' + b.name).join(', ') + '</span>';
+            brainrotHTML = '<br>🧠 Nowe brainroty: <span class="val">' + brainrotUnlocked.map(b => `<img src="${b.img}" style="width:24px;height:24px;border-radius:4px;vertical-align:middle;"> ${b.name}`).join(', ') + '</span>';
         }
 
         document.getElementById('finalStats').innerHTML = `
@@ -1749,6 +1751,9 @@
     function renderCatalog() {
         const container = document.getElementById('catalogContent');
         const collection = getBrainrotCollection();
+        // Get best score ever across all sessions for progress display
+        let bestEver = 0;
+        try { const lb = ['easy','medium','hard'].flatMap(d => getLeaderboard(d)); bestEver = lb.reduce((m,e) => Math.max(m, e.score), 0); } catch(e) {}
 
         let html = '';
         for (const br of BRAINROT_CHARS) {
@@ -1757,7 +1762,7 @@
             const rarCls = br.rarity;
 
             html += `<div class="brainrot-card ${rarCls}${isOwned ? ' owned' : ''}">`;
-            html += `<div class="brainrot-icon">${isOwned ? br.icon : '❓'}</div>`;
+            html += `<div class="brainrot-icon${isOwned ? '' : ' locked'}"><img src="${br.img}" alt="${br.name}" loading="lazy"></div>`;
             html += `<div class="brainrot-name">${isOwned ? br.name : '???'}</div>`;
             html += `<div class="brainrot-rarity ${rarCls}">${rarCls === 'god' ? 'GOD TIER' : rarCls.toUpperCase()}</div>`;
 
@@ -1766,8 +1771,10 @@
                 html += `<div class="brainrot-stats">⚡ ${br.power}<br>💬 "${br.catchphrase}"</div>`;
                 html += `<div class="brainrot-owned-badge">✅ STILL THE BRAINROT! (${data.bestScore}💎)</div>`;
             } else {
+                const pct = Math.min(100, Math.round((bestEver / br.goal) * 100));
                 html += `<div class="brainrot-goal">🔒 Potrzebujesz ${br.goal}💎 w jednej rundzie</div>`;
-                html += `<div class="brainrot-progress-bg"><div class="brainrot-progress-fill" style="width:0%"></div></div>`;
+                html += `<div class="brainrot-progress-bg"><div class="brainrot-progress-fill${pct >= 100 ? ' full' : ''}" style="width:${pct}%"></div></div>`;
+                html += `<div style="font-size:6px;color:#666;margin-top:2px;">Twój rekord: ${bestEver}💎</div>`;
             }
 
             html += '</div>';
