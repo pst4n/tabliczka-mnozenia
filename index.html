@@ -81,6 +81,46 @@
         .answer-input.wrong { border-color: var(--redstone); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(255,0,0,0.6); animation: shake 0.4s ease; }
         @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
 
+        /* ═══ MC NUMPAD ═══ */
+        .mc-display {
+            font-family: 'Press Start 2P', monospace; font-size: 32px;
+            min-width: 160px; min-height: 50px; padding: 8px 16px;
+            text-align: center; background: #000; color: #fff; border: 3px solid #555;
+            box-shadow: inset 2px 2px 0 #333; margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            letter-spacing: 6px; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .mc-display.active { border-color: var(--diamond); box-shadow: inset 2px 2px 0 #333, 0 0 10px rgba(93,236,245,0.5); }
+        .mc-display.correct { border-color: var(--emerald); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(23,221,98,0.6); }
+        .mc-display.wrong { border-color: var(--redstone); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(255,0,0,0.6); animation: shake 0.4s ease; }
+        .mc-display .cursor { animation: blink 0.8s step-end infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .mc-numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 280px; margin: 0 auto; }
+        .mc-numkey {
+            font-family: 'Press Start 2P', monospace; font-size: 18px; padding: 14px 0;
+            background: #7F7F7F; color: #fff; border: 3px solid #000;
+            box-shadow: inset 2px 2px 0 #AAA, inset -2px -2px 0 #555;
+            cursor: pointer; text-shadow: 1px 1px 0 #333; transition: background 0.1s;
+            user-select: none; -webkit-user-select: none; touch-action: manipulation;
+            text-align: center;
+        }
+        .mc-numkey:hover { background: #999; }
+        .mc-numkey:active { background: #666; box-shadow: inset -2px -2px 0 #AAA, inset 2px 2px 0 #555; transform: translateY(1px); }
+        .mc-numkey.key-ok { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; font-size: 14px; }
+        .mc-numkey.key-ok:hover { background: #6AB33A; }
+        .mc-numkey.key-ok:active { background: #4A8B22; }
+        .mc-numkey.key-del { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; font-size: 14px; }
+        .mc-numkey.key-del:hover { background: #CC9A1E; }
+        .mc-numkey.key-del:active { background: #9A7209; }
+        .mc-numkey.key-0 { grid-column: 2; }
+
+        @media (max-width: 500px) {
+            .mc-numpad { max-width: 240px; gap: 4px; }
+            .mc-numkey { font-size: 16px; padding: 12px 0; }
+            .mc-display { font-size: 26px; min-height: 44px; }
+        }
+
         .mc-btn {
             font-family: 'Press Start 2P', monospace; font-size: 12px; padding: 10px 20px;
             background: #999; color: #fff; border: 3px solid #000;
@@ -418,9 +458,20 @@
         <div class="mc-panel">
             <div class="question-area">
                 <div class="question-text" id="question">? × ? = ?</div>
-                <div class="answer-row">
-                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="answer-input" id="answerInput" autocomplete="off" placeholder="?" onkeydown="if(event.key==='Enter') checkAnswer()">
-                    <button class="mc-btn primary" onclick="checkAnswer()">OK</button>
+                <div class="mc-display active" id="answerDisplay"><span class="cursor">_</span></div>
+                <div class="mc-numpad" id="numpad">
+                    <button class="mc-numkey" onclick="numPress('1')">1</button>
+                    <button class="mc-numkey" onclick="numPress('2')">2</button>
+                    <button class="mc-numkey" onclick="numPress('3')">3</button>
+                    <button class="mc-numkey" onclick="numPress('4')">4</button>
+                    <button class="mc-numkey" onclick="numPress('5')">5</button>
+                    <button class="mc-numkey" onclick="numPress('6')">6</button>
+                    <button class="mc-numkey" onclick="numPress('7')">7</button>
+                    <button class="mc-numkey" onclick="numPress('8')">8</button>
+                    <button class="mc-numkey" onclick="numPress('9')">9</button>
+                    <button class="mc-numkey key-del" onclick="numPress('del')">⬅ Cofnij</button>
+                    <button class="mc-numkey key-0" onclick="numPress('0')">0</button>
+                    <button class="mc-numkey key-ok" onclick="numPress('ok')">✅ OK</button>
                 </div>
                 <div class="hint-row">
                     <button class="mc-btn hint-btn" id="hintBlocksBtn" onclick="showHint('blocks')">🧱 Bloczki</button>
@@ -726,7 +777,7 @@
             questionQueue: [], practiceMode: false, questionHistory: [],
             freshPool: [], askedSet: new Set(),
             _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
-            _mistakePracticeCount: {}, // tracks how many times each mistake was practiced
+            _mistakePracticeCount: {}, _waitingForContinue: false,
         });
         buildFreshPool();
 
@@ -782,7 +833,7 @@
             practiceMode: true, questionHistory: [],
             inventory: {}, lootLog: [],
             _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
-            _mistakePracticeCount: {},
+            _mistakePracticeCount: {}, _waitingForContinue: false,
         });
 
         // Each mistake repeated max 2 times, then mix in fresh questions
@@ -842,8 +893,10 @@
         if (!state.masteryMap[key]) state.masteryMap[key] = { correct: 0, total: 0, streak: 0 };
 
         document.getElementById('question').textContent = `${a} × ${b} = ?`;
-        const input = document.getElementById('answerInput');
-        input.value = ''; input.className = 'answer-input'; input.focus();
+        numpadValue = '';
+        updateDisplay();
+        document.getElementById('answerDisplay').className = 'mc-display active';
+        state._waitingForContinue = false;
         document.getElementById('feedback').textContent = '';
         document.getElementById('hintCost').textContent = 'Podpowiedź = mniej 💎, ale więcej wiedzy!';
 
@@ -973,21 +1026,81 @@
         bar.className = 'timer-bar-fill' + (pct < 30 ? ' warning' : '');
     }
 
+    // ═══════════════════════════════════════════
+    // Numpad System
+    // ═══════════════════════════════════════════
+
+    let numpadValue = '';
+
+    function updateDisplay() {
+        const display = document.getElementById('answerDisplay');
+        if (numpadValue === '') {
+            display.innerHTML = '<span class="cursor">_</span>';
+        } else {
+            display.textContent = numpadValue;
+        }
+    }
+
+    function numPress(key) {
+        if (!state.playing) return;
+        if (state._waitingForContinue) return;
+
+        if (key === 'del') {
+            numpadValue = numpadValue.slice(0, -1);
+            updateDisplay();
+        } else if (key === 'ok') {
+            checkAnswer();
+        } else {
+            // digit 0-9, max 3 digits
+            if (numpadValue.length < 3) {
+                numpadValue += key;
+                updateDisplay();
+            }
+        }
+    }
+
+    function handleKeyboard(event) {
+        if (!state.playing) return;
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            checkAnswer();
+        } else if (event.key === 'Backspace') {
+            event.preventDefault();
+            numpadValue = numpadValue.slice(0, -1);
+            updateDisplay();
+        } else if (event.key >= '0' && event.key <= '9') {
+            event.preventDefault();
+            if (numpadValue.length < 3) {
+                numpadValue += event.key;
+                updateDisplay();
+            }
+        }
+    }
+
+    // Physical keyboard support (desktop)
+    document.addEventListener('keydown', (e) => {
+        if (!state.playing || state._waitingForContinue) return;
+        // Don't capture if typing in name field
+        if (document.activeElement && document.activeElement.id === 'playerName') return;
+        handleKeyboard(e);
+    });
+
     function checkAnswer() {
         if (!state.playing) return;
-        const input = document.getElementById('answerInput');
-        const val = parseInt(input.value);
-        if (isNaN(val)) return;
+        const val = parseInt(numpadValue);
+        if (isNaN(val) || numpadValue === '') return;
         clearInterval(state.timerInterval);
         state.total++;
         const key = masteryKey(state.a, state.b);
         state.masteryMap[key].total++;
-        if (val === state.answer) handleCorrect(input);
-        else handleWrong(input, val);
+
+        const display = document.getElementById('answerDisplay');
+        if (val === state.answer) handleCorrect(display);
+        else handleWrong(display, val);
     }
 
-    function handleCorrect(input) {
-        if (input) input.className = 'answer-input correct';
+    function handleCorrect(display) {
+        if (display) display.className = 'mc-display correct';
         state.correct++;
 
         const key = masteryKey(state.a, state.b);
@@ -1051,8 +1164,8 @@
         setTimeout(nextQuestion, state.hintUsed ? 2500 : 1000);
     }
 
-    function handleWrong(input, wrongVal) {
-        if (input) input.className = 'answer-input wrong';
+    function handleWrong(display, wrongVal) {
+        if (display) display.className = 'mc-display wrong';
 
         const key = masteryKey(state.a, state.b);
         state.masteryMap[key].streak = 0;
@@ -1085,7 +1198,7 @@
         spawnParticles(4, ['#FF0000', '#CC0000', '#880000']);
         showWrongExplanation(wrongVal);
 
-        document.getElementById('answerInput').disabled = true;
+        state._waitingForContinue = true;
         document.querySelectorAll('.hint-btn').forEach(b => b.disabled = true);
         const contRow = document.getElementById('continueRow');
         contRow.style.display = 'block';
@@ -1096,7 +1209,7 @@
 
     function continueAfterWrong() {
         document.getElementById('continueRow').style.display = 'none';
-        document.getElementById('answerInput').disabled = false;
+        state._waitingForContinue = false;
         if (state.lives <= 0) { state.playing = false; clearInterval(state.timerInterval); showGameOver(); }
         else nextQuestion();
     }
