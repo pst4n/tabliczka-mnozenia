@@ -371,17 +371,17 @@
         .leaderboard { margin-top: 16px; }
         .leaderboard h3 { font-size: 10px; color: var(--gold); margin-bottom: 10px; text-align: center; }
         .lb-table { width: 100%; border-collapse: collapse; }
-        .lb-table th { font-size: 7px; color: #888; text-align: left; padding: 4px 6px; border-bottom: 2px solid #666; }
-        .lb-table td { font-size: 8px; color: #ccc; padding: 5px 6px; border-bottom: 1px solid #555; }
-        .lb-table tr.current { background: rgba(252,219,5,0.15); }
-        .lb-table tr.current td { color: var(--gold); }
-        .lb-rank { color: #888; width: 30px; }
+        .lb-table th { font-size: 7px; color: #555; text-align: left; padding: 4px 6px; border-bottom: 2px solid #999; }
+        .lb-table td { font-size: 8px; color: #333; padding: 5px 6px; border-bottom: 1px solid #aaa; }
+        .lb-table tr.current { background: rgba(252,219,5,0.25); }
+        .lb-table tr.current td { color: #8B6508; font-weight: bold; }
+        .lb-rank { color: #555; width: 30px; }
         .lb-rank.gold { color: var(--gold); }
         .lb-rank.silver { color: #C0C0C0; }
         .lb-rank.bronze { color: #CD7F32; }
         .lb-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lb-score { color: var(--diamond); text-align: right; }
-        .lb-diff { font-size: 6px; color: #888; }
+        .lb-score { color: #0088AA; text-align: right; font-weight: bold; }
+        .lb-diff { font-size: 6px; color: #666; }
         .player-greeting { text-align: center; font-size: 9px; color: var(--gold); margin-bottom: 6px; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
 
         /* ═══ MAIN TIMER (3 min) ═══ */
@@ -405,7 +405,7 @@
         .brainrot-card.epic { border-color: #FF00FF; }
         .brainrot-card.legendary { border-color: var(--gold); }
         .brainrot-card.god { border-color: #FF4444; box-shadow: 0 0 15px rgba(255,0,0,0.3); animation: legendary-glow 2s ease infinite; }
-        .brainrot-icon { font-size: 36px; margin-bottom: 6px; }
+        .brainrot-icon { font-size: 32px; margin-bottom: 6px; line-height: 1.3; }
         .brainrot-name { font-size: 8px; color: #fff; margin-bottom: 4px; }
         .brainrot-desc { font-size: 6px; color: #aaa; margin-bottom: 6px; line-height: 1.6; }
         .brainrot-rarity { font-size: 6px; font-style: italic; margin-bottom: 4px; }
@@ -626,16 +626,16 @@
     // Brainrot Characters Database
     // ═══════════════════════════════════════════
     const BRAINROT_CHARS = [
-        { id: 'skibidi',      icon: '🚽', name: 'Skibidi Toilet',           rarity: 'common',    desc: 'Taki koleś z głową w kiblu',          goal: 15,  power: 'Splashes enemies',   catchphrase: 'Skibidi dop dop!' },
-        { id: 'sigma',        icon: '🐺', name: 'Sigma',                    rarity: 'common',    desc: 'Samotny wilk, Patrick Bateman vibes', goal: 30,  power: 'Sigma stare',        catchphrase: 'I am the storm...' },
-        { id: 'tralalero',    icon: '🦈', name: 'Tralalero Tralala',        rarity: 'common',    desc: 'Rekin w adidasach Nike',              goal: 50,  power: 'Shark dance',        catchphrase: 'Tralala!' },
-        { id: 'bombardiro',   icon: '🐊', name: 'Bombardiro Crocodilo',     rarity: 'rare',      desc: 'Krokodyl-bombowiec',                  goal: 80,  power: 'Bombardowanie',      catchphrase: 'Bombardiro!' },
-        { id: 'tungtung',     icon: '🪵', name: 'Tung Tung Tung Sahur',     rarity: 'rare',      desc: 'Drewniana deska z twarzą',            goal: 120, power: 'Tung attack',        catchphrase: 'Tung tung tung!' },
-        { id: 'fanum',        icon: '🍔', name: 'Fanum Tax',                rarity: 'rare',      desc: 'Kradnie ci jedzenie',                 goal: 170, power: 'Food steal',         catchphrase: 'Fanum tax!' },
-        { id: 'ballerina',    icon: '💃', name: 'Ballerina Cappuccina',     rarity: 'epic',      desc: 'Baletnica z cappuccino',              goal: 230, power: 'Graceful spin',      catchphrase: 'Cappuccina!' },
-        { id: 'patapim',      icon: '🐒', name: 'Brr Brr Patapim',         rarity: 'epic',      desc: 'Małpa-mech',                          goal: 300, power: 'Mech mode',          catchphrase: 'Brr brr patapim!' },
-        { id: 'chimpanzini',  icon: '🍌', name: 'Chimpanzini Bananini',     rarity: 'legendary', desc: 'Szympans z banana',                   goal: 400, power: 'Banana barrage',     catchphrase: 'Bananini!' },
-        { id: 'lavaca',       icon: '🪐', name: 'La Vaca Saturno Saturnita', rarity: 'god',      desc: 'Kosmiczna krowa z pierścieniami Saturna', goal: 600, power: 'Cosmic moo',    catchphrase: 'Muuuu saturnita!' },
+        { id: 'skibidi',      icon: '🚽🗣️', name: 'Skibidi Toilet',           rarity: 'common',    desc: 'Taki koleś z głową w kiblu',          goal: 15,  power: 'Splashes enemies',   catchphrase: 'Skibidi dop dop yes yes!' },
+        { id: 'sigma',        icon: '🐺😤', name: 'Sigma Boy',                rarity: 'common',    desc: 'Samotny wilk, Patrick Bateman vibes', goal: 30,  power: 'Sigma stare',        catchphrase: 'I am the storm that is approaching...' },
+        { id: 'tralalero',    icon: '🦈👟', name: 'Tralalero Tralala',        rarity: 'common',    desc: 'Rekin w adidasach, chodzi po lądzie', goal: 50,  power: 'Shark dance',        catchphrase: 'Tralalero tralala!' },
+        { id: 'bombardiro',   icon: '🐊💣', name: 'Bombardiro Crocodilo',     rarity: 'rare',      desc: 'Krokodyl-bombowiec, lata i bombarduje', goal: 80,  power: 'Bombardowanie',   catchphrase: 'Bombardiro crocodilo!' },
+        { id: 'tungtung',     icon: '🪵👊', name: 'Tung Tung Tung Sahur',     rarity: 'rare',      desc: 'Drewniana deska z twarzą, budzi na sahur', goal: 120, power: 'Tung attack',  catchphrase: 'Tung tung tung sahur!' },
+        { id: 'fanum',        icon: '🍔💰', name: 'Fanum Tax',                rarity: 'rare',      desc: 'Kradnie ci jedzenie, pobiera podatek', goal: 170, power: 'Food steal',       catchphrase: 'Fanum tax! Gimme that!' },
+        { id: 'ballerina',    icon: '🩰☕', name: 'Ballerina Cappuccina',     rarity: 'epic',      desc: 'Baletnica z cappuccino, tańczy elegancko', goal: 230, power: 'Graceful spin', catchphrase: 'Ballerina cappuccina~!' },
+        { id: 'patapim',      icon: '🐒🤖', name: 'Brr Brr Patapim',         rarity: 'epic',      desc: 'Małpa-mech w zbroi, robi brr brr',   goal: 300, power: 'Mech mode',          catchphrase: 'Brr brr patapim!' },
+        { id: 'chimpanzini',  icon: '🐵🍌', name: 'Chimpanzini Bananini',     rarity: 'legendary', desc: 'Włoski szympans z bananem, szef mafii', goal: 400, power: 'Banana barrage', catchphrase: 'Chimpanzini bananini!' },
+        { id: 'lavaca',       icon: '🐄🪐', name: 'La Vaca Saturno Saturnita', rarity: 'god',      desc: 'Kosmiczna krowa z pierścieniami Saturna, bóstwo', goal: 600, power: 'Cosmic moo', catchphrase: 'Muuuu saturnita~!' },
     ];
 
     function getBrainrotCollection() {
@@ -1160,7 +1160,10 @@
 
     function numPress(key) {
         if (!state.playing) return;
-        if (state._waitingForContinue) return;
+        if (state._waitingForContinue) {
+            if (key === 'ok') continueAfterWrong();
+            return;
+        }
 
         if (key === 'del') {
             numpadValue = numpadValue.slice(0, -1);
@@ -1178,6 +1181,11 @@
 
     function handleKeyboard(event) {
         if (!state.playing) return;
+        if (event.key === 'Enter' && state._waitingForContinue) {
+            event.preventDefault();
+            continueAfterWrong();
+            return;
+        }
         if (event.key === 'Enter') {
             event.preventDefault();
             checkAnswer();
@@ -1682,7 +1690,7 @@
     function renderLeaderboard(difficulty, highlightName) {
         const lb = getLeaderboard(difficulty);
         if (lb.length === 0) {
-            return '<div style="text-align:center;font-size:8px;color:#888;padding:16px;">Brak wyników. Zagraj żeby się tu pojawić!</div>';
+            return '<div style="text-align:center;font-size:8px;color:#555;padding:16px;">Brak wyników. Zagraj żeby się tu pojawić!</div>';
         }
 
         let html = '<table class="lb-table"><thead><tr><th>#</th><th>Gracz</th><th>💎</th><th>⬆️</th><th>✅</th></tr></thead><tbody>';
