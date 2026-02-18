@@ -327,6 +327,23 @@
         .loot-card .loot-name { font-size: 6px; color: #ccc; margin-top: 3px; }
         .loot-card .loot-qty { font-size: 7px; color: var(--gold); }
 
+        /* ═══ LEADERBOARD ═══ */
+        .leaderboard { margin-top: 16px; }
+        .leaderboard h3 { font-size: 10px; color: var(--gold); margin-bottom: 10px; text-align: center; }
+        .lb-table { width: 100%; border-collapse: collapse; }
+        .lb-table th { font-size: 7px; color: #888; text-align: left; padding: 4px 6px; border-bottom: 2px solid #666; }
+        .lb-table td { font-size: 8px; color: #ccc; padding: 5px 6px; border-bottom: 1px solid #555; }
+        .lb-table tr.current { background: rgba(252,219,5,0.15); }
+        .lb-table tr.current td { color: var(--gold); }
+        .lb-rank { color: #888; width: 30px; }
+        .lb-rank.gold { color: var(--gold); }
+        .lb-rank.silver { color: #C0C0C0; }
+        .lb-rank.bronze { color: #CD7F32; }
+        .lb-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-score { color: var(--diamond); text-align: right; }
+        .lb-diff { font-size: 6px; color: #888; }
+        .player-greeting { text-align: center; font-size: 9px; color: var(--gold); margin-bottom: 6px; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
+
         @media (max-width: 500px) {
             .title h1 { font-size: 13px; }
             .question-text { font-size: 22px; }
@@ -359,6 +376,10 @@
                 📖 Nie wiesz? Użyj podpowiedzi!
             </p>
             <div style="margin: 16px 0;">
+                <div style="font-size: 9px; color: #555; margin-bottom: 8px;">TWOJE IMIĘ:</div>
+                <input type="text" id="playerName" class="answer-input" style="font-size:14px;width:200px;margin-bottom:16px;" placeholder="Wpisz imię..." maxlength="20" value="">
+            </div>
+            <div style="margin: 16px 0;">
                 <div style="font-size: 9px; color: #555; margin-bottom: 8px;">WYBIERZ POZIOM:</div>
                 <div class="difficulty">
                     <button class="diff-btn active" onclick="setDifficulty('easy', this)">😊 Łatwy<br><span style="font-size:7px;">2-5</span></button>
@@ -367,6 +388,9 @@
                 </div>
             </div>
             <button class="mc-btn primary" onclick="startGame()" style="font-size: 14px; padding: 14px 30px;">▶ GRAJ!</button>
+            <div style="margin-top: 12px;">
+                <button class="mc-btn" onclick="showScreen('leaderboardScreen')" style="font-size: 9px;">🏆 RANKING</button>
+            </div>
         </div>
     </div>
 
@@ -395,7 +419,7 @@
             <div class="question-area">
                 <div class="question-text" id="question">? × ? = ?</div>
                 <div class="answer-row">
-                    <input type="number" class="answer-input" id="answerInput" autocomplete="off" placeholder="?" onkeydown="if(event.key==='Enter') checkAnswer()">
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="answer-input" id="answerInput" autocomplete="off" placeholder="?" onkeydown="if(event.key==='Enter') checkAnswer()">
                     <button class="mc-btn primary" onclick="checkAnswer()">OK</button>
                 </div>
                 <div class="hint-row">
@@ -429,12 +453,29 @@
         <div class="mc-panel gameover-screen">
             <h2>🏁 KONIEC GRY!</h2>
             <div class="final-stats" id="finalStats"></div>
+            <div class="leaderboard" id="gameoverLeaderboard"></div>
             <div class="loot-summary" id="lootSummary"></div>
             <div class="mistakes-review" id="mistakesReview"></div>
             <div class="mastery-section" id="masterySection"></div>
             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button class="mc-btn primary" onclick="startGame()">🔄 JESZCZE RAZ</button>
                 <button class="mc-btn" onclick="practiceWeakSpots()">🎯 ĆWICZ BŁĘDY</button>
+                <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="leaderboardScreen" class="screen">
+        <div class="mc-panel">
+            <h2 style="font-size:14px;color:#333;text-align:center;margin-bottom:16px;">🏆 RANKING 🏆</h2>
+            <div class="difficulty" style="margin-bottom:12px;">
+                <button class="diff-btn active" onclick="showLeaderboardTab('easy',this)">😊 Łatwy</button>
+                <button class="diff-btn" onclick="showLeaderboardTab('medium',this)">😎 Średni</button>
+                <button class="diff-btn" onclick="showLeaderboardTab('hard',this)">💀 Trudny</button>
+            </div>
+            <div id="leaderboardContent"></div>
+            <div style="margin-top:16px;text-align:center;">
                 <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
             </div>
         </div>
@@ -661,9 +702,18 @@
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        if (id === 'leaderboardScreen') {
+            showLeaderboardTab(currentLbTab || 'easy');
+        }
     }
 
     function startGame() {
+        // Get player name
+        const nameInput = document.getElementById('playerName');
+        const name = (nameInput.value || '').trim() || 'Gracz';
+        state.playerName = name;
+        localStorage.setItem('mc_tabliczka_name', name);
+
         const settings = diffSettings[state.difficulty];
         Object.assign(state, {
             score: 0, xp: 0, level: 1, xpToNext: 100,
@@ -676,6 +726,7 @@
             questionQueue: [], practiceMode: false, questionHistory: [],
             freshPool: [], askedSet: new Set(),
             _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
+            _mistakePracticeCount: {}, // tracks how many times each mistake was practiced
         });
         buildFreshPool();
 
@@ -731,22 +782,36 @@
             practiceMode: true, questionHistory: [],
             inventory: {}, lootLog: [],
             _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
+            _mistakePracticeCount: {},
         });
 
+        // Each mistake repeated max 2 times, then mix in fresh questions
         state.questionQueue = [];
         for (const [key, count] of Object.entries(state.mistakeMap)) {
             if (count > 0) {
                 const [a, b] = key.split('×').map(Number);
-                for (let i = 0; i < Math.min(count + 1, 4); i++) {
-                    state.questionQueue.push({ a, b });
-                }
+                // Max 2 repeats per mistake
+                state.questionQueue.push({ a, b });
+                state.questionQueue.push({ a, b });
+                state._mistakePracticeCount[key] = 0;
+            }
+        }
+        // Add fresh questions so it's not only mistakes (mix ~50/50)
+        const freshCount = Math.max(4, state.questionQueue.length);
+        buildFreshPool();
+        for (let i = 0; i < freshCount && state.freshPool.length > 0; i++) {
+            const q = state.freshPool.shift();
+            const key = `${q.a}×${q.b}`;
+            // Don't add if it's already a mistake question
+            if (!state.mistakeMap[key] && !state.mistakeMap[`${q.b}×${q.a}`]) {
+                state.questionQueue.push(q);
             }
         }
         shuffle(state.questionQueue);
 
         document.getElementById('timerSection').classList.remove('visible');
         updateUI(); showScreen('gameScreen');
-        showAchievement('🎯', 'Tryb ćwiczeń!', 'Powtarzamy trudne zadania');
+        showAchievement('🎯', 'Tryb ćwiczeń!', 'Błędy + nowe zadania');
         nextQuestion();
     }
 
@@ -993,7 +1058,14 @@
         state.masteryMap[key].streak = 0;
 
         const mKey = `${state.a}×${state.b}`;
-        state.mistakeMap[mKey] = (state.mistakeMap[mKey] || 0) + 2;
+        // Track practice count - only add to repeat queue if practiced < 2 times this session
+        if (!state._mistakePracticeCount) state._mistakePracticeCount = {};
+        const practiceCount = state._mistakePracticeCount[mKey] || 0;
+        if (practiceCount < 2) {
+            state.mistakeMap[mKey] = (state.mistakeMap[mKey] || 0) + 1;
+            state._mistakePracticeCount[mKey] = practiceCount + 1;
+        }
+        // Otherwise it was already repeated enough - don't keep adding
 
         const existing = state.mistakes.find(m => m.a === state.a && m.b === state.b);
         if (existing) { existing.count++; existing.lastWrong = wrongVal; }
@@ -1083,7 +1155,12 @@
 
     function showGameOver() {
         const pct = state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0;
+
+        // Save to leaderboard
+        const savedName = saveToLeaderboard(state.difficulty, state.playerName, state.score, state.level, pct);
+
         document.getElementById('finalStats').innerHTML = `
+            👤 Gracz: <span class="val">${savedName}</span><br>
             💎 Punkty: <span class="val">${state.score}</span><br>
             ✅ Poprawne: <span class="val">${state.correct} / ${state.total} (${pct}%)</span><br>
             🔥 Najlepsza seria: <span class="val">${state.bestStreak}</span><br>
@@ -1091,6 +1168,12 @@
             ⬆️ Poziom: <span class="val">${state.level}</span><br>
             🏆 Osiągnięcia: <span class="val">${state.achievements.size}</span>
         `;
+
+        // Leaderboard on game over
+        const diffLabel = { easy: '😊 Łatwy', medium: '😎 Średni', hard: '💀 Trudny' };
+        document.getElementById('gameoverLeaderboard').innerHTML =
+            '<h3>🏆 RANKING (' + diffLabel[state.difficulty] + '):</h3>' +
+            renderLeaderboard(state.difficulty, savedName);
 
         // Loot summary
         buildLootSummary();
@@ -1336,8 +1419,84 @@
         }
     }
 
+    // ═══════════════════════════════════════════
+    // Leaderboard System
+    // ═══════════════════════════════════════════
+
+    function getLeaderboard(difficulty) {
+        try {
+            const data = localStorage.getItem('mc_tabliczka_lb_' + difficulty);
+            return data ? JSON.parse(data) : [];
+        } catch(e) { return []; }
+    }
+
+    function saveToLeaderboard(difficulty, name, score, level, pct) {
+        const lb = getLeaderboard(difficulty);
+
+        // Check for duplicate name
+        let displayName = name;
+        const existingNames = lb.map(e => e.name);
+        if (existingNames.includes(name)) {
+            // Add hash to make unique
+            let hash = 1;
+            while (existingNames.includes(name + '#' + hash)) hash++;
+            displayName = name + '#' + hash;
+        }
+
+        lb.push({ name: displayName, score, level, pct, date: Date.now() });
+        lb.sort((a, b) => b.score - a.score);
+        // Keep top 20
+        if (lb.length > 20) lb.length = 20;
+        localStorage.setItem('mc_tabliczka_lb_' + difficulty, JSON.stringify(lb));
+        return displayName;
+    }
+
+    function renderLeaderboard(difficulty, highlightName) {
+        const lb = getLeaderboard(difficulty);
+        if (lb.length === 0) {
+            return '<div style="text-align:center;font-size:8px;color:#888;padding:16px;">Brak wyników. Zagraj żeby się tu pojawić!</div>';
+        }
+
+        let html = '<table class="lb-table"><thead><tr><th>#</th><th>Gracz</th><th>💎</th><th>⬆️</th><th>✅</th></tr></thead><tbody>';
+        for (let i = 0; i < lb.length; i++) {
+            const e = lb[i];
+            const isCurrent = highlightName && e.name === highlightName;
+            const rankCls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+            html += `<tr class="${isCurrent ? 'current' : ''}">
+                <td class="lb-rank ${rankCls}">${medal}</td>
+                <td class="lb-name">${e.name}</td>
+                <td class="lb-score">${e.score}</td>
+                <td>${e.level}</td>
+                <td>${e.pct}%</td>
+            </tr>`;
+        }
+        html += '</tbody></table>';
+        return html;
+    }
+
+    let currentLbTab = 'easy';
+    function showLeaderboardTab(diff, btn) {
+        currentLbTab = diff;
+        if (btn) {
+            btn.closest('.difficulty').querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        document.getElementById('leaderboardContent').innerHTML = renderLeaderboard(diff);
+    }
+
+    // ═══════════════════════════════════════════
+    // Helpers
+    // ═══════════════════════════════════════════
+
     function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
+
+    // Load saved name + init leaderboard screen
+    (function() {
+        const saved = localStorage.getItem('mc_tabliczka_name');
+        if (saved) document.getElementById('playerName').value = saved;
+    })();
 </script>
 </body>
 </html>
