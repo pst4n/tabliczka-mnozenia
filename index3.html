@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabliczka Mnożenia - Brainrot Collector</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --dirt: #8B6914; --dirt-dark: #6B4F0A;
+            --grass: #5D9B2A; --grass-dark: #4A7B20;
+            --stone: #7F7F7F; --stone-dark: #5F5F5F;
+            --diamond: #5DECF5; --gold: #FCDB05; --emerald: #17DD62;
+            --redstone: #FF0000; --obsidian: #1B1029;
+            --sky-top: #78A7FF; --sky-bottom: #C9E4FF;
+        }
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--grass) 60%, var(--grass-dark) 62%, var(--dirt) 62%, var(--dirt-dark) 100%);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden; image-rendering: pixelated;
+        }
+        .clouds { position: fixed; top: 0; left: 0; width: 100%; height: 60vh; pointer-events: none; z-index: 0; overflow: hidden; }
+        .cloud { position: absolute; background: white; opacity: 0.9; animation: float-cloud linear infinite; }
+        .cloud::before, .cloud::after { content: ''; position: absolute; background: white; }
+        .cloud-1 { width: 80px; height: 30px; top: 40px; animation-duration: 45s; }
+        .cloud-1::before { width: 40px; height: 20px; top: -15px; left: 10px; }
+        .cloud-2 { width: 100px; height: 35px; top: 100px; animation-duration: 60s; animation-delay: -20s; }
+        .cloud-2::before { width: 50px; height: 25px; top: -18px; left: 15px; }
+        .cloud-3 { width: 60px; height: 25px; top: 70px; animation-duration: 55s; animation-delay: -35s; }
+        .cloud-3::before { width: 30px; height: 15px; top: -10px; left: 8px; }
+        @keyframes float-cloud { from { left: -150px; } to { left: 110%; } }
+
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        .particle { position: absolute; width: 8px; height: 8px; pointer-events: none; animation: particle-fall 1s ease-out forwards; }
+        @keyframes particle-fall { 0% { opacity: 1; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.3) translateY(60px); } }
+
+        .game-container { position: relative; z-index: 1; width: 100%; max-width: 900px; padding: 10px; margin-top: 10px; }
+        .title { text-align: center; margin-bottom: 12px; }
+        .title h1 { font-size: 16px; color: #333; text-shadow: 2px 2px 0 #fff; line-height: 1.6; }
+        .title h1 .green { color: var(--grass-dark); }
+        .title h1 .brown { color: var(--dirt-dark); }
+
+        .mc-panel {
+            background: #C6C6C6; border: 3px solid #000;
+            box-shadow: inset 2px 2px 0 #FFF, inset -2px -2px 0 #555;
+            padding: 12px; margin-bottom: 12px;
+        }
+        .mc-btn {
+            font-family: 'Press Start 2P', monospace; font-size: 11px; padding: 10px 18px;
+            background: #999; color: #fff; border: 3px solid #000;
+            box-shadow: inset 2px 2px 0 #CCC, inset -2px -2px 0 #555;
+            cursor: pointer; text-shadow: 1px 1px 0 #333; transition: background 0.1s;
+        }
+        .mc-btn:hover { background: #AAA; }
+        .mc-btn.primary { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; }
+        .mc-btn.primary:hover { background: #6AB33A; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ═══ CATALOG ═══ */
+        .catalog-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .catalog-header .wallet { font-size: 10px; color: #333; }
+        .catalog-header .wallet .amt { color: var(--gold); font-size: 12px; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+        .card {
+            background: #555; border: 3px solid #666; padding: 8px; text-align: center;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .card.owned { border-color: var(--emerald); background: #1A3A1A; }
+        .card.common { border-color: #aaa; }
+        .card.rare { border-color: var(--diamond); }
+        .card.epic { border-color: #FF00FF; }
+        .card.legendary { border-color: var(--gold); }
+        .card.god { border-color: #FF4444; box-shadow: 0 0 12px rgba(255,0,0,0.3); }
+        .card-img { width: 90px; height: 90px; margin: 0 auto 6px; border-radius: 6px; overflow: hidden; border: 2px solid #444; background: #333; }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .card-img.locked img { filter: brightness(0.15); }
+        .card-name { font-size: 7px; color: #fff; margin-bottom: 3px; min-height: 24px; line-height: 1.4; }
+        .card-rarity { font-size: 6px; font-style: italic; margin-bottom: 4px; }
+        .card-rarity.common { color: #aaa; } .card-rarity.rare { color: var(--diamond); }
+        .card-rarity.epic { color: #FF00FF; } .card-rarity.legendary { color: var(--gold); }
+        .card-rarity.god { color: #FF4444; }
+        .card-price { font-size: 8px; color: var(--gold); margin-bottom: 2px; }
+        .card-owner { font-size: 6px; color: var(--emerald); margin-top: 3px; line-height: 1.4; }
+        .card-owner.takeover { color: #FF8800; }
+        .card-badge { position: absolute; top: 4px; right: 4px; font-size: 14px; }
+        .card-still { font-size: 6px; color: #FF8800; background: rgba(0,0,0,0.6); padding: 2px 4px; margin-top: 3px; display: inline-block; }
+
+        .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center; }
+        .filter-btn {
+            font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 5px 10px;
+            background: #666; color: #aaa; border: 2px solid #000; cursor: pointer;
+        }
+        .filter-btn.active { background: #5A9E2F; color: #fff; }
+        .filter-btn:hover { background: #777; }
+
+        /* ═══ GAME SCREEN ═══ */
+        .main-timer { text-align: center; font-size: 20px; color: #fff; text-shadow: 2px 2px 0 #000; margin-bottom: 4px; letter-spacing: 2px; }
+        .main-timer.warning { color: #FF4444; animation: pulse-red 0.5s ease infinite; }
+        @keyframes pulse-red { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .main-timer-bar-bg { height: 12px; background: #222; border: 2px solid #000; overflow: hidden; margin-bottom: 8px; }
+        .main-timer-bar-fill { height: 100%; background: linear-gradient(180deg, #5DECF5, #2BC4D8); transition: width 0.5s linear; }
+        .main-timer-bar-fill.low { background: linear-gradient(180deg, #FF6B00, #FF4400); }
+        .main-timer-bar-fill.critical { background: linear-gradient(180deg, #FF0000, #CC0000); animation: pulse-red 0.5s ease infinite; }
+
+        .stats-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .stat { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #333; }
+
+        .xp-section { margin-top: 8px; }
+        .xp-label { font-size: 8px; color: #333; margin-bottom: 3px; display: flex; justify-content: space-between; }
+        .xp-bar-bg { height: 14px; background: #222; border: 2px solid #000; position: relative; overflow: hidden; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(180deg, #7FFF00, #32CD32); transition: width 0.5s ease; }
+        .xp-bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000; }
+
+        .question-area { text-align: center; padding: 16px 8px; }
+        .question-text { font-size: 28px; color: #3F3F3F; text-shadow: 2px 2px 0 #aaa; margin-bottom: 16px; letter-spacing: 4px; }
+
+        .mc-display {
+            font-family: 'Press Start 2P', monospace; font-size: 32px;
+            min-width: 160px; min-height: 50px; padding: 8px 16px;
+            text-align: center; background: #000; color: #fff; border: 3px solid #555;
+            box-shadow: inset 2px 2px 0 #333; margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            letter-spacing: 6px; transition: border-color 0.2s;
+        }
+        .mc-display.active { border-color: var(--diamond); box-shadow: inset 2px 2px 0 #333, 0 0 10px rgba(93,236,245,0.5); }
+        .mc-display.correct { border-color: var(--emerald); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(23,221,98,0.6); }
+        .mc-display.wrong { border-color: var(--redstone); animation: shake 0.4s ease; }
+        .mc-display .cursor { animation: blink 0.8s step-end infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+
+        .mc-numpad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 280px; margin: 0 auto; }
+        .mc-numkey {
+            font-family: 'Press Start 2P', monospace; font-size: 18px; padding: 14px 0;
+            background: #7F7F7F; color: #fff; border: 3px solid #000;
+            box-shadow: inset 2px 2px 0 #AAA, inset -2px -2px 0 #555;
+            cursor: pointer; text-shadow: 1px 1px 0 #333; transition: background 0.1s;
+            user-select: none; -webkit-user-select: none; touch-action: manipulation;
+            text-align: center; min-width: 0; overflow: hidden;
+        }
+        .mc-numkey:hover { background: #999; }
+        .mc-numkey:active { background: #666; transform: translateY(1px); }
+        .mc-numkey.key-ok { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; }
+        .mc-numkey.key-del { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; }
+        .mc-numkey.key-0 { grid-column: 2; }
+
+        .combo-container { text-align: center; min-height: 20px; margin-top: 4px; }
+        .combo-text { font-size: 11px; text-shadow: 2px 2px 0 #000; }
+        .combo-text.x2 { color: #5DECF5; } .combo-text.x3 { color: var(--gold); }
+        .combo-text.x4 { color: #FF00FF; } .combo-text.x5 { color: #FF4444; animation: combo-pulse 0.5s ease infinite; }
+        @keyframes combo-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .combo-bar-bg { height: 5px; background: #333; border: 1px solid #555; margin-top: 2px; overflow: hidden; }
+        .combo-bar-fill { height: 100%; transition: width 0.3s; }
+
+        .feedback { text-align: center; min-height: 26px; margin-top: 10px; font-size: 10px; }
+        .feedback.good { color: #17DD62; text-shadow: 1px 1px 0 #000; }
+        .feedback.bad { color: #FF4444; text-shadow: 1px 1px 0 #000; }
+
+        .float-score {
+            position: fixed; pointer-events: none; z-index: 150;
+            font-family: 'Press Start 2P', monospace; font-size: 14px;
+            text-shadow: 2px 2px 0 #000; animation: float-up 1.2s ease-out forwards;
+        }
+        @keyframes float-up { 0% { opacity: 1; transform: translateY(0) scale(1); } 40% { transform: translateY(-30px) scale(1.2); } 100% { opacity: 0; transform: translateY(-80px) scale(0.8); } }
+
+        .speed-badge { display: inline-block; padding: 2px 6px; font-size: 8px; margin-top: 4px; border: 2px solid; }
+        .speed-badge.lightning { color: #FCDB05; border-color: #FCDB05; background: rgba(252,219,5,0.15); }
+        .speed-badge.fast { color: #5DECF5; border-color: #5DECF5; }
+        .speed-badge.good { color: var(--emerald); border-color: var(--emerald); }
+
+        .wrong-explain { margin-top: 10px; padding: 10px; background: #2A1A1A; border: 2px solid #FF4444; display: none; text-align: center; }
+        .wrong-explain.show { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .wrong-explain .explain-title { font-size: 8px; color: #FF8888; margin-bottom: 6px; }
+        .wrong-explain .explain-text { font-size: 8px; color: #ccc; line-height: 1.8; margin-bottom: 6px; }
+
+        .hint-row { display: flex; justify-content: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .mc-btn.hint-btn { background: #B8860B; font-size: 9px; padding: 6px 10px; }
+        .mc-btn.hint-btn:disabled { background: #666; opacity: 0.5; cursor: default; }
+        .visual-hint { margin-top: 12px; padding: 10px; background: #3A3A3A; border: 2px solid #555; display: none; text-align: center; }
+        .visual-hint.show { display: block; animation: fadeIn 0.3s ease; }
+        .hint-title { font-size: 8px; color: var(--gold); margin-bottom: 8px; }
+        .hint-explanation { font-size: 8px; color: #ccc; margin-bottom: 8px; line-height: 1.8; }
+        .block-grid { display: inline-grid; gap: 2px; margin: 6px auto; }
+        .mc-block { width: 20px; height: 20px; border: 1px solid rgba(0,0,0,0.4); }
+        .mc-block.grass { background: linear-gradient(180deg, #5D9B2A 0%, #5D9B2A 30%, #8B6914 30%); }
+        .mc-block.dirt { background: #8B6914; } .mc-block.stone { background: #888; }
+        .mc-block.diamond { background: #5DECF5; } .mc-block.gold { background: #FCDB05; }
+        .mc-block.wood { background: linear-gradient(0deg, #8B6914, #BC9862, #8B6914); }
+        .mc-block.highlight { animation: block-pop 0.3s ease forwards; }
+        @keyframes block-pop { 0% { transform: scale(0); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .grid-label { font-size: 7px; color: #aaa; margin: 3px 0; }
+        .grid-result { font-size: 11px; color: var(--emerald); margin-top: 6px; text-shadow: 1px 1px 0 #000; }
+        .skip-count { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin: 8px 0; }
+        .skip-num { background: #555; border: 2px solid #777; padding: 4px 6px; font-size: 9px; color: #ccc; min-width: 32px; text-align: center; }
+        .skip-num.revealed { background: #2B6B1E; border-color: var(--emerald); color: #fff; }
+        .skip-num.answer-num { background: #8B6508; border-color: var(--gold); color: var(--gold); }
+        .skip-num.hidden { color: #555; }
+        .nearby-facts { display: flex; flex-direction: column; gap: 3px; margin: 6px 0; align-items: center; }
+        .nearby-fact { font-size: 8px; color: #aaa; padding: 2px 8px; }
+        .nearby-fact.current { color: var(--gold); font-size: 10px; background: rgba(252,219,5,0.1); border: 1px solid rgba(252,219,5,0.3); }
+
+        /* ═══ GAME OVER ═══ */
+        .gameover-screen { text-align: center; }
+        .gameover-screen h2 { font-size: 14px; color: #333; margin-bottom: 12px; }
+        .final-stats { font-size: 9px; color: #555; line-height: 2.2; }
+        .final-stats .val { color: var(--grass-dark); }
+        .unlocked-cards { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+        .unlocked-card { background: #1A3A1A; border: 2px solid var(--emerald); padding: 6px; text-align: center; width: 90px; }
+        .unlocked-card img { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
+        .unlocked-card .uc-name { font-size: 6px; color: #fff; margin-top: 3px; }
+        .taken-cards { margin-top: 10px; }
+        .taken-card { background: #3A1A1A; border: 2px solid #FF8800; padding: 6px; text-align: center; width: 90px; display: inline-block; margin: 4px; }
+        .taken-card img { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
+        .taken-card .tc-name { font-size: 6px; color: #FF8800; margin-top: 3px; }
+
+        .difficulty { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+        .diff-btn {
+            font-family: 'Press Start 2P', monospace; font-size: 8px; padding: 7px 12px; cursor: pointer;
+            background: #666; color: #aaa; border: 2px solid #000;
+        }
+        .diff-btn.active { background: #5A9E2F; color: #fff; }
+        .diff-btn:hover { background: #777; }
+
+        .name-input {
+            font-family: 'Press Start 2P', monospace; font-size: 12px; width: 180px; padding: 8px;
+            text-align: center; background: #000; color: #fff; border: 3px solid #555;
+            box-shadow: inset 2px 2px 0 #333; outline: none;
+        }
+        .name-input:focus { border-color: var(--diamond); }
+
+        @media (max-width: 500px) {
+            .title h1 { font-size: 12px; }
+            .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .card-img { width: 70px; height: 70px; }
+            .question-text { font-size: 22px; }
+            .mc-display { font-size: 26px; min-height: 44px; }
+            .mc-numpad { max-width: 240px; gap: 4px; }
+            .mc-numkey { font-size: 16px; padding: 12px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="clouds"><div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div></div>
+<div class="particles" id="particles"></div>
+
+<div class="game-container">
+    <div class="title"><h1>🧠 <span class="green">BRAINROT</span> <span class="brown">COLLECTOR</span> 🧠<br><span style="font-size:9px;">Tabliczka Mnożenia Edition</span></h1></div>
+
+    <!-- CATALOG (MAIN SCREEN) -->
+    <div id="catalogScreen" class="screen active">
+        <div class="mc-panel">
+            <div class="catalog-header">
+                <div>
+                    <div style="font-size:9px;color:#555;margin-bottom:4px;">TWOJE IMIĘ:</div>
+                    <input type="text" id="playerName" class="name-input" placeholder="Wpisz imię..." maxlength="20">
+                </div>
+                <div class="wallet">Portfel: <span class="amt" id="walletDisplay">0 M$</span></div>
+            </div>
+            <div class="difficulty" style="margin-bottom:8px;">
+                <button class="diff-btn active" onclick="setDifficulty('easy',this)">😊 Łatwy 2-5</button>
+                <button class="diff-btn" onclick="setDifficulty('medium',this)">😎 Średni 2-10</button>
+                <button class="diff-btn" onclick="setDifficulty('hard',this)">💀 Trudny 2-12</button>
+            </div>
+            <div style="text-align:center;margin-bottom:12px;">
+                <button class="mc-btn primary" onclick="startGame()" style="font-size:14px;padding:12px 28px;">⛏️ GRAJ I ZBIERAJ M$!</button>
+            </div>
+            <div style="font-size:8px;color:#555;text-align:center;margin-bottom:8px;">🧠 KATALOG BRAINROTÓW — zdobywaj Mnożbuks (M$) i kupuj karty!</div>
+            <div class="filter-bar" id="filterBar">
+                <button class="filter-btn active" onclick="filterCards('all',this)">Wszystkie</button>
+                <button class="filter-btn" onclick="filterCards('common',this)">Common</button>
+                <button class="filter-btn" onclick="filterCards('rare',this)">Rare</button>
+                <button class="filter-btn" onclick="filterCards('epic',this)">Epic</button>
+                <button class="filter-btn" onclick="filterCards('legendary',this)">Legend</button>
+                <button class="filter-btn" onclick="filterCards('god',this)">GOD</button>
+                <button class="filter-btn" onclick="filterCards('owned',this)">Moje</button>
+            </div>
+            <div class="catalog-grid" id="catalogGrid"></div>
+        </div>
+    </div>
+
+    <!-- GAME -->
+    <div id="gameScreen" class="screen">
+        <div class="mc-panel">
+            <div class="main-timer" id="mainTimer">⏱️ 2:00</div>
+            <div class="main-timer-bar-bg"><div class="main-timer-bar-fill" id="mainTimerBar" style="width:100%"></div></div>
+            <div class="stats-bar">
+                <div class="stat">💰 <span id="earnedDisplay">0</span> M$</div>
+                <div class="stat">✅ <span id="correct">0</span>/<span id="total">0</span></div>
+                <div class="stat">🔥 <span id="streakDisplay">0</span></div>
+            </div>
+            <div class="combo-container" id="comboContainer"></div>
+        </div>
+        <div class="mc-panel">
+            <div class="question-area">
+                <div class="question-text" id="question">? × ? = ?</div>
+                <div class="mc-display active" id="answerDisplay"><span class="cursor">_</span></div>
+                <div class="mc-numpad">
+                    <button class="mc-numkey" onclick="numPress('1')">1</button>
+                    <button class="mc-numkey" onclick="numPress('2')">2</button>
+                    <button class="mc-numkey" onclick="numPress('3')">3</button>
+                    <button class="mc-numkey" onclick="numPress('4')">4</button>
+                    <button class="mc-numkey" onclick="numPress('5')">5</button>
+                    <button class="mc-numkey" onclick="numPress('6')">6</button>
+                    <button class="mc-numkey" onclick="numPress('7')">7</button>
+                    <button class="mc-numkey" onclick="numPress('8')">8</button>
+                    <button class="mc-numkey" onclick="numPress('9')">9</button>
+                    <button class="mc-numkey key-del" onclick="numPress('del')">⌫</button>
+                    <button class="mc-numkey key-0" onclick="numPress('0')">0</button>
+                    <button class="mc-numkey key-ok" onclick="numPress('ok')">✔</button>
+                </div>
+                <div class="hint-row">
+                    <button class="mc-btn hint-btn" id="hintBlocksBtn" onclick="showHint('blocks')">🧱 Bloczki</button>
+                    <button class="mc-btn hint-btn" id="hintSkipBtn" onclick="showHint('skip')">🔢 Licz co...</button>
+                    <button class="mc-btn hint-btn" id="hintNearbyBtn" onclick="showHint('nearby')">📖 Blisko!</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <div class="visual-hint" id="visualHint"></div>
+                <div class="wrong-explain" id="wrongExplain"></div>
+                <div id="continueRow" style="display:none;margin-top:10px;">
+                    <button class="mc-btn primary" id="continueBtn" onclick="continueAfterWrong()">▶ ROZUMIEM, DALEJ!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="gameoverScreen" class="screen">
+        <div class="mc-panel gameover-screen">
+            <h2>⏱️ KONIEC RUNDY!</h2>
+            <div class="final-stats" id="finalStats"></div>
+            <div id="unlockedSection"></div>
+            <div id="takenSection"></div>
+            <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+                <button class="mc-btn primary" onclick="startGame()">🔄 JESZCZE RAZ</button>
+                <button class="mc-btn" onclick="showScreen('catalogScreen')">🧠 KATALOG</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// BRAINROT DATABASE (50 characters)
+// ═══════════════════════════════════════════
+const P = 'https://www.playbrainrot.org/images/characters/';
+const B = 'https://brainrots.icu';
+
+const BRAINROTS = [
+    // COMMON (20) - prices 5-25 M$
+    { id:'tralalero',     name:'Tralalero Tralala',       rarity:'common', price:5,   img:P+'tralalero-tralala.webp' },
+    { id:'bombardiro',    name:'Bombardiro Crocodilo',    rarity:'common', price:6,   img:P+'bombardiro-crocodilo.webp' },
+    { id:'trippi',        name:'Trippi Troppi',           rarity:'common', price:7,   img:P+'trippi-troppi.webp' },
+    { id:'tungtung',      name:'Tung Tung Tung Sahur',    rarity:'common', price:8,   img:P+'tung-tung-tung-tung-tung-tung-tung-tung-tung-sahur.webp' },
+    { id:'lirili',        name:'Lirilì Larilà',           rarity:'common', price:9,   img:P+'liril-laril.webp' },
+    { id:'boneca',        name:'Boneca Ambalabu',         rarity:'common', price:10,  img:P+'boneca-ambalabu.webp' },
+    { id:'frigo',         name:'Frigo Camelo',            rarity:'common', price:11,  img:P+'frigo-camelo.webp' },
+    { id:'bobrito',       name:'Bobrito Bandito',         rarity:'common', price:12,  img:P+'bobrito-bandito.webp' },
+    { id:'pot',           name:'Pot Hotspot',             rarity:'common', price:13,  img:P+'pot-hotspot.webp' },
+    { id:'frulli',        name:'Frulli Frulla',           rarity:'common', price:14,  img:P+'frulli-frulla.webp' },
+    { id:'tatata',        name:'Ta Ta Ta Sahur',          rarity:'common', price:15,  img:P+'ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-sahur.webp' },
+    { id:'girafa',        name:'Girafa Celeste',          rarity:'common', price:16,  img:P+'girafa-celeste.webp' },
+    { id:'trulimero',     name:'Trulimero Trulicina',     rarity:'common', price:17,  img:P+'trulimero-trulicina.webp' },
+    { id:'udinding',      name:'U Din Din Din Dun',       rarity:'common', price:18,  img:P+'u-din-din-din-din-dun-ma-din-din-din-dun.webp' },
+    { id:'ballerino',     name:'Ballerino Lololo',        rarity:'common', price:19,  img:P+'ballerino-lololo.webp' },
+    { id:'makakini',      name:'Makakini Bananini',       rarity:'common', price:20,  img:P+'makakini-bananini.webp' },
+    { id:'bananita',      name:'Bananita Dolfinita',      rarity:'common', price:21,  img:P+'bananita-dolfinita.webp' },
+    { id:'cocofanto',     name:'Cocofanto Elefanto',      rarity:'common', price:22,  img:P+'cocofanto-elefanto.webp' },
+    { id:'gorillo',       name:'Gorillo Watermellondrillo',rarity:'common',price:23,  img:P+'gorillo-watermellondrillo.webp' },
+    { id:'bulbito',       name:'Bulbito Bandito Traktorito',rarity:'common',price:25, img:P+'bulbito-bandito-traktorito.webp' },
+    // RARE (15) - prices 30-60 M$
+    { id:'patapim',       name:'Brr Brr Patapim',         rarity:'rare',  price:30,  img:P+'brr-brr-patapim.webp' },
+    { id:'bombombini',    name:'Bombombini Gusini',       rarity:'rare',  price:33,  img:P+'bombombini-gusini.webp' },
+    { id:'cappuccino',    name:'Cappuccino Assassino',     rarity:'rare',  price:36,  img:P+'cappuccino-assassino.webp' },
+    { id:'ballerina',     name:'Ballerina Cappuccina',     rarity:'rare',  price:39,  img:P+'ballerina-cappuccina.webp' },
+    { id:'brribicus',     name:'Brri Brri Bicus Dicus',    rarity:'rare',  price:42,  img:P+'brri-brri-bicus-dicus-bombicus.webp' },
+    { id:'blueberry',     name:'Blueberrinni Octopussini', rarity:'rare',  price:45,  img:P+'blueberrinni-octopussini.webp' },
+    { id:'glorbo',        name:'Glorbo Fruttodrillo',      rarity:'rare',  price:48,  img:P+'glorbo-fruttodrillo.webp' },
+    { id:'ilcacto',       name:'Il Cacto Hipopotamo',      rarity:'rare',  price:50,  img:P+'il-cacto-hipopotamo.webp' },
+    { id:'trictrac',      name:'Tric Trac Baraboom',       rarity:'rare',  price:52,  img:P+'tric-trac-baraboom.webp' },
+    { id:'orangutini',    name:'Orangutini Ananasini',     rarity:'rare',  price:54,  img:P+'orangutini-ananasini.webp' },
+    { id:'espressona',    name:'Espressona Signora',       rarity:'rare',  price:56,  img:P+'espressona-signora.webp' },
+    { id:'rhino',         name:'Rhino Toasterino',         rarity:'rare',  price:58,  img:P+'rhino-toasterino.webp' },
+    { id:'zibra',         name:'Zibra Zubra Zibralini',    rarity:'rare',  price:60,  img:P+'zibra-zubra-zibralini.webp' },
+    { id:'graipussi',     name:'Graipussi Medussi',        rarity:'rare',  price:62,  img:P+'graipussi-medussi.webp' },
+    { id:'tigrrullini',   name:'Tigrrullini Watermellini',  rarity:'rare',  price:65,  img:P+'tigrrullini-watermellini.webp' },
+    // EPIC (10) - prices 70-110 M$
+    { id:'chimpanzini',   name:'Chimpanzini Bananini',     rarity:'epic',  price:70,  img:P+'chimpanzini-bananini.webp' },
+    { id:'tigrulli',      name:'Tigrulli Grapefrutunni',   rarity:'epic',  price:78,  img:P+'tigrulli-grapefrutunni.webp' },
+    { id:'tracotu',       name:'Tracotucotulu',            rarity:'epic',  price:85,  img:P+'tracotucotulu-delapeladustuz.webp' },
+    { id:'burbaloni',     name:'Burbaloni Lulilolli',      rarity:'epic',  price:90,  img:B+'/characters/Tralalero%20Tralala.webp' },
+    { id:'lavaca',        name:'La Vaca Saturno Saturnita', rarity:'epic',  price:95,  img:P+'la-vaca-saturno-saturnita.webp' },
+    { id:'meme00',        name:'Brainrot Fusion #1',       rarity:'epic',  price:100, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-00.webp' },
+    { id:'meme01',        name:'Brainrot Fusion #2',       rarity:'epic',  price:102, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-01.webp' },
+    { id:'meme02',        name:'Brainrot Fusion #3',       rarity:'epic',  price:104, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-02.webp' },
+    { id:'meme03',        name:'Brainrot Fusion #4',       rarity:'epic',  price:106, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-03.webp' },
+    { id:'meme04',        name:'Brainrot Fusion #5',       rarity:'epic',  price:110, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-04.webp' },
+    // LEGENDARY (3) - prices 130-160 M$
+    { id:'meme05',        name:'Brainrot Legend #1',        rarity:'legendary', price:130, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-05.webp' },
+    { id:'meme06',        name:'Brainrot Legend #2',        rarity:'legendary', price:145, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-06.webp' },
+    { id:'meme07',        name:'Brainrot Legend #3',        rarity:'legendary', price:160, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-07.webp' },
+    // GOD TIER (2) - prices 200-250 M$
+    { id:'meme09',        name:'Brainrot GOD',              rarity:'god', price:200, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-09.webp' },
+    { id:'meme10',        name:'Brainrot SUPREME',          rarity:'god', price:250, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-10.webp' },
+];
+
+// ═══════════════════════════════════════════
+// PERSISTENCE (localStorage)
+// ═══════════════════════════════════════════
+function getDB() {
+    try { return JSON.parse(localStorage.getItem('brainrot_collector') || '{}'); } catch(e) { return {}; }
+}
+function saveDB(db) { localStorage.setItem('brainrot_collector', JSON.stringify(db)); }
+
+function getWallet(name) { const db = getDB(); return (db.wallets && db.wallets[name]) || 0; }
+function setWallet(name, amt) { const db = getDB(); if(!db.wallets) db.wallets={}; db.wallets[name]=amt; saveDB(db); }
+
+function getCardOwner(cardId) { const db = getDB(); return db.cards && db.cards[cardId] ? db.cards[cardId] : null; }
+function setCardOwner(cardId, ownerName, pricePaid) {
+    const db = getDB();
+    if(!db.cards) db.cards={};
+    const card = BRAINROTS.find(c=>c.id===cardId);
+    const prev = db.cards[cardId];
+    db.cards[cardId] = { owner: ownerName, pricePaid, date: Date.now() };
+    saveDB(db);
+    return prev;
+}
+function getStillPrice(cardId) {
+    const owner = getCardOwner(cardId);
+    if (!owner) return null;
+    const card = BRAINROTS.find(c=>c.id===cardId);
+    // Still price = 150% of what was paid, minimum base price + 20%
+    return Math.max(Math.ceil(owner.pricePaid * 1.5), Math.ceil(card.price * 1.2));
+}
+
+// ═══════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════
+const ROUND_TIME = 120;
+const diffSettings = {
+    easy:   { min:2, max:5,  timer:false },
+    medium: { min:2, max:10, timer:false },
+    hard:   { min:2, max:12, timer:true, time:15 }
+};
+
+let state = {
+    difficulty:'easy', earned:0, correct:0, total:0,
+    streak:0, bestStreak:0, combo:1,
+    a:0, b:0, answer:0,
+    timerInterval:null, timeLeft:0, timerMax:15,
+    roundTimerInterval:null, roundTimeLeft:ROUND_TIME,
+    playing:false, hintUsed:false,
+    questionStartTime:0,
+    freshPool:[], askedSet:new Set(),
+    mistakes:[], mistakeMap:{}, masteryMap:{},
+    _lightningCount:0, _waitingForContinue:false,
+    _mistakePracticeCount:{},
+};
+
+const SPEED_LABELS = {
+    lightning: { label:'⚡ BŁYSKAWICA!', cls:'lightning', points:5 },
+    fast:      { label:'🏃 Szybko!',      cls:'fast',      points:3 },
+    good:      { label:'👍 Dobrze',        cls:'good',      points:2 },
+    ok:        { label:'🐢 Powoli...',     cls:'ok',        points:1 },
+};
+const goodMessages = ['Świetnie! ⛏️','Brawo! 💎','Super! 🌟','Genialnie! 🔥','Tak trzymaj! 💪','Mistrz! 👑','Wow! 🏆'];
+const badMessages = ['Spróbuj ponownie!','Prawie!','Nie poddawaj się!','Ćwicz dalej! 💪'];
+const blockTypes = ['grass','dirt','stone','diamond','gold','wood'];
+
+// ═══════════════════════════════════════════
+// CATALOG RENDERING
+// ═══════════════════════════════════════════
+let currentFilter = 'all';
+function filterCards(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    renderCatalog();
+}
+
+function renderCatalog() {
+    const grid = document.getElementById('catalogGrid');
+    const name = getPlayerName();
+    const wallet = getWallet(name);
+    document.getElementById('walletDisplay').textContent = wallet + ' M$';
+
+    let cards = BRAINROTS;
+    if (currentFilter === 'owned') {
+        cards = cards.filter(c => { const o = getCardOwner(c.id); return o && o.owner === name; });
+    } else if (currentFilter !== 'all') {
+        cards = cards.filter(c => c.rarity === currentFilter);
+    }
+
+    let html = '';
+    for (const c of cards) {
+        const owner = getCardOwner(c.id);
+        const isOwned = owner && owner.owner === name;
+        const isOwnedByOther = owner && owner.owner !== name;
+        const stillPrice = isOwnedByOther ? getStillPrice(c.id) : null;
+        const displayPrice = isOwnedByOther ? stillPrice : c.price;
+
+        html += `<div class="card ${c.rarity}${isOwned ? ' owned' : ''}" onclick="cardClick('${c.id}')">`;
+        if (isOwned) html += '<div class="card-badge">✅</div>';
+        html += `<div class="card-img${!isOwned && !isOwnedByOther ? ' locked' : ''}"><img src="${c.img}" alt="${c.name}" loading="lazy"></div>`;
+        html += `<div class="card-name">${isOwned || isOwnedByOther ? c.name : '???'}</div>`;
+        html += `<div class="card-rarity ${c.rarity}">${c.rarity === 'god' ? 'GOD TIER' : c.rarity.toUpperCase()}</div>`;
+
+        if (isOwned) {
+            html += `<div class="card-owner">👑 Twój!</div>`;
+            const sp = getStillPrice(c.id);
+            html += `<div class="card-still">STILL THE BRAINROT! (${sp} M$ do przejęcia)</div>`;
+        } else if (isOwnedByOther) {
+            html += `<div class="card-owner takeover">👤 ${owner.owner}</div>`;
+            html += `<div class="card-price">🔄 Przejmij za ${stillPrice} M$</div>`;
+        } else {
+            html += `<div class="card-price">💰 ${c.price} M$</div>`;
+        }
+        html += '</div>';
+    }
+    grid.innerHTML = html;
+}
+
+function cardClick(id) {
+    const name = getPlayerName();
+    if (!name) { alert('Wpisz swoje imię!'); return; }
+    const card = BRAINROTS.find(c=>c.id===id);
+    const owner = getCardOwner(id);
+    const wallet = getWallet(name);
+    const isOwned = owner && owner.owner === name;
+
+    if (isOwned) return; // already yours
+
+    const price = owner ? getStillPrice(id) : card.price;
+    if (wallet >= price) {
+        const ok = confirm(`Kupić "${card.name}" za ${price} M$?\n(Masz ${wallet} M$)`);
+        if (ok) {
+            setWallet(name, wallet - price);
+            setCardOwner(id, name, price);
+            renderCatalog();
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// CORE GAME
+// ═══════════════════════════════════════════
+function getPlayerName() { return (document.getElementById('playerName').value||'').trim()||''; }
+function setDifficulty(d,btn) {
+    state.difficulty=d;
+    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+}
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id==='catalogScreen') renderCatalog();
+}
+
+function startGame() {
+    const name = getPlayerName();
+    if(!name) { alert('Wpisz swoje imię!'); document.getElementById('playerName').focus(); return; }
+    localStorage.setItem('brainrot_player', name);
+
+    clearInterval(state.roundTimerInterval); clearInterval(state.timerInterval);
+    const settings = diffSettings[state.difficulty];
+    Object.assign(state, {
+        earned:0, correct:0, total:0, streak:0, bestStreak:0, combo:1,
+        playing:true, hintUsed:false, roundTimeLeft:ROUND_TIME,
+        freshPool:[], askedSet:new Set(),
+        mistakes:[], mistakeMap:{}, masteryMap:{},
+        _lightningCount:0, _waitingForContinue:false, _mistakePracticeCount:{},
+    });
+    buildFreshPool();
+    if(settings.timer) { state.timerMax=settings.time; document.getElementById('timerSection') && document.getElementById('timerSection').classList.add('visible'); }
+    updateGameUI(); showScreen('gameScreen');
+    startRoundTimer(); nextQuestion();
+}
+
+function buildFreshPool() {
+    const s = diffSettings[state.difficulty];
+    state.freshPool = [];
+    for(let a=s.min;a<=s.max;a++) for(let b=s.min;b<=s.max;b++) state.freshPool.push({a,b});
+    shuffle(state.freshPool);
+    state.askedSet = new Set();
+}
+function rebuildExhaustedPool() {
+    const s = diffSettings[state.difficulty];
+    state.freshPool = [];
+    for(let a=s.min;a<=s.max;a++) for(let b=s.min;b<=s.max;b++) state.freshPool.push({a,b});
+    shuffle(state.freshPool);
+}
+function pullFromPool() {
+    if(state.freshPool.length>0) return state.freshPool.shift();
+    rebuildExhaustedPool();
+    if(state.freshPool.length>0) return state.freshPool.shift();
+    const s=diffSettings[state.difficulty];
+    return {a:randInt(s.min,s.max),b:randInt(s.min,s.max)};
+}
+
+function startRoundTimer() {
+    state.roundTimeLeft=ROUND_TIME;
+    updateRoundTimerDisplay();
+    state.roundTimerInterval=setInterval(()=>{
+        state.roundTimeLeft-=0.5;
+        if(state.roundTimeLeft<=0){state.roundTimeLeft=0;clearInterval(state.roundTimerInterval);clearInterval(state.timerInterval);state.playing=false;showGameOver();return;}
+        updateRoundTimerDisplay();
+    },500);
+}
+function updateRoundTimerDisplay() {
+    const t=Math.max(0,Math.ceil(state.roundTimeLeft));
+    const min=Math.floor(t/60),sec=t%60;
+    const el=document.getElementById('mainTimer');
+    el.textContent=`⏱️ ${min}:${sec.toString().padStart(2,'0')}`;
+    el.className='main-timer'+(t<=30?' warning':'');
+    const pct=(state.roundTimeLeft/ROUND_TIME)*100;
+    const bar=document.getElementById('mainTimerBar');
+    bar.style.width=pct+'%';
+    bar.className='main-timer-bar-fill'+(pct<15?' critical':pct<33?' low':'');
+}
+
+function nextQuestion() {
+    hideHints(); state.hintUsed=false;
+    const q=pullFromPool();
+    state.a=q.a; state.b=q.b; state.answer=q.a*q.b;
+    const key=masteryKey(q.a,q.b);
+    state.askedSet.add(key);
+    if(!state.masteryMap[key]) state.masteryMap[key]={correct:0,total:0};
+
+    document.getElementById('question').textContent=`${q.a} × ${q.b} = ?`;
+    numpadValue=''; updateDisplay();
+    document.getElementById('answerDisplay').className='mc-display active';
+    state._waitingForContinue=false;
+    document.getElementById('feedback').textContent='';
+    state.questionStartTime=Date.now();
+    if(diffSettings[state.difficulty].timer) startTimer();
+}
+
+// ═══════════════════════════════════════════
+// SPEED / COMBO
+// ═══════════════════════════════════════════
+function getSpeedTier(ms) { if(ms<2000)return'lightning';if(ms<4000)return'fast';if(ms<8000)return'good';return'ok'; }
+function updateCombo(correct) {
+    if(correct){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;state.combo=Math.min(5,1+Math.floor(state.streak/3));}
+    else{state.streak=0;state.combo=1;}
+    renderCombo();
+}
+function renderCombo() {
+    const el=document.getElementById('comboContainer');
+    if(state.combo>=2){
+        const cls=state.combo>=5?'x5':state.combo>=4?'x4':state.combo>=3?'x3':'x2';
+        const pct=state.combo>=5?100:((state.streak%3)/3)*100;
+        el.innerHTML=`<div class="combo-text ${cls}">🔥 COMBO ×${state.combo}</div><div class="combo-bar-bg"><div class="combo-bar-fill" style="width:${pct}%;background:${state.combo>=5?'#FF4444':state.combo>=4?'#FF00FF':state.combo>=3?'#FCDB05':'#5DECF5'}"></div></div>`;
+    } else if(state.streak>0){
+        el.innerHTML=`<div style="font-size:7px;color:#888;">seria: ${state.streak}</div>`;
+    } else { el.innerHTML=''; }
+}
+
+// ═══════════════════════════════════════════
+// NUMPAD
+// ═══════════════════════════════════════════
+let numpadValue='';
+function updateDisplay(){const d=document.getElementById('answerDisplay');d.innerHTML=numpadValue===''?'<span class="cursor">_</span>':numpadValue;}
+function numPress(key){
+    if(!state.playing)return;
+    if(state._waitingForContinue){if(key==='ok')continueAfterWrong();return;}
+    if(key==='del'){numpadValue=numpadValue.slice(0,-1);updateDisplay();}
+    else if(key==='ok'){checkAnswer();}
+    else{if(numpadValue.length<3){numpadValue+=key;updateDisplay();}}
+}
+document.addEventListener('keydown',e=>{
+    if(!state.playing)return;
+    if(document.activeElement&&document.activeElement.id==='playerName')return;
+    if(e.key==='Enter'&&state._waitingForContinue){e.preventDefault();continueAfterWrong();return;}
+    if(state._waitingForContinue)return;
+    if(e.key==='Enter'){e.preventDefault();checkAnswer();}
+    else if(e.key==='Backspace'){e.preventDefault();numpadValue=numpadValue.slice(0,-1);updateDisplay();}
+    else if(e.key>='0'&&e.key<='9'){e.preventDefault();if(numpadValue.length<3){numpadValue+=e.key;updateDisplay();}}
+});
+
+// ═══════════════════════════════════════════
+// ANSWER HANDLING
+// ═══════════════════════════════════════════
+function startTimer(){clearInterval(state.timerInterval);state.timeLeft=state.timerMax;state.timerInterval=setInterval(()=>{state.timeLeft-=0.1;if(state.timeLeft<=0){state.timeLeft=0;clearInterval(state.timerInterval);if(state.playing)handleWrong();}},100);}
+
+function checkAnswer(){
+    if(!state.playing)return;
+    const val=parseInt(numpadValue);if(isNaN(val)||numpadValue==='')return;
+    clearInterval(state.timerInterval);state.total++;
+    const key=masteryKey(state.a,state.b);state.masteryMap[key].total++;
+    const display=document.getElementById('answerDisplay');
+    if(val===state.answer)handleCorrect(display);else handleWrong(display,val);
+}
+
+function handleCorrect(display){
+    if(display)display.className='mc-display correct';
+    state.correct++;
+    const key=masteryKey(state.a,state.b);state.masteryMap[key].correct++;
+    const mKey=`${state.a}×${state.b}`;
+    if(state.mistakeMap[mKey]&&state.mistakeMap[mKey]>0)state.mistakeMap[mKey]--;
+
+    const answerTime=Date.now()-state.questionStartTime;
+    const speedTier=state.hintUsed?'ok':getSpeedTier(answerTime);
+    const speedInfo=SPEED_LABELS[speedTier];
+    if(speedTier==='lightning')state._lightningCount++;
+
+    updateCombo(true);
+    const basePoints=speedInfo.points;
+    const points=basePoints*state.combo;
+    state.earned+=points;
+
+    const fb=document.getElementById('feedback');
+    fb.className='feedback good';
+    fb.textContent=state.hintUsed?`Dobrze! ${state.a}×${state.b}=${state.answer} 📖`:`${speedInfo.label} +${points} M$${state.combo>=2?' (×'+state.combo+' combo!)':''}`;
+
+    spawnFloatScore(points,speedTier,window.innerWidth/2-20,window.innerHeight/2-80);
+    spawnParticles(speedTier==='lightning'?14:8,['#5DECF5','#17DD62','#FCDB05','#FF00FF']);
+    updateGameUI();
+    setTimeout(nextQuestion,state.hintUsed?2000:800);
+}
+
+function handleWrong(display,wrongVal){
+    if(display)display.className='mc-display wrong';
+    const key=masteryKey(state.a,state.b);
+    const mKey=`${state.a}×${state.b}`;
+    if(!state._mistakePracticeCount)state._mistakePracticeCount={};
+    const pc=state._mistakePracticeCount[mKey]||0;
+    if(pc<2){state.mistakeMap[mKey]=(state.mistakeMap[mKey]||0)+1;state._mistakePracticeCount[mKey]=pc+1;}
+    const existing=state.mistakes.find(m=>m.a===state.a&&m.b===state.b);
+    if(existing){existing.count++;existing.lastWrong=wrongVal;}
+    else{state.mistakes.push({a:state.a,b:state.b,correctAnswer:state.answer,lastWrong:wrongVal,count:1});}
+
+    updateCombo(false);
+    state.freshPool.unshift({a:state.a,b:state.b});
+
+    const fb=document.getElementById('feedback');fb.className='feedback bad';
+    fb.textContent=badMessages[Math.floor(Math.random()*badMessages.length)];
+    spawnParticles(4,['#FF0000','#CC0000']);
+    showWrongExplanation(wrongVal);
+
+    state._waitingForContinue=true;
+    document.querySelectorAll('.hint-btn').forEach(b=>b.disabled=true);
+    document.getElementById('continueRow').style.display='block';
+    updateGameUI();
+}
+
+function continueAfterWrong(){
+    document.getElementById('continueRow').style.display='none';
+    state._waitingForContinue=false;
+    if(!state.playing){showGameOver();return;}
+    nextQuestion();
+}
+
+function showWrongExplanation(wrongVal){
+    const el=document.getElementById('wrongExplain');
+    const a=state.a,b=state.b,correct=state.answer;
+    const addParts=[];for(let i=0;i<a;i++)addParts.push(b);
+    let relateStr='';
+    if(a>1)relateStr=`<br>📖 ${a-1}×${b}=${(a-1)*b}, dodaj ${b} → <strong>${correct}</strong>`;
+    if(a===2)relateStr=`<br>📖 ${b}+${b}=<strong>${correct}</strong>`;
+    if(b===10)relateStr=`<br>📖 ×10: dopisz 0! → <strong>${correct}</strong>`;
+    if(b===5)relateStr=`<br>📖 ×5: połowa ×10 → <strong>${correct}</strong>`;
+    el.innerHTML=`<div class="explain-title">📚 ${a} × ${b} = ${correct}</div><div class="explain-text">${wrongVal!==undefined?`<span style="color:#FF6666;text-decoration:line-through;">${wrongVal}</span> → `:'⏰ → '}<strong style="color:var(--emerald);font-size:14px;">${correct}</strong><br>🔢 ${addParts.join('+')}=${correct}${relateStr}</div>`;
+    el.classList.add('show');
+}
+
+// ═══════════════════════════════════════════
+// HINT SYSTEM
+// ═══════════════════════════════════════════
+function showHint(type){
+    if(!state.playing)return;
+    if(!state.hintUsed){state.hintUsed=true;}
+    document.querySelectorAll('.hint-btn').forEach(b=>b.classList.remove('hint-active'));
+    const hint=document.getElementById('visualHint');hint.innerHTML='';hint.classList.add('show');
+    if(type==='blocks')buildBlocksHint(hint);else if(type==='skip')buildSkipCountHint(hint);else if(type==='nearby')buildNearbyHint(hint);
+}
+function buildBlocksHint(c){const a=state.a,b=state.b,bt=blockTypes[Math.floor(Math.random()*blockTypes.length)];c.innerHTML=`<div class="hint-title">🧱 ${a}×${b}</div><div class="hint-explanation">${a} rzędów po ${b}</div><div class="block-grid" id="blockGrid" style="grid-template-columns:repeat(${b},20px)"></div><div class="grid-result" id="gridResult"></div>`;const g=document.getElementById('blockGrid');let n=0;const tot=a*b;for(let i=0;i<a;i++)for(let j=0;j<b;j++){n++;const bl=document.createElement('div');bl.className=`mc-block ${bt}`;bl.style.opacity='0';g.appendChild(bl);const cc=n;setTimeout(()=>{bl.classList.add('highlight');bl.style.opacity='1';document.getElementById('gridResult').textContent=cc===tot?`= ${tot} ✅`:`${cc}/${tot}`;},cc*50);}}
+function buildSkipCountHint(c){const a=state.a,b=state.b;c.innerHTML=`<div class="hint-title">🔢 Licz co ${b}</div><div class="skip-count" id="skipCount"></div><div class="grid-result" id="skipResult"></div>`;const sd=document.getElementById('skipCount');for(let i=1;i<=a;i++){const n=document.createElement('div');n.className='skip-num hidden';n.textContent=i*b;sd.appendChild(n);}for(let i=1;i<=a;i++){setTimeout(()=>{sd.children[i-1].classList.remove('hidden');sd.children[i-1].classList.add(i===a?'answer-num':'revealed');const l=[];for(let j=1;j<=i;j++)l.push(b);document.getElementById('skipResult').textContent=i===a?`${l.join('+')}=${i*b} ✅`:`${l.join('+')}=${i*b}`;},i*350);}}
+function buildNearbyHint(c){const a=state.a,b=state.b;const facts=[];if(a>1)facts.push({a:a-1,b,r:(a-1)*b,cur:false});facts.push({a,b,r:a*b,cur:true});if(a<=12)facts.push({a:a+1,b,r:(a+1)*b,cur:false});c.innerHTML=`<div class="hint-title">📖 Sąsiednie</div><div class="nearby-facts" id="nf"></div>`;const fd=document.getElementById('nf');facts.forEach((f,i)=>{setTimeout(()=>{const el=document.createElement('div');el.className='nearby-fact'+(f.cur?' current':'');el.innerHTML=f.cur?`${f.a}×${f.b} = <strong>?</strong>`:`${f.a}×${f.b} = ${f.r}`;fd.appendChild(el);},i*250);});}
+function hideHints(){document.getElementById('visualHint').classList.remove('show');document.getElementById('visualHint').innerHTML='';document.getElementById('wrongExplain').classList.remove('show');document.getElementById('wrongExplain').innerHTML='';document.getElementById('continueRow').style.display='none';document.querySelectorAll('.hint-btn').forEach(b=>{b.classList.remove('hint-active');b.disabled=false;});}
+
+// ═══════════════════════════════════════════
+// GAME OVER
+// ═══════════════════════════════════════════
+function showGameOver(){
+    clearInterval(state.roundTimerInterval);clearInterval(state.timerInterval);state.playing=false;
+    const name=getPlayerName();
+    const pct=state.total>0?Math.round((state.correct/state.total)*100):0;
+
+    // Add earned M$ to wallet
+    const prevWallet=getWallet(name);
+    const newWallet=prevWallet+state.earned;
+    setWallet(name,newWallet);
+
+    // Auto-buy affordable cards (check if any new cards affordable)
+    const newlyOwned=[];const takenOver=[];
+    for(const c of BRAINROTS){
+        const owner=getCardOwner(c.id);
+        const isOwned=owner&&owner.owner===name;
+        if(isOwned)continue;
+        const price=owner?getStillPrice(c.id):c.price;
+        // Don't auto-buy, just show what's affordable
+    }
+
+    document.getElementById('finalStats').innerHTML=`
+        👤 <span class="val">${name}</span><br>
+        💰 Zarobione: <span class="val">+${state.earned} M$</span><br>
+        💼 Portfel: <span class="val">${newWallet} M$</span><br>
+        ✅ Poprawne: <span class="val">${state.correct}/${state.total} (${pct}%)</span><br>
+        🔥 Najlepsza seria: <span class="val">${state.bestStreak}</span><br>
+        💥 Max combo: <span class="val">×${Math.min(5,1+Math.floor(state.bestStreak/3))}</span>
+    `;
+
+    // Show affordable cards
+    const affordable=BRAINROTS.filter(c=>{
+        const owner=getCardOwner(c.id);
+        if(owner&&owner.owner===name)return false;
+        const price=owner?getStillPrice(c.id):c.price;
+        return newWallet>=price;
+    }).slice(0,6);
+
+    if(affordable.length>0){
+        let html='<div style="font-size:8px;color:var(--gold);margin-top:12px;text-align:center;">💰 Możesz kupić w katalogu:</div><div class="unlocked-cards">';
+        for(const c of affordable){
+            const owner=getCardOwner(c.id);
+            const price=owner?getStillPrice(c.id):c.price;
+            html+=`<div class="unlocked-card"><img src="${c.img}" alt="${c.name}"><div class="uc-name">${c.name}<br>${price} M$</div></div>`;
+        }
+        html+='</div>';
+        document.getElementById('unlockedSection').innerHTML=html;
+    } else {
+        document.getElementById('unlockedSection').innerHTML='';
+    }
+    document.getElementById('takenSection').innerHTML='';
+    showScreen('gameoverScreen');
+}
+
+// ═══════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════
+function updateGameUI(){
+    document.getElementById('earnedDisplay').textContent=state.earned;
+    document.getElementById('correct').textContent=state.correct;
+    document.getElementById('total').textContent=state.total;
+    document.getElementById('streakDisplay').textContent=state.streak;
+    renderCombo();
+}
+
+function spawnFloatScore(pts,tier,x,y){const el=document.createElement('div');el.className='float-score';el.style.color={lightning:'#FCDB05',fast:'#5DECF5',good:'#17DD62',ok:'#aaa'}[tier];el.textContent=`+${pts} M$`;el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),1200);}
+function spawnParticles(count,colors){const c=document.getElementById('particles');const cx=window.innerWidth/2,cy=window.innerHeight/2;for(let i=0;i<count;i++){const p=document.createElement('div');p.className='particle';p.style.left=(cx+(Math.random()-0.5)*200)+'px';p.style.top=(cy+(Math.random()-0.5)*100)+'px';p.style.background=colors[Math.floor(Math.random()*colors.length)];c.appendChild(p);setTimeout(()=>p.remove(),1000);}}
+function masteryKey(a,b){return`${Math.min(a,b)}×${Math.max(a,b)}`;}
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+
+// INIT
+(function(){
+    const saved=localStorage.getItem('brainrot_player');
+    if(saved)document.getElementById('playerName').value=saved;
+    renderCatalog();
+})();
+</script>
+</body>
+</html>
