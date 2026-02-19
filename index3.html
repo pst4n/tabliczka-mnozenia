@@ -863,6 +863,13 @@ function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.ra
     const saved=localStorage.getItem('brainrot_player');
     if(saved)document.getElementById('playerName').value=saved;
     renderCatalog();
+    // Update wallet & catalog when name changes
+    const nameEl=document.getElementById('playerName');
+    nameEl.addEventListener('input',()=>{
+        const n=nameEl.value.trim();
+        if(n) localStorage.setItem('brainrot_player',n);
+        renderCatalog();
+    });
 })();
 </script>
 </body>
