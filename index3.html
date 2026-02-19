@@ -288,7 +288,7 @@
     <!-- GAME -->
     <div id="gameScreen" class="screen">
         <div class="mc-panel">
-            <div class="main-timer" id="mainTimer">⏱️ 2:00</div>
+            <div class="main-timer" id="mainTimer">⏱️ 1:00</div>
             <div class="main-timer-bar-bg"><div class="main-timer-bar-fill" id="mainTimerBar" style="width:100%"></div></div>
             <div class="stats-bar">
                 <div class="stat">💰 <span id="earnedDisplay">0</span> M$</div>
@@ -442,7 +442,7 @@ function getStillPrice(cardId) {
 // ═══════════════════════════════════════════
 // GAME STATE
 // ═══════════════════════════════════════════
-const ROUND_TIME = 120;
+const ROUND_TIME = 60; // 1 minuta
 const diffSettings = {
     easy:   { min:2, max:5,  timer:false },
     medium: { min:2, max:10, timer:false },
@@ -502,21 +502,22 @@ function renderCatalog() {
         const owner = getCardOwner(c.id);
         const isOwned = owner && owner.owner === name;
         const isOwnedByOther = owner && owner.owner !== name;
-        const stillPrice = isOwnedByOther ? getStillPrice(c.id) : null;
-        const displayPrice = isOwnedByOther ? stillPrice : c.price;
+        const hasOwner = !!owner;
+        const stillPrice = hasOwner ? getStillPrice(c.id) : null;
 
         html += `<div class="card ${c.rarity}${isOwned ? ' owned' : ''}" onclick="cardClick('${c.id}')">`;
         if (isOwned) html += '<div class="card-badge">✅</div>';
-        html += `<div class="card-img${!isOwned && !isOwnedByOther ? ' locked' : ''}"><img src="${c.img}" alt="${c.name}" loading="lazy"></div>`;
-        html += `<div class="card-name">${isOwned || isOwnedByOther ? c.name : '???'}</div>`;
+        // Always show image and name (no locked/hidden)
+        html += `<div class="card-img"><img src="${c.img}" alt="${c.name}" loading="lazy"></div>`;
+        html += `<div class="card-name">${c.name}</div>`;
         html += `<div class="card-rarity ${c.rarity}">${c.rarity === 'god' ? 'GOD TIER' : c.rarity.toUpperCase()}</div>`;
 
         if (isOwned) {
-            html += `<div class="card-owner">👑 Twój!</div>`;
-            const sp = getStillPrice(c.id);
-            html += `<div class="card-still">STILL THE BRAINROT! (${sp} M$ do przejęcia)</div>`;
+            html += `<div class="card-owner">👑 ${name}</div>`;
+            html += `<div class="card-still">STILL THE BRAINROT! (${stillPrice} M$ do przejęcia)</div>`;
         } else if (isOwnedByOther) {
-            html += `<div class="card-owner takeover">👤 ${owner.owner}</div>`;
+            html += `<div class="card-owner takeover">👑 ${owner.owner}</div>`;
+            html += `<div class="card-still">STILL THE BRAINROT!</div>`;
             html += `<div class="card-price">🔄 Przejmij za ${stillPrice} M$</div>`;
         } else {
             html += `<div class="card-price">💰 ${c.price} M$</div>`;
