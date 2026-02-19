@@ -87,6 +87,10 @@
         .card-price { font-size: 8px; color: var(--gold); margin-bottom: 2px; }
         .card-owner { font-size: 6px; color: var(--emerald); margin-top: 3px; line-height: 1.4; }
         .card-owner.takeover { color: #FF8800; }
+        .card.cant-afford { opacity: 0.45; }
+        .card.cant-afford:hover { transform: none; box-shadow: none; }
+        .card.cant-afford .card-price { color: #888; }
+        .card.other-owned { background: #2A1A2A; border-color: #FF8800; }
         .card-badge { position: absolute; top: 4px; right: 4px; font-size: 14px; }
         .card-still { font-size: 6px; color: #FF8800; background: rgba(0,0,0,0.6); padding: 2px 4px; margin-top: 3px; display: inline-block; }
 
@@ -502,12 +506,19 @@ function renderCatalog() {
         const owner = getCardOwner(c.id);
         const isOwned = owner && owner.owner === name;
         const isOwnedByOther = owner && owner.owner !== name;
-        const hasOwner = !!owner;
-        const stillPrice = hasOwner ? getStillPrice(c.id) : null;
+        const stillPrice = owner ? getStillPrice(c.id) : null;
+        const neededPrice = isOwnedByOther ? stillPrice : c.price;
+        const canAfford = name && wallet >= neededPrice;
 
-        html += `<div class="card ${c.rarity}${isOwned ? ' owned' : ''}" onclick="cardClick('${c.id}')">`;
+        // Card classes
+        let cls = `card ${c.rarity}`;
+        if (isOwned) cls += ' owned';
+        else if (isOwnedByOther) cls += ' other-owned';
+        else if (!canAfford) cls += ' cant-afford';
+
+        html += `<div class="${cls}" onclick="cardClick('${c.id}')">`;
         if (isOwned) html += '<div class="card-badge">✅</div>';
-        // Always show image and name (no locked/hidden)
+        else if (isOwnedByOther) html += '<div class="card-badge">🔒</div>';
         html += `<div class="card-img"><img src="${c.img}" alt="${c.name}" loading="lazy"></div>`;
         html += `<div class="card-name">${c.name}</div>`;
         html += `<div class="card-rarity ${c.rarity}">${c.rarity === 'god' ? 'GOD TIER' : c.rarity.toUpperCase()}</div>`;
@@ -519,6 +530,8 @@ function renderCatalog() {
             html += `<div class="card-owner takeover">👑 ${owner.owner}</div>`;
             html += `<div class="card-still">STILL THE BRAINROT!</div>`;
             html += `<div class="card-price">🔄 Przejmij za ${stillPrice} M$</div>`;
+        } else if (!canAfford) {
+            html += `<div class="card-price">💰 ${c.price} M$ (brak M$)</div>`;
         } else {
             html += `<div class="card-price">💰 ${c.price} M$</div>`;
         }
