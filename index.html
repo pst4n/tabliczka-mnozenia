@@ -3,98 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabliczka Mnożenia - Minecraft Edition v2</title>
+    <title>Tabliczka Mnożenia - Brainrot Collector</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
             --dirt: #8B6914; --dirt-dark: #6B4F0A;
             --grass: #5D9B2A; --grass-dark: #4A7B20;
             --stone: #7F7F7F; --stone-dark: #5F5F5F;
-            --wood: #BC9862; --wood-dark: #8B6914;
             --diamond: #5DECF5; --gold: #FCDB05; --emerald: #17DD62;
             --redstone: #FF0000; --obsidian: #1B1029;
             --sky-top: #78A7FF; --sky-bottom: #C9E4FF;
         }
-
         body {
             font-family: 'Press Start 2P', monospace;
             background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--grass) 60%, var(--grass-dark) 62%, var(--dirt) 62%, var(--dirt-dark) 100%);
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
             overflow-x: hidden; image-rendering: pixelated;
         }
-
         .clouds { position: fixed; top: 0; left: 0; width: 100%; height: 60vh; pointer-events: none; z-index: 0; overflow: hidden; }
         .cloud { position: absolute; background: white; opacity: 0.9; animation: float-cloud linear infinite; }
         .cloud::before, .cloud::after { content: ''; position: absolute; background: white; }
         .cloud-1 { width: 80px; height: 30px; top: 40px; animation-duration: 45s; }
         .cloud-1::before { width: 40px; height: 20px; top: -15px; left: 10px; }
-        .cloud-1::after { width: 30px; height: 15px; top: -10px; left: 40px; }
         .cloud-2 { width: 100px; height: 35px; top: 100px; animation-duration: 60s; animation-delay: -20s; }
         .cloud-2::before { width: 50px; height: 25px; top: -18px; left: 15px; }
-        .cloud-2::after { width: 35px; height: 18px; top: -12px; left: 55px; }
         .cloud-3 { width: 60px; height: 25px; top: 70px; animation-duration: 55s; animation-delay: -35s; }
         .cloud-3::before { width: 30px; height: 15px; top: -10px; left: 8px; }
-        .cloud-3::after { width: 25px; height: 12px; top: -8px; left: 30px; }
         @keyframes float-cloud { from { left: -150px; } to { left: 110%; } }
 
         .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
         .particle { position: absolute; width: 8px; height: 8px; pointer-events: none; animation: particle-fall 1s ease-out forwards; }
         @keyframes particle-fall { 0% { opacity: 1; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.3) translateY(60px); } }
 
-        .game-container { position: relative; z-index: 1; width: 100%; max-width: 700px; padding: 20px; margin-top: 20px; }
-
-        .title { text-align: center; margin-bottom: 20px; }
-        .title h1 { font-size: 18px; color: #333; text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff; line-height: 1.6; }
+        .game-container { position: relative; z-index: 1; width: 100%; max-width: 900px; padding: 10px; margin-top: 10px; }
+        .title { text-align: center; margin-bottom: 12px; }
+        .title h1 { font-size: 16px; color: #333; text-shadow: 2px 2px 0 #fff; line-height: 1.6; }
         .title h1 .green { color: var(--grass-dark); }
         .title h1 .brown { color: var(--dirt-dark); }
 
         .mc-panel {
             background: #C6C6C6; border: 3px solid #000;
-            box-shadow: inset 2px 2px 0 #FFFFFF, inset -2px -2px 0 #555555;
-            padding: 16px; margin-bottom: 16px;
+            box-shadow: inset 2px 2px 0 #FFF, inset -2px -2px 0 #555;
+            padding: 12px; margin-bottom: 12px;
         }
+        .mc-btn {
+            font-family: 'Press Start 2P', monospace; font-size: 11px; padding: 10px 18px;
+            background: #999; color: #fff; border: 3px solid #000;
+            box-shadow: inset 2px 2px 0 #CCC, inset -2px -2px 0 #555;
+            cursor: pointer; text-shadow: 1px 1px 0 #333; transition: background 0.1s;
+        }
+        .mc-btn:hover { background: #AAA; }
+        .mc-btn.primary { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; }
+        .mc-btn.primary:hover { background: #6AB33A; }
 
-        .stats-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .stat { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #333; }
+        .screen { display: none; }
+        .screen.active { display: block; }
 
-        .xp-section { margin-top: 10px; }
-        .xp-label { font-size: 9px; color: #333; margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .xp-bar-bg { height: 16px; background: #222; border: 2px solid #000; box-shadow: inset 1px 1px 0 #444; position: relative; overflow: hidden; }
-        .xp-bar-fill { height: 100%; background: linear-gradient(180deg, #7FFF00, #32CD32); transition: width 0.5s ease; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); }
+        /* ═══ CATALOG ═══ */
+        .catalog-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .catalog-header .wallet { font-size: 10px; color: #333; }
+        .catalog-header .wallet .amt { color: var(--gold); font-size: 12px; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+        .card {
+            background: #555; border: 3px solid #666; padding: 8px; text-align: center;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .card.owned { border-color: var(--emerald); background: #1A3A1A; }
+        .card.common { border-color: #aaa; }
+        .card.rare { border-color: var(--diamond); }
+        .card.epic { border-color: #FF00FF; }
+        .card.legendary { border-color: var(--gold); }
+        .card.god { border-color: #FF4444; box-shadow: 0 0 12px rgba(255,0,0,0.3); }
+        .card-img { width: 90px; height: 90px; margin: 0 auto 6px; border-radius: 6px; overflow: hidden; border: 2px solid #444; background: #333; }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .card-img.locked img { filter: brightness(0.15); }
+        .card-name { font-size: 7px; color: #fff; margin-bottom: 3px; min-height: 24px; line-height: 1.4; }
+        .card-rarity { font-size: 6px; font-style: italic; margin-bottom: 4px; }
+        .card-rarity.common { color: #aaa; } .card-rarity.rare { color: var(--diamond); }
+        .card-rarity.epic { color: #FF00FF; } .card-rarity.legendary { color: var(--gold); }
+        .card-rarity.god { color: #FF4444; }
+        .card-price { font-size: 8px; color: var(--gold); margin-bottom: 2px; }
+        .card-owner { font-size: 6px; color: var(--emerald); margin-top: 3px; line-height: 1.4; }
+        .card-owner.takeover { color: #FF8800; }
+        .card.cant-afford { opacity: 0.45; }
+        .card.cant-afford:hover { transform: none; box-shadow: none; }
+        .card.cant-afford .card-price { color: #888; }
+        .card.other-owned { background: #2A1A2A; border-color: #FF8800; }
+        .card-badge { position: absolute; top: 4px; right: 4px; font-size: 14px; }
+        .card-still { font-size: 6px; color: #FF8800; background: rgba(0,0,0,0.6); padding: 2px 4px; margin-top: 3px; display: inline-block; }
+
+        .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center; }
+        .filter-btn {
+            font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 5px 10px;
+            background: #666; color: #aaa; border: 2px solid #000; cursor: pointer;
+        }
+        .filter-btn.active { background: #5A9E2F; color: #fff; }
+        .filter-btn:hover { background: #777; }
+
+        /* ═══ GAME SCREEN ═══ */
+        .main-timer { text-align: center; font-size: 20px; color: #fff; text-shadow: 2px 2px 0 #000; margin-bottom: 4px; letter-spacing: 2px; }
+        .main-timer.warning { color: #FF4444; animation: pulse-red 0.5s ease infinite; }
+        @keyframes pulse-red { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .main-timer-bar-bg { height: 12px; background: #222; border: 2px solid #000; overflow: hidden; margin-bottom: 8px; }
+        .main-timer-bar-fill { height: 100%; background: linear-gradient(180deg, #5DECF5, #2BC4D8); transition: width 0.5s linear; }
+        .main-timer-bar-fill.low { background: linear-gradient(180deg, #FF6B00, #FF4400); }
+        .main-timer-bar-fill.critical { background: linear-gradient(180deg, #FF0000, #CC0000); animation: pulse-red 0.5s ease infinite; }
+
+        .stats-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .stat { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #333; }
+
+        .xp-section { margin-top: 8px; }
+        .xp-label { font-size: 8px; color: #333; margin-bottom: 3px; display: flex; justify-content: space-between; }
+        .xp-bar-bg { height: 14px; background: #222; border: 2px solid #000; position: relative; overflow: hidden; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(180deg, #7FFF00, #32CD32); transition: width 0.5s ease; }
         .xp-bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000; }
 
-        .question-area { text-align: center; padding: 20px 10px; }
-        .question-text { font-size: 28px; color: #3F3F3F; text-shadow: 2px 2px 0 #aaa; margin-bottom: 20px; letter-spacing: 4px; }
-        .answer-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .question-area { text-align: center; padding: 16px 8px; }
+        .question-text { font-size: 28px; color: #3F3F3F; text-shadow: 2px 2px 0 #aaa; margin-bottom: 16px; letter-spacing: 4px; }
 
-        .answer-input {
-            font-family: 'Press Start 2P', monospace; font-size: 22px; width: 140px; padding: 10px;
-            text-align: center; background: #000; color: #fff; border: 3px solid #555;
-            box-shadow: inset 2px 2px 0 #333; outline: none;
-        }
-        .answer-input:focus { border-color: var(--diamond); box-shadow: inset 2px 2px 0 #333, 0 0 10px rgba(93,236,245,0.5); }
-        .answer-input.correct { border-color: var(--emerald); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(23,221,98,0.6); }
-        .answer-input.wrong { border-color: var(--redstone); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(255,0,0,0.6); animation: shake 0.4s ease; }
-        @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
-
-        /* ═══ MC NUMPAD ═══ */
         .mc-display {
             font-family: 'Press Start 2P', monospace; font-size: 32px;
             min-width: 160px; min-height: 50px; padding: 8px 16px;
             text-align: center; background: #000; color: #fff; border: 3px solid #555;
             box-shadow: inset 2px 2px 0 #333; margin: 0 auto 12px;
             display: flex; align-items: center; justify-content: center;
-            letter-spacing: 6px; transition: border-color 0.2s, box-shadow 0.2s;
+            letter-spacing: 6px; transition: border-color 0.2s;
         }
         .mc-display.active { border-color: var(--diamond); box-shadow: inset 2px 2px 0 #333, 0 0 10px rgba(93,236,245,0.5); }
         .mc-display.correct { border-color: var(--emerald); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(23,221,98,0.6); }
-        .mc-display.wrong { border-color: var(--redstone); box-shadow: inset 2px 2px 0 #333, 0 0 15px rgba(255,0,0,0.6); animation: shake 0.4s ease; }
+        .mc-display.wrong { border-color: var(--redstone); animation: shake 0.4s ease; }
         .mc-display .cursor { animation: blink 0.8s step-end infinite; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
 
         .mc-numpad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 280px; margin: 0 auto; }
         .mc-numkey {
@@ -106,333 +148,104 @@
             text-align: center; min-width: 0; overflow: hidden;
         }
         .mc-numkey:hover { background: #999; }
-        .mc-numkey:active { background: #666; box-shadow: inset -2px -2px 0 #AAA, inset 2px 2px 0 #555; transform: translateY(1px); }
-        .mc-numkey.key-ok { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; font-size: 18px; }
-        .mc-numkey.key-ok:hover { background: #6AB33A; }
-        .mc-numkey.key-ok:active { background: #4A8B22; }
-        .mc-numkey.key-del { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; font-size: 18px; }
-        .mc-numkey.key-del:hover { background: #CC9A1E; }
-        .mc-numkey.key-del:active { background: #9A7209; }
+        .mc-numkey:active { background: #666; transform: translateY(1px); }
+        .mc-numkey.key-ok { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; }
+        .mc-numkey.key-del { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; }
         .mc-numkey.key-0 { grid-column: 2; }
 
-        @media (max-width: 500px) {
-            .mc-numpad { max-width: 240px; gap: 4px; }
-            .mc-numkey { font-size: 16px; padding: 12px 0; }
-            .mc-display { font-size: 26px; min-height: 44px; }
-        }
+        .combo-container { text-align: center; min-height: 20px; margin-top: 4px; }
+        .combo-text { font-size: 11px; text-shadow: 2px 2px 0 #000; }
+        .combo-text.x2 { color: #5DECF5; } .combo-text.x3 { color: var(--gold); }
+        .combo-text.x4 { color: #FF00FF; } .combo-text.x5 { color: #FF4444; animation: combo-pulse 0.5s ease infinite; }
+        @keyframes combo-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .combo-bar-bg { height: 5px; background: #333; border: 1px solid #555; margin-top: 2px; overflow: hidden; }
+        .combo-bar-fill { height: 100%; transition: width 0.3s; }
 
-        .mc-btn {
-            font-family: 'Press Start 2P', monospace; font-size: 12px; padding: 10px 20px;
-            background: #999; color: #fff; border: 3px solid #000;
-            box-shadow: inset 2px 2px 0 #CCC, inset -2px -2px 0 #555;
-            cursor: pointer; text-shadow: 1px 1px 0 #333; transition: background 0.1s;
-        }
-        .mc-btn:hover { background: #AAA; }
-        .mc-btn:active { background: #777; box-shadow: inset -2px -2px 0 #CCC, inset 2px 2px 0 #555; }
-        .mc-btn.primary { background: #5A9E2F; box-shadow: inset 2px 2px 0 #7BCF44, inset -2px -2px 0 #3B6B1E; }
-        .mc-btn.primary:hover { background: #6AB33A; }
-
-        .mc-btn.hint-btn { background: #B8860B; box-shadow: inset 2px 2px 0 #DAA520, inset -2px -2px 0 #8B6508; font-size: 10px; padding: 8px 14px; }
-        .mc-btn.hint-btn:hover { background: #CC9A1E; }
-        .mc-btn.hint-btn:disabled { background: #666; opacity: 0.5; cursor: default; }
-        .mc-btn.hint-btn.hint-active { background: #DAA520; border-color: var(--gold); box-shadow: inset 2px 2px 0 #FFD700, inset -2px -2px 0 #8B6508, 0 0 8px rgba(218,165,32,0.4); }
-
-        .feedback { text-align: center; min-height: 30px; margin-top: 15px; font-size: 11px; transition: opacity 0.3s; }
+        .feedback { text-align: center; min-height: 26px; margin-top: 10px; font-size: 10px; }
         .feedback.good { color: #17DD62; text-shadow: 1px 1px 0 #000; }
         .feedback.bad { color: #FF4444; text-shadow: 1px 1px 0 #000; }
 
-        .hearts { display: flex; gap: 4px; align-items: center; }
-        .heart { width: 20px; height: 18px; position: relative; }
-        .heart svg { width: 100%; height: 100%; }
-        .heart.lost svg { opacity: 0.25; }
-        .heart.losing svg { animation: heart-break 0.3s ease; }
-        @keyframes heart-break { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); opacity: 0.25; } }
-
-        /* ═══ INVENTORY ═══ */
-        .inventory { display: flex; justify-content: center; gap: 2px; margin-top: 12px; flex-wrap: wrap; }
-        .inv-slot {
-            width: 48px; height: 48px; background: #555; border: 2px solid #000;
-            box-shadow: inset 1px 1px 0 #777, inset -1px -1px 0 #333;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; position: relative; cursor: default;
-        }
-        .inv-slot .count { position: absolute; bottom: 1px; right: 3px; font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000; }
-        .inv-slot.active { border-color: #fff; box-shadow: inset 1px 1px 0 #aaa, inset -1px -1px 0 #555, 0 0 8px rgba(255,255,255,0.3); }
-        .inv-slot.legendary { border-color: #FF00FF; box-shadow: inset 1px 1px 0 #FF88FF, inset -1px -1px 0 #880088, 0 0 12px rgba(255,0,255,0.4); animation: legendary-glow 2s ease infinite; }
-        @keyframes legendary-glow { 0%,100% { box-shadow: inset 1px 1px 0 #FF88FF, inset -1px -1px 0 #880088, 0 0 8px rgba(255,0,255,0.3); } 50% { box-shadow: inset 1px 1px 0 #FF88FF, inset -1px -1px 0 #880088, 0 0 16px rgba(255,0,255,0.6); } }
-
-        /* Tooltip */
-        .inv-tooltip {
-            display: none; position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%);
-            background: #1A0A2E; border: 2px solid #5500AA; padding: 6px 10px; z-index: 50;
-            white-space: nowrap; pointer-events: none; min-width: 120px;
-        }
-        .inv-slot:hover .inv-tooltip { display: block; }
-        .inv-tooltip .tt-name { font-size: 7px; color: #fff; margin-bottom: 3px; }
-        .inv-tooltip .tt-name.rare { color: var(--diamond); }
-        .inv-tooltip .tt-name.epic { color: #FF00FF; }
-        .inv-tooltip .tt-name.legendary { color: var(--gold); }
-        .inv-tooltip .tt-desc { font-size: 6px; color: #888; line-height: 1.6; }
-        .inv-tooltip .tt-rarity { font-size: 6px; color: #666; margin-top: 2px; font-style: italic; }
-
-        /* ═══ FLOATING SCORE ═══ */
         .float-score {
             position: fixed; pointer-events: none; z-index: 150;
             font-family: 'Press Start 2P', monospace; font-size: 14px;
-            text-shadow: 2px 2px 0 #000;
-            animation: float-up 1.2s ease-out forwards;
+            text-shadow: 2px 2px 0 #000; animation: float-up 1.2s ease-out forwards;
         }
         @keyframes float-up { 0% { opacity: 1; transform: translateY(0) scale(1); } 40% { transform: translateY(-30px) scale(1.2); } 100% { opacity: 0; transform: translateY(-80px) scale(0.8); } }
 
-        /* ═══ SPEED INDICATOR ═══ */
-        .speed-badge {
-            display: inline-block; padding: 3px 8px; font-size: 8px; margin-top: 6px;
-            border: 2px solid; text-align: center;
-        }
+        .speed-badge { display: inline-block; padding: 2px 6px; font-size: 8px; margin-top: 4px; border: 2px solid; }
         .speed-badge.lightning { color: #FCDB05; border-color: #FCDB05; background: rgba(252,219,5,0.15); }
-        .speed-badge.fast { color: #5DECF5; border-color: #5DECF5; background: rgba(93,236,245,0.1); }
-        .speed-badge.good { color: var(--emerald); border-color: var(--emerald); background: rgba(23,221,98,0.1); }
-        .speed-badge.ok { color: #aaa; border-color: #777; background: rgba(255,255,255,0.05); }
+        .speed-badge.fast { color: #5DECF5; border-color: #5DECF5; }
+        .speed-badge.good { color: var(--emerald); border-color: var(--emerald); }
 
-        /* ═══ COMBO METER ═══ */
-        .combo-container { text-align: center; min-height: 24px; margin-top: 6px; }
-        .combo-text { font-size: 12px; text-shadow: 2px 2px 0 #000; }
-        .combo-text.x2 { color: #5DECF5; }
-        .combo-text.x3 { color: var(--gold); }
-        .combo-text.x4 { color: #FF00FF; }
-        .combo-text.x5 { color: #FF4444; animation: combo-pulse 0.5s ease infinite; }
-        @keyframes combo-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-        .combo-bar-bg { height: 6px; background: #333; border: 1px solid #555; margin-top: 3px; overflow: hidden; }
-        .combo-bar-fill { height: 100%; transition: width 0.3s ease; }
-
-        /* ═══ LOOT DROP ANIMATION ═══ */
-        .loot-drop {
-            position: fixed; pointer-events: none; z-index: 150;
-            font-size: 28px;
-            animation: loot-bounce 1s ease forwards;
-        }
-        @keyframes loot-bounce {
-            0% { opacity: 0; transform: translateY(-40px) scale(0.3) rotate(-20deg); }
-            30% { opacity: 1; transform: translateY(10px) scale(1.3) rotate(10deg); }
-            50% { transform: translateY(-10px) scale(1) rotate(-5deg); }
-            70% { transform: translateY(5px) scale(1.05) rotate(2deg); }
-            85% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
-            100% { opacity: 0; transform: translateY(-20px) scale(0.5); }
-        }
-
-        /* Difficulty */
-        .difficulty { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
-        .diff-btn {
-            font-family: 'Press Start 2P', monospace; font-size: 9px; padding: 8px 14px; cursor: pointer;
-            background: #666; color: #aaa; border: 2px solid #000;
-            box-shadow: inset 1px 1px 0 #888, inset -1px -1px 0 #444;
-        }
-        .diff-btn.active { background: #5A9E2F; color: #fff; box-shadow: inset 1px 1px 0 #7BCF44, inset -1px -1px 0 #3B6B1E; }
-        .diff-btn:hover { background: #777; color: #ddd; }
-        .diff-btn.active:hover { background: #6AB33A; color: #fff; }
-
-        /* ═══ GOAL PANEL (current achievement target) ═══ */
-        .goal-panel { display: flex; align-items: center; gap: 12px; padding: 10px 14px; position: relative; overflow: hidden; }
-        .goal-panel.completed { animation: goal-flash 1.5s ease; }
-        @keyframes goal-flash {
-            0% { background: #C6C6C6; }
-            15% { background: #FCDB05; box-shadow: inset 0 0 30px rgba(252,219,5,0.6); }
-            40% { background: #FFE066; }
-            100% { background: #C6C6C6; }
-        }
-        .goal-icon { font-size: 32px; min-width: 40px; text-align: center; animation: goal-bob 2.5s ease-in-out infinite; }
-        @keyframes goal-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        .goal-icon.earned { animation: goal-earned 0.6s ease forwards; }
-        @keyframes goal-earned { 0% { transform: scale(1); } 40% { transform: scale(1.5) rotate(10deg); } 70% { transform: scale(1.2) rotate(-5deg); } 100% { transform: scale(1) rotate(0); } }
-        .goal-info { flex: 1; min-width: 0; }
-        .goal-title { font-size: 9px; color: var(--gold); margin-bottom: 3px; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
-        .goal-desc { font-size: 7px; color: #555; margin-bottom: 6px; }
-        .goal-progress-bg { height: 14px; background: #222; border: 2px solid #000; box-shadow: inset 1px 1px 0 #444; position: relative; overflow: hidden; }
-        .goal-progress-fill { height: 100%; background: linear-gradient(180deg, var(--gold), #D4A800); transition: width 0.5s ease; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); }
-        .goal-progress-fill.full { background: linear-gradient(180deg, #7FFF00, #32CD32); }
-        .goal-progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 7px; color: #fff; text-shadow: 1px 1px 0 #000; white-space: nowrap; }
-        .goal-done-msg { text-align: center; font-size: 8px; color: var(--emerald); padding: 10px; }
-
-        /* ═══ TROPHY SHELF ═══ */
-        .trophy-shelf { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
-        .trophy-slot {
-            width: 42px; height: 42px; background: #3A3A1A; border: 2px solid #555;
-            box-shadow: inset 1px 1px 0 #666, inset -1px -1px 0 #333;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; position: relative; cursor: default;
-        }
-        .trophy-slot.empty { background: #444; opacity: 0.4; }
-        .trophy-slot.empty::after { content: '?'; font-size: 14px; color: #666; }
-        .trophy-slot.earned { border-color: var(--gold); box-shadow: inset 1px 1px 0 #FFE066, inset -1px -1px 0 #8B6508, 0 0 6px rgba(252,219,5,0.3); background: linear-gradient(180deg, #4A4A2A, #3A3A1A); }
-        .trophy-slot.new-earned { animation: trophy-arrive 0.8s ease forwards; }
-        @keyframes trophy-arrive {
-            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-            50% { transform: scale(1.3) rotate(10deg); opacity: 1; }
-            75% { transform: scale(0.9) rotate(-5deg); }
-            100% { transform: scale(1) rotate(0); }
-        }
-        .trophy-tooltip {
-            display: none; position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%);
-            background: #1A0A2E; border: 2px solid var(--gold); padding: 6px 10px; z-index: 50;
-            white-space: nowrap; pointer-events: none; min-width: 110px; text-align: center;
-        }
-        .trophy-slot:hover .trophy-tooltip { display: block; }
-        .trophy-tooltip .tt-name { font-size: 7px; color: var(--gold); margin-bottom: 2px; }
-        .trophy-tooltip .tt-desc { font-size: 6px; color: #aaa; }
-
-        /* Screens */
-        .screen { display: none; }
-        .screen.active { display: block; }
-        .start-screen { text-align: center; }
-        .start-screen .big-icon { font-size: 60px; margin: 20px 0; animation: bob 2s ease-in-out infinite; }
-        @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .start-screen p { font-size: 9px; color: #555; margin: 12px 0; line-height: 1.8; }
-
-        .gameover-screen { text-align: center; }
-        .gameover-screen h2 { font-size: 16px; color: #333; margin-bottom: 15px; }
-        .gameover-screen .final-stats { font-size: 10px; color: #555; line-height: 2.2; }
-        .gameover-screen .final-stats .val { color: var(--grass-dark); }
-
-        .streak-display { text-align: center; font-size: 10px; color: #FF8800; text-shadow: 1px 1px 0 #000; min-height: 18px; margin-top: 6px; }
-
-        .timer-section { margin-top: 8px; display: none; }
-        .timer-section.visible { display: block; }
-        .timer-bar-bg { height: 10px; background: #222; border: 2px solid #000; overflow: hidden; }
-        .timer-bar-fill { height: 100%; background: linear-gradient(180deg, #FF6B00, #FF4400); transition: width 0.1s linear; }
-        .timer-bar-fill.warning { background: linear-gradient(180deg, #FF0000, #CC0000); animation: pulse-red 0.5s ease infinite; }
-        @keyframes pulse-red { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
-
-        /* Hint system */
-        .hint-row { display: flex; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-        .visual-hint { margin-top: 16px; padding: 12px; background: #3A3A3A; border: 2px solid #555; display: none; text-align: center; }
-        .visual-hint.show { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        .hint-title { font-size: 8px; color: var(--gold); margin-bottom: 10px; }
-        .hint-explanation { font-size: 8px; color: #ccc; margin-bottom: 10px; line-height: 1.8; }
-        .block-grid { display: inline-grid; gap: 2px; margin: 8px auto; }
-        .mc-block { width: 22px; height: 22px; border: 1px solid rgba(0,0,0,0.4); image-rendering: pixelated; transition: all 0.15s ease; }
-        .mc-block.grass { background: linear-gradient(180deg, #5D9B2A 0%, #5D9B2A 30%, #8B6914 30%); }
-        .mc-block.dirt { background: #8B6914; }
-        .mc-block.stone { background: linear-gradient(135deg, #888 25%, #777 50%, #999 75%); }
-        .mc-block.diamond { background: linear-gradient(135deg, #5DECF5 0%, #2BC4D8 50%, #5DECF5 100%); }
-        .mc-block.gold { background: linear-gradient(135deg, #FCDB05 0%, #D4A800 50%, #FCDB05 100%); }
-        .mc-block.wood { background: linear-gradient(0deg, #8B6914 0%, #BC9862 50%, #8B6914 100%); }
-        .mc-block.highlight { animation: block-pop 0.3s ease forwards; box-shadow: 0 0 6px rgba(255,255,255,0.5); }
-        @keyframes block-pop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
-        .grid-label { font-size: 8px; color: #aaa; margin: 4px 0; }
-        .grid-result { font-size: 12px; color: var(--emerald); margin-top: 8px; text-shadow: 1px 1px 0 #000; }
-        .skip-count { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; }
-        .skip-num { background: #555; border: 2px solid #777; padding: 5px 8px; font-size: 10px; color: #ccc; min-width: 36px; text-align: center; }
-        .skip-num.revealed { background: #2B6B1E; border-color: var(--emerald); color: #fff; animation: fadeIn 0.3s ease; }
-        .skip-num.answer-num { background: #8B6508; border-color: var(--gold); color: var(--gold); font-size: 12px; }
-        .skip-num.hidden { color: #555; }
-        .nearby-facts { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; align-items: center; }
-        .nearby-fact { font-size: 9px; color: #aaa; padding: 3px 10px; }
-        .nearby-fact.current { color: var(--gold); font-size: 11px; background: rgba(252,219,5,0.1); border: 1px solid rgba(252,219,5,0.3); }
-        .nearby-fact .op { color: #888; }
-
-        .wrong-explain { margin-top: 12px; padding: 12px; background: #2A1A1A; border: 2px solid #FF4444; display: none; text-align: center; }
+        .wrong-explain { margin-top: 10px; padding: 10px; background: #2A1A1A; border: 2px solid #FF4444; display: none; text-align: center; }
         .wrong-explain.show { display: block; animation: fadeIn 0.4s ease; }
-        .wrong-explain .explain-title { font-size: 8px; color: #FF8888; margin-bottom: 8px; }
-        .wrong-explain .explain-text { font-size: 8px; color: #ccc; line-height: 1.8; margin-bottom: 8px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .wrong-explain .explain-title { font-size: 8px; color: #FF8888; margin-bottom: 6px; }
+        .wrong-explain .explain-text { font-size: 8px; color: #ccc; line-height: 1.8; margin-bottom: 6px; }
 
-        .mistakes-review { margin-top: 16px; text-align: left; }
-        .mistakes-review h3 { font-size: 10px; color: #FF8888; margin-bottom: 10px; text-align: center; }
-        .mistake-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; margin-bottom: 4px; background: #555; border: 1px solid #777; font-size: 9px; gap: 8px; }
-        .mistake-item .mistake-q { color: #fff; }
-        .mistake-item .mistake-wrong { color: #FF6666; text-decoration: line-through; }
-        .mistake-item .mistake-right { color: var(--emerald); }
-        .mistake-item .mistake-count { color: var(--gold); font-size: 7px; }
+        .hint-row { display: flex; justify-content: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .mc-btn.hint-btn { background: #B8860B; font-size: 9px; padding: 6px 10px; }
+        .mc-btn.hint-btn:disabled { background: #666; opacity: 0.5; cursor: default; }
+        .visual-hint { margin-top: 12px; padding: 10px; background: #3A3A3A; border: 2px solid #555; display: none; text-align: center; }
+        .visual-hint.show { display: block; animation: fadeIn 0.3s ease; }
+        .hint-title { font-size: 8px; color: var(--gold); margin-bottom: 8px; }
+        .hint-explanation { font-size: 8px; color: #ccc; margin-bottom: 8px; line-height: 1.8; }
+        .block-grid { display: inline-grid; gap: 2px; margin: 6px auto; }
+        .mc-block { width: 20px; height: 20px; border: 1px solid rgba(0,0,0,0.4); }
+        .mc-block.grass { background: linear-gradient(180deg, #5D9B2A 0%, #5D9B2A 30%, #8B6914 30%); }
+        .mc-block.dirt { background: #8B6914; } .mc-block.stone { background: #888; }
+        .mc-block.diamond { background: #5DECF5; } .mc-block.gold { background: #FCDB05; }
+        .mc-block.wood { background: linear-gradient(0deg, #8B6914, #BC9862, #8B6914); }
+        .mc-block.highlight { animation: block-pop 0.3s ease forwards; }
+        @keyframes block-pop { 0% { transform: scale(0); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .grid-label { font-size: 7px; color: #aaa; margin: 3px 0; }
+        .grid-result { font-size: 11px; color: var(--emerald); margin-top: 6px; text-shadow: 1px 1px 0 #000; }
+        .skip-count { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin: 8px 0; }
+        .skip-num { background: #555; border: 2px solid #777; padding: 4px 6px; font-size: 9px; color: #ccc; min-width: 32px; text-align: center; }
+        .skip-num.revealed { background: #2B6B1E; border-color: var(--emerald); color: #fff; }
+        .skip-num.answer-num { background: #8B6508; border-color: var(--gold); color: var(--gold); }
+        .skip-num.hidden { color: #555; }
+        .nearby-facts { display: flex; flex-direction: column; gap: 3px; margin: 6px 0; align-items: center; }
+        .nearby-fact { font-size: 8px; color: #aaa; padding: 2px 8px; }
+        .nearby-fact.current { color: var(--gold); font-size: 10px; background: rgba(252,219,5,0.1); border: 1px solid rgba(252,219,5,0.3); }
 
-        .hint-cost { font-size: 7px; color: #aaa; text-align: center; margin-top: 4px; }
+        /* ═══ GAME OVER ═══ */
+        .gameover-screen { text-align: center; }
+        .gameover-screen h2 { font-size: 14px; color: #333; margin-bottom: 12px; }
+        .final-stats { font-size: 9px; color: #555; line-height: 2.2; }
+        .final-stats .val { color: var(--grass-dark); }
+        .unlocked-cards { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+        .unlocked-card { background: #1A3A1A; border: 2px solid var(--emerald); padding: 6px; text-align: center; width: 90px; }
+        .unlocked-card img { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
+        .unlocked-card .uc-name { font-size: 6px; color: #fff; margin-top: 3px; }
+        .taken-cards { margin-top: 10px; }
+        .taken-card { background: #3A1A1A; border: 2px solid #FF8800; padding: 6px; text-align: center; width: 90px; display: inline-block; margin: 4px; }
+        .taken-card img { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
+        .taken-card .tc-name { font-size: 6px; color: #FF8800; margin-top: 3px; }
 
-        .mastery-section { margin-top: 16px; text-align: center; }
-        .mastery-section h3 { font-size: 10px; color: var(--gold); margin-bottom: 10px; }
-        .mastery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 4px; max-width: 400px; margin: 0 auto; }
-        .mastery-cell { background: #444; border: 1px solid #666; padding: 4px; font-size: 7px; text-align: center; color: #ccc; }
-        .mastery-cell .mastery-stars { color: var(--gold); font-size: 8px; }
-        .mastery-cell.strong { background: #1A3A1A; border-color: var(--emerald); }
-        .mastery-cell.weak { background: #3A1A1A; border-color: #FF4444; }
-
-        /* Loot summary on game over */
-        .loot-summary { margin-top: 12px; }
-        .loot-summary h3 { font-size: 10px; color: var(--diamond); margin-bottom: 8px; }
-        .loot-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-        .loot-card { background: #444; border: 2px solid #666; padding: 6px 10px; text-align: center; min-width: 70px; }
-        .loot-card.rare { border-color: var(--diamond); }
-        .loot-card.epic { border-color: #FF00FF; }
-        .loot-card.legendary { border-color: var(--gold); }
-        .loot-card .loot-icon { font-size: 20px; }
-        .loot-card .loot-name { font-size: 6px; color: #ccc; margin-top: 3px; }
-        .loot-card .loot-qty { font-size: 7px; color: var(--gold); }
-
-        /* ═══ LEADERBOARD ═══ */
-        .leaderboard { margin-top: 16px; }
-        .leaderboard h3 { font-size: 10px; color: var(--gold); margin-bottom: 10px; text-align: center; }
-        .lb-table { width: 100%; border-collapse: collapse; }
-        .lb-table th { font-size: 7px; color: #555; text-align: left; padding: 4px 6px; border-bottom: 2px solid #999; }
-        .lb-table td { font-size: 8px; color: #333; padding: 5px 6px; border-bottom: 1px solid #aaa; }
-        .lb-table tr.current { background: rgba(252,219,5,0.25); }
-        .lb-table tr.current td { color: #8B6508; font-weight: bold; }
-        .lb-rank { color: #555; width: 30px; }
-        .lb-rank.gold { color: var(--gold); }
-        .lb-rank.silver { color: #C0C0C0; }
-        .lb-rank.bronze { color: #CD7F32; }
-        .lb-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lb-score { color: #0088AA; text-align: right; font-weight: bold; }
-        .lb-diff { font-size: 6px; color: #666; }
-        .player-greeting { text-align: center; font-size: 9px; color: var(--gold); margin-bottom: 6px; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
-
-        /* ═══ MAIN TIMER (3 min) ═══ */
-        .main-timer { text-align: center; font-size: 20px; color: #fff; text-shadow: 2px 2px 0 #000; margin-bottom: 4px; letter-spacing: 2px; }
-        .main-timer.warning { color: #FF4444; animation: pulse-red 0.5s ease infinite; }
-        .main-timer-bar-bg { height: 12px; background: #222; border: 2px solid #000; overflow: hidden; margin-bottom: 8px; }
-        .main-timer-bar-fill { height: 100%; background: linear-gradient(180deg, #5DECF5, #2BC4D8); transition: width 0.5s linear; }
-        .main-timer-bar-fill.low { background: linear-gradient(180deg, #FF6B00, #FF4400); }
-        .main-timer-bar-fill.critical { background: linear-gradient(180deg, #FF0000, #CC0000); animation: pulse-red 0.5s ease infinite; }
-
-        /* ═══ BRAINROT CATALOG ═══ */
-        .brainrot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
-        .brainrot-card {
-            background: #444; border: 3px solid #666; padding: 10px; text-align: center; position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
+        .difficulty { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+        .diff-btn {
+            font-family: 'Press Start 2P', monospace; font-size: 8px; padding: 7px 12px; cursor: pointer;
+            background: #666; color: #aaa; border: 2px solid #000;
         }
-        .brainrot-card:hover { transform: translateY(-2px); }
-        .brainrot-card.owned { border-color: var(--emerald); background: #1A3A1A; box-shadow: 0 0 10px rgba(23,221,98,0.3); }
-        .brainrot-card.common { border-color: #aaa; }
-        .brainrot-card.rare { border-color: var(--diamond); }
-        .brainrot-card.epic { border-color: #FF00FF; }
-        .brainrot-card.legendary { border-color: var(--gold); }
-        .brainrot-card.god { border-color: #FF4444; box-shadow: 0 0 15px rgba(255,0,0,0.3); animation: legendary-glow 2s ease infinite; }
-        .brainrot-icon { width: 80px; height: 80px; margin: 0 auto 6px; border-radius: 8px; overflow: hidden; border: 2px solid #555; }
-        .brainrot-icon img { width: 100%; height: 100%; object-fit: cover; image-rendering: auto; }
-        .brainrot-icon.locked { filter: grayscale(1) brightness(0.3); }
-        .brainrot-name { font-size: 8px; color: #fff; margin-bottom: 4px; }
-        .brainrot-desc { font-size: 6px; color: #aaa; margin-bottom: 6px; line-height: 1.6; }
-        .brainrot-rarity { font-size: 6px; font-style: italic; margin-bottom: 4px; }
-        .brainrot-rarity.common { color: #aaa; }
-        .brainrot-rarity.rare { color: var(--diamond); }
-        .brainrot-rarity.epic { color: #FF00FF; }
-        .brainrot-rarity.legendary { color: var(--gold); }
-        .brainrot-rarity.god { color: #FF4444; }
-        .brainrot-goal { font-size: 7px; color: #888; margin-bottom: 4px; }
-        .brainrot-progress-bg { height: 10px; background: #222; border: 1px solid #555; overflow: hidden; }
-        .brainrot-progress-fill { height: 100%; background: linear-gradient(180deg, var(--diamond), #2BC4D8); transition: width 0.3s; }
-        .brainrot-progress-fill.full { background: linear-gradient(180deg, #7FFF00, #32CD32); }
-        .brainrot-owned-badge { font-size: 7px; color: var(--emerald); margin-top: 4px; }
-        .brainrot-stats { font-size: 6px; color: #777; margin-top: 4px; line-height: 1.6; }
-        .nav-links { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+        .diff-btn.active { background: #5A9E2F; color: #fff; }
+        .diff-btn:hover { background: #777; }
+
+        .name-input {
+            font-family: 'Press Start 2P', monospace; font-size: 12px; width: 180px; padding: 8px;
+            text-align: center; background: #000; color: #fff; border: 3px solid #555;
+            box-shadow: inset 2px 2px 0 #333; outline: none;
+        }
+        .name-input:focus { border-color: var(--diamond); }
 
         @media (max-width: 500px) {
-            .title h1 { font-size: 13px; }
+            .title h1 { font-size: 12px; }
+            .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .card-img { width: 70px; height: 70px; }
             .question-text { font-size: 22px; }
-            .answer-input { font-size: 18px; width: 110px; }
-            .stat { font-size: 8px; }
-            .inv-slot { width: 40px; height: 40px; font-size: 18px; }
-            .mc-btn { font-size: 10px; padding: 8px 14px; }
-            .mc-block { width: 16px; height: 16px; }
-            .brainrot-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .mc-display { font-size: 26px; min-height: 44px; }
+            .mc-numpad { max-width: 240px; gap: 4px; }
+            .mc-numkey { font-size: 16px; padding: 12px 0; }
         }
     </style>
 </head>
@@ -441,69 +254,58 @@
 <div class="clouds"><div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div></div>
 <div class="particles" id="particles"></div>
 
-
 <div class="game-container">
-    <div class="title"><h1>⛏️ <span class="green">TABLICZKA</span> <span class="brown">MNOŻENIA</span> ⛏️<br>Minecraft Edition</h1></div>
+    <div class="title"><h1>🧠 <span class="green">BRAINROT</span> <span class="brown">COLLECTOR</span> 🧠<br><span style="font-size:9px;">Tabliczka Mnożenia Edition</span></h1></div>
 
-    <!-- START -->
-    <div id="startScreen" class="screen active">
-        <div class="mc-panel start-screen">
-            <div class="big-icon">⛏️</div>
-            <p>
-                Rozwiązuj zadania z tabliczki mnożenia,<br>
-                zbieraj Minecraftowe przedmioty i brainroty!<br><br>
-                ⏱️ Masz 2 minuty na rundę!<br>
-                ⚡ Im szybciej, tym więcej punktów!<br>
-                🔥 Buduj combo! 🧠 Odblokuj brainroty!
-            </p>
-            <div style="margin: 16px 0;">
-                <div style="font-size: 9px; color: #555; margin-bottom: 8px;">TWOJE IMIĘ:</div>
-                <input type="text" id="playerName" class="answer-input" style="font-size:14px;width:200px;margin-bottom:16px;" placeholder="Wpisz imię..." maxlength="20" value="">
-            </div>
-            <div style="margin: 16px 0;">
-                <div style="font-size: 9px; color: #555; margin-bottom: 8px;">WYBIERZ POZIOM:</div>
-                <div class="difficulty">
-                    <button class="diff-btn active" onclick="setDifficulty('easy', this)">😊 Łatwy<br><span style="font-size:7px;">2-5</span></button>
-                    <button class="diff-btn" onclick="setDifficulty('medium', this)">😎 Średni<br><span style="font-size:7px;">2-10</span></button>
-                    <button class="diff-btn" onclick="setDifficulty('hard', this)">💀 Trudny<br><span style="font-size:7px;">2-12 + timer/pyt</span></button>
+    <!-- CATALOG (MAIN SCREEN) -->
+    <div id="catalogScreen" class="screen active">
+        <div class="mc-panel">
+            <div class="catalog-header">
+                <div>
+                    <div style="font-size:9px;color:#555;margin-bottom:4px;">TWOJE IMIĘ:</div>
+                    <input type="text" id="playerName" class="name-input" placeholder="Wpisz imię..." maxlength="20">
                 </div>
+                <div class="wallet">Portfel: <span class="amt" id="walletDisplay">0 M$</span></div>
             </div>
-            <button class="mc-btn primary" onclick="startGame()" style="font-size: 14px; padding: 14px 30px;">▶ GRAJ!</button>
-            <div class="nav-links">
-                <button class="mc-btn" onclick="showScreen('leaderboardScreen')" style="font-size: 9px;">🏆 RANKING</button>
-                <button class="mc-btn" onclick="showScreen('catalogScreen')" style="font-size: 9px;">🧠 KOLEKCJA BRAINROT</button>
+            <div class="difficulty" style="margin-bottom:8px;">
+                <button class="diff-btn active" onclick="setDifficulty('easy',this)">😊 Łatwy 2-5</button>
+                <button class="diff-btn" onclick="setDifficulty('medium',this)">😎 Średni 2-10</button>
+                <button class="diff-btn" onclick="setDifficulty('hard',this)">💀 Trudny 2-12</button>
             </div>
+            <div style="text-align:center;margin-bottom:12px;">
+                <button class="mc-btn primary" onclick="startGame()" style="font-size:14px;padding:12px 28px;">⛏️ GRAJ I ZBIERAJ MNOŻBUKSY [M$]</button>
+            </div>
+            <div style="font-size:8px;color:#555;text-align:center;margin-bottom:8px;">🧠 KATALOG BRAINROTÓW — zdobywaj Mnożbuks (M$) i kupuj karty!</div>
+            <div class="filter-bar" id="filterBar">
+                <button class="filter-btn active" onclick="filterCards('all',this)">Wszystkie</button>
+                <button class="filter-btn" onclick="filterCards('common',this)">Common</button>
+                <button class="filter-btn" onclick="filterCards('rare',this)">Rare</button>
+                <button class="filter-btn" onclick="filterCards('epic',this)">Epic</button>
+                <button class="filter-btn" onclick="filterCards('legendary',this)">Legend</button>
+                <button class="filter-btn" onclick="filterCards('god',this)">GOD</button>
+                <button class="filter-btn" onclick="filterCards('owned',this)">Moje</button>
+            </div>
+            <div class="catalog-grid" id="catalogGrid"></div>
         </div>
     </div>
 
     <!-- GAME -->
     <div id="gameScreen" class="screen">
         <div class="mc-panel">
-            <div class="main-timer" id="mainTimer">⏱️ 2:00</div>
+            <div class="main-timer" id="mainTimer">⏱️ 1:00</div>
             <div class="main-timer-bar-bg"><div class="main-timer-bar-fill" id="mainTimerBar" style="width:100%"></div></div>
             <div class="stats-bar">
-                <div class="stat">💎 <span id="score">0</span></div>
+                <div class="stat">💰 <span id="earnedDisplay">0</span> M$</div>
                 <div class="stat">✅ <span id="correct">0</span>/<span id="total">0</span></div>
-                <div class="stat">⬆️ Poz. <span id="levelDisplay">1</span></div>
+                <div class="stat">🔥 <span id="streakDisplay">0</span></div>
             </div>
-            <div class="xp-section">
-                <div class="xp-label"><span>DOŚWIADCZENIE</span><span id="xpText">0 / 100 XP</span></div>
-                <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBar" style="width:0%"></div><div class="xp-bar-text" id="xpBarText">Poziom 1</div></div>
-            </div>
-            <div class="timer-section" id="timerSection"><div class="timer-bar-bg"><div class="timer-bar-fill" id="timerBar" style="width:100%"></div></div></div>
             <div class="combo-container" id="comboContainer"></div>
         </div>
-
-        <div class="mc-panel" id="goalPanel">
-            <div style="font-size: 8px; color: #555; text-align: center; margin-bottom: 6px;">🎯 NASTĘPNA NAGRODA 🎯</div>
-            <div class="goal-panel" id="goalContent"></div>
-        </div>
-
         <div class="mc-panel">
             <div class="question-area">
                 <div class="question-text" id="question">? × ? = ?</div>
                 <div class="mc-display active" id="answerDisplay"><span class="cursor">_</span></div>
-                <div class="mc-numpad" id="numpad">
+                <div class="mc-numpad">
                     <button class="mc-numkey" onclick="numPress('1')">1</button>
                     <button class="mc-numkey" onclick="numPress('2')">2</button>
                     <button class="mc-numkey" onclick="numPress('3')">3</button>
@@ -522,1289 +324,566 @@
                     <button class="mc-btn hint-btn" id="hintSkipBtn" onclick="showHint('skip')">🔢 Licz co...</button>
                     <button class="mc-btn hint-btn" id="hintNearbyBtn" onclick="showHint('nearby')">📖 Blisko!</button>
                 </div>
-                <div class="hint-cost" id="hintCost">Podpowiedź = mniej 💎, ale więcej wiedzy!</div>
                 <div class="feedback" id="feedback"></div>
                 <div class="visual-hint" id="visualHint"></div>
                 <div class="wrong-explain" id="wrongExplain"></div>
-                <div id="continueRow" style="display:none; margin-top: 12px;">
-                    <button class="mc-btn primary" id="continueBtn" onclick="continueAfterWrong()" style="font-size: 11px; padding: 10px 24px;">▶ ROZUMIEM, DALEJ!</button>
+                <div id="continueRow" style="display:none;margin-top:10px;">
+                    <button class="mc-btn primary" id="continueBtn" onclick="continueAfterWrong()">▶ ROZUMIEM, DALEJ!</button>
                 </div>
             </div>
-        </div>
-
-        <div class="mc-panel">
-            <div style="font-size: 8px; color: #555; text-align: center; margin-bottom: 6px;">🏆 TROFEA 🏆</div>
-            <div class="trophy-shelf" id="trophyShelf"></div>
-        </div>
-
-        <div class="mc-panel">
-            <div style="font-size: 8px; color: #555; text-align: center; margin-bottom: 6px;">⚔️ EKWIPUNEK ⚔️</div>
-            <div class="inventory" id="inventory"></div>
         </div>
     </div>
 
     <!-- GAME OVER -->
     <div id="gameoverScreen" class="screen">
         <div class="mc-panel gameover-screen">
-            <h2>🏁 KONIEC GRY!</h2>
+            <h2>⏱️ KONIEC RUNDY!</h2>
             <div class="final-stats" id="finalStats"></div>
-            <div class="leaderboard" id="gameoverLeaderboard"></div>
-            <div class="loot-summary" id="lootSummary"></div>
-            <div class="mistakes-review" id="mistakesReview"></div>
-            <div class="mastery-section" id="masterySection"></div>
-            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <div id="unlockedSection"></div>
+            <div id="takenSection"></div>
+            <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
                 <button class="mc-btn primary" onclick="startGame()">🔄 JESZCZE RAZ</button>
-                <button class="mc-btn" onclick="practiceWeakSpots()">🎯 ĆWICZ BŁĘDY</button>
-                <button class="mc-btn" onclick="showScreen('catalogScreen')">🧠 BRAINROTY</button>
-                <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- LEADERBOARD -->
-    <div id="leaderboardScreen" class="screen">
-        <div class="mc-panel">
-            <h2 style="font-size:14px;color:#333;text-align:center;margin-bottom:16px;">🏆 RANKING 🏆</h2>
-            <div class="difficulty" style="margin-bottom:12px;">
-                <button class="diff-btn active" onclick="showLeaderboardTab('easy',this)">😊 Łatwy</button>
-                <button class="diff-btn" onclick="showLeaderboardTab('medium',this)">😎 Średni</button>
-                <button class="diff-btn" onclick="showLeaderboardTab('hard',this)">💀 Trudny</button>
-            </div>
-            <div id="leaderboardContent"></div>
-            <div style="margin-top:16px;text-align:center;">
-                <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- BRAINROT CATALOG -->
-    <div id="catalogScreen" class="screen">
-        <div class="mc-panel">
-            <h2 style="font-size:14px;color:#333;text-align:center;margin-bottom:8px;">🧠 KOLEKCJA BRAINROT 🧠</h2>
-            <div style="font-size:7px;color:#888;text-align:center;margin-bottom:12px;">Zdobywaj punkty aby odblokować postacie!</div>
-            <div id="catalogContent" class="brainrot-grid"></div>
-            <div style="margin-top:16px;text-align:center;">
-                <button class="mc-btn" onclick="showScreen('startScreen')">🏠 MENU</button>
+                <button class="mc-btn" onclick="showScreen('catalogScreen')">🧠 KATALOG</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ═══════════════════════════════════════════
-    // Minecraft Items Database
-    // ═══════════════════════════════════════════
-    const MC_ITEMS = {
-        // Common drops
-        cobblestone:  { icon: '🪨', name: 'Cobblestone',      rarity: 'common',    desc: 'Podstawowy blok' },
-        wood:         { icon: '🪵', name: 'Drewno',           rarity: 'common',    desc: 'Zawsze się przyda' },
-        coal:         { icon: '�ite', name: 'Węgiel',          rarity: 'common',    desc: 'Dobry na pochodnie' },
-        iron:         { icon: '🔩', name: 'Żelazo',           rarity: 'common',    desc: 'Mocny metal' },
-        apple:        { icon: '🍎', name: 'Jabłko',           rarity: 'common',    desc: '+1 ❤️ życia!' },
-        bread:        { icon: '🍞', name: 'Chleb',            rarity: 'common',    desc: 'Energia na dalszą grę' },
-        // Uncommon
-        gold_ingot:   { icon: '🥇', name: 'Sztabka złota',    rarity: 'uncommon',  desc: 'Lśniące złoto' },
-        lapis:        { icon: '🔵', name: 'Lapis Lazuli',     rarity: 'uncommon',  desc: 'Do zaklęć' },
-        redstone:     { icon: '🔴', name: 'Redstone',         rarity: 'uncommon',  desc: 'Moc elektryczna!' },
-        bow:          { icon: '🏹', name: 'Łuk',              rarity: 'uncommon',  desc: 'Broń na dystans' },
-        // Rare
-        diamond:      { icon: '💎', name: 'Diament',          rarity: 'rare',      desc: 'Najcenniejszy kryształ!' },
-        emerald:      { icon: '💚', name: 'Szmaragd',         rarity: 'rare',      desc: 'Waluta u wieśniaków' },
-        ench_book:    { icon: '📖', name: 'Księga zaklęć',    rarity: 'rare',      desc: 'Magiczna wiedza' },
-        golden_apple: { icon: '🍏', name: 'Złote jabłko',     rarity: 'rare',      desc: 'Pełne życie!' },
-        // Epic
-        diamond_sword:{ icon: '⚔️', name: 'Diamentowy miecz', rarity: 'epic',      desc: 'Legendarny oręż!' },
-        diamond_pick: { icon: '⛏️', name: 'Diamentowy kilof',  rarity: 'epic',      desc: 'Wykopie wszystko!' },
-        elytra:       { icon: '🪽', name: 'Elytra',           rarity: 'epic',      desc: 'Możesz latać!' },
-        trident:      { icon: '🔱', name: 'Trójząb',          rarity: 'epic',      desc: 'Broń z oceanu!' },
-        // Legendary
-        nether_star:  { icon: '⭐', name: 'Gwiazda Netheru',  rarity: 'legendary', desc: 'Z Withera! Ultra rzadka!' },
-        dragon_egg:   { icon: '🥚', name: 'Smocze jajo',      rarity: 'legendary', desc: 'Jedyne w świecie!' },
-        totem:        { icon: '🗿', name: 'Totem nieśmiertelności', rarity: 'legendary', desc: 'Chroni przed śmiercią!' },
-        beacon:       { icon: '🔦', name: 'Beacon',           rarity: 'legendary', desc: 'Świeci na cały świat!' },
-    };
+// ═══════════════════════════════════════════
+// BRAINROT DATABASE (50 characters)
+// ═══════════════════════════════════════════
+const P = 'https://www.playbrainrot.org/images/characters/';
+const B = 'https://brainrots.icu';
 
-    // ═══════════════════════════════════════════
-    // Brainrot Characters Database
-    // ═══════════════════════════════════════════
-    const BRAINROT_CHARS = [
-        { id: 'tralalero',    name: 'Tralalero Tralala',        rarity: 'common',    desc: 'Rekin w adidasach, chodzi po lądzie',            goal: 15,  power: 'Shark dance',        catchphrase: 'Tralalero tralala!',        img: 'https://brainrots.icu/characters/Tralalero%20Tralala.webp' },
-        { id: 'bombardiro',   name: 'Bombardiro Crocodilo',     rarity: 'common',    desc: 'Krokodyl-bombowiec, lata i bombarduje',          goal: 30,  power: 'Bombardowanie',      catchphrase: 'Bombardiro crocodilo!',     img: 'https://brainrots.icu/characters/Bombardino%20Crocodilo.jpg' },
-        { id: 'trippi',       name: 'Trippi Troppi',            rarity: 'common',    desc: 'Tropikalny koleś, zawsze na vibie',              goal: 50,  power: 'Tropical vibes',     catchphrase: 'Trippi troppi!',            img: 'https://brainrots.icu/characters/Trippi-Troppi.webp' },
-        { id: 'tungtung',     name: 'Tung Tung Tung Sahur',     rarity: 'rare',      desc: 'Drewniana deska z twarzą, budzi na sahur',       goal: 80,  power: 'Tung attack',        catchphrase: 'Tung tung tung sahur!',     img: 'https://brainrots.icu/characters/Tung%20Tung%20Tung%20Tung%20Tung%20Tung%20Tung%20Sahur.webp' },
-        { id: 'lirili',       name: 'Lirilì Larilà',            rarity: 'rare',      desc: 'Tajemnicza postać, śpiewa dziwne melodie',       goal: 120, power: 'Hypno song',         catchphrase: 'Lirilì larilà~!',          img: 'https://brainrots.icu/characters/Lirili%20Larila.jpg' },
-        { id: 'boneca',       name: 'Boneca Ambalabu',          rarity: 'rare',      desc: 'Lalka z innego wymiaru, trochę creepy',          goal: 170, power: 'Cursed stare',       catchphrase: 'Ambalabu!',                 img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-15.webp' },
-        { id: 'patapim',      name: 'Brr Brr Patapim',          rarity: 'epic',      desc: 'Małpa-mech w zbroi, robi brr brr',              goal: 230, power: 'Mech mode',          catchphrase: 'Brr brr patapim!',          img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-12.webp' },
-        { id: 'bombombini',   name: 'Bombombini Gusini',        rarity: 'epic',      desc: 'Gęś z bombami, nie pytaj dlaczego',             goal: 300, power: 'Goose bomb',         catchphrase: 'Bombombini gusini!',        img: 'https://brainrots.icu/characters/Bombombini%20Gusini.jpg' },
-        { id: 'chimpanzini',  name: 'Chimpanzini Bananini',     rarity: 'legendary', desc: 'Włoski szympans z bananem, szef mafii bananowej', goal: 400, power: 'Banana barrage',    catchphrase: 'Chimpanzini bananini!',     img: 'https://brainrots.icu/characters/Chimpanzini%20Bananini.png' },
-        { id: 'capuccino',    name: 'Capuccino Assassino',      rarity: 'god',       desc: 'Zabójcze cappuccino, ostateczny boss brainrotu', goal: 600, power: 'Espresso kill shot', catchphrase: 'Capuccino... assassino!',   img: 'https://brainrots.icu/memes/640%20-%20%20-%202025-06-24%2015-22-08.webp' },
-    ];
+const BRAINROTS = [
+    // COMMON (20) - prices 5-25 M$
+    { id:'tralalero',     name:'Tralalero Tralala',       rarity:'common', price:5,   img:P+'tralalero-tralala.webp' },
+    { id:'bombardiro',    name:'Bombardiro Crocodilo',    rarity:'common', price:6,   img:P+'bombardiro-crocodilo.webp' },
+    { id:'trippi',        name:'Trippi Troppi',           rarity:'common', price:7,   img:P+'trippi-troppi.webp' },
+    { id:'tungtung',      name:'Tung Tung Tung Sahur',    rarity:'common', price:8,   img:P+'tung-tung-tung-tung-tung-tung-tung-tung-tung-sahur.webp' },
+    { id:'lirili',        name:'Lirilì Larilà',           rarity:'common', price:9,   img:P+'liril-laril.webp' },
+    { id:'boneca',        name:'Boneca Ambalabu',         rarity:'common', price:10,  img:P+'boneca-ambalabu.webp' },
+    { id:'frigo',         name:'Frigo Camelo',            rarity:'common', price:11,  img:P+'frigo-camelo.webp' },
+    { id:'bobrito',       name:'Bobrito Bandito',         rarity:'common', price:12,  img:P+'bobrito-bandito.webp' },
+    { id:'pot',           name:'Pot Hotspot',             rarity:'common', price:13,  img:P+'pot-hotspot.webp' },
+    { id:'frulli',        name:'Frulli Frulla',           rarity:'common', price:14,  img:P+'frulli-frulla.webp' },
+    { id:'tatata',        name:'Ta Ta Ta Sahur',          rarity:'common', price:15,  img:P+'ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-sahur.webp' },
+    { id:'girafa',        name:'Girafa Celeste',          rarity:'common', price:16,  img:P+'girafa-celeste.webp' },
+    { id:'trulimero',     name:'Trulimero Trulicina',     rarity:'common', price:17,  img:P+'trulimero-trulicina.webp' },
+    { id:'udinding',      name:'U Din Din Din Dun',       rarity:'common', price:18,  img:P+'u-din-din-din-din-dun-ma-din-din-din-dun.webp' },
+    { id:'ballerino',     name:'Ballerino Lololo',        rarity:'common', price:19,  img:P+'ballerino-lololo.webp' },
+    { id:'makakini',      name:'Makakini Bananini',       rarity:'common', price:20,  img:P+'makakini-bananini.webp' },
+    { id:'bananita',      name:'Bananita Dolfinita',      rarity:'common', price:21,  img:P+'bananita-dolfinita.webp' },
+    { id:'cocofanto',     name:'Cocofanto Elefanto',      rarity:'common', price:22,  img:P+'cocofanto-elefanto.webp' },
+    { id:'gorillo',       name:'Gorillo Watermellondrillo',rarity:'common',price:23,  img:P+'gorillo-watermellondrillo.webp' },
+    { id:'bulbito',       name:'Bulbito Bandito Traktorito',rarity:'common',price:25, img:P+'bulbito-bandito-traktorito.webp' },
+    // RARE (15) - prices 30-60 M$
+    { id:'patapim',       name:'Brr Brr Patapim',         rarity:'rare',  price:30,  img:P+'brr-brr-patapim.webp' },
+    { id:'bombombini',    name:'Bombombini Gusini',       rarity:'rare',  price:33,  img:P+'bombombini-gusini.webp' },
+    { id:'cappuccino',    name:'Cappuccino Assassino',     rarity:'rare',  price:36,  img:P+'cappuccino-assassino.webp' },
+    { id:'ballerina',     name:'Ballerina Cappuccina',     rarity:'rare',  price:39,  img:P+'ballerina-cappuccina.webp' },
+    { id:'brribicus',     name:'Brri Brri Bicus Dicus',    rarity:'rare',  price:42,  img:P+'brri-brri-bicus-dicus-bombicus.webp' },
+    { id:'blueberry',     name:'Blueberrinni Octopussini', rarity:'rare',  price:45,  img:P+'blueberrinni-octopussini.webp' },
+    { id:'glorbo',        name:'Glorbo Fruttodrillo',      rarity:'rare',  price:48,  img:P+'glorbo-fruttodrillo.webp' },
+    { id:'ilcacto',       name:'Il Cacto Hipopotamo',      rarity:'rare',  price:50,  img:P+'il-cacto-hipopotamo.webp' },
+    { id:'trictrac',      name:'Tric Trac Baraboom',       rarity:'rare',  price:52,  img:P+'tric-trac-baraboom.webp' },
+    { id:'orangutini',    name:'Orangutini Ananasini',     rarity:'rare',  price:54,  img:P+'orangutini-ananasini.webp' },
+    { id:'espressona',    name:'Espressona Signora',       rarity:'rare',  price:56,  img:P+'espressona-signora.webp' },
+    { id:'rhino',         name:'Rhino Toasterino',         rarity:'rare',  price:58,  img:P+'rhino-toasterino.webp' },
+    { id:'zibra',         name:'Zibra Zubra Zibralini',    rarity:'rare',  price:60,  img:P+'zibra-zubra-zibralini.webp' },
+    { id:'graipussi',     name:'Graipussi Medussi',        rarity:'rare',  price:62,  img:P+'graipussi-medussi.webp' },
+    { id:'tigrrullini',   name:'Tigrrullini Watermellini',  rarity:'rare',  price:65,  img:P+'tigrrullini-watermellini.webp' },
+    // EPIC (10) - prices 70-110 M$
+    { id:'chimpanzini',   name:'Chimpanzini Bananini',     rarity:'epic',  price:70,  img:P+'chimpanzini-bananini.webp' },
+    { id:'tigrulli',      name:'Tigrulli Grapefrutunni',   rarity:'epic',  price:78,  img:P+'tigrulli-grapefrutunni.webp' },
+    { id:'tracotu',       name:'Tracotucotulu',            rarity:'epic',  price:85,  img:P+'tracotucotulu-delapeladustuz.webp' },
+    { id:'burbaloni',     name:'Burbaloni Lulilolli',      rarity:'epic',  price:90,  img:B+'/characters/Tralalero%20Tralala.webp' },
+    { id:'lavaca',        name:'La Vaca Saturno Saturnita', rarity:'epic',  price:95,  img:P+'la-vaca-saturno-saturnita.webp' },
+    { id:'meme00',        name:'Brainrot Fusion #1',       rarity:'epic',  price:100, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-00.webp' },
+    { id:'meme01',        name:'Brainrot Fusion #2',       rarity:'epic',  price:102, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-01.webp' },
+    { id:'meme02',        name:'Brainrot Fusion #3',       rarity:'epic',  price:104, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-02.webp' },
+    { id:'meme03',        name:'Brainrot Fusion #4',       rarity:'epic',  price:106, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-03.webp' },
+    { id:'meme04',        name:'Brainrot Fusion #5',       rarity:'epic',  price:110, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-04.webp' },
+    // LEGENDARY (3) - prices 130-160 M$
+    { id:'meme05',        name:'Brainrot Legend #1',        rarity:'legendary', price:130, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-05.webp' },
+    { id:'meme06',        name:'Brainrot Legend #2',        rarity:'legendary', price:145, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-06.webp' },
+    { id:'meme07',        name:'Brainrot Legend #3',        rarity:'legendary', price:160, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-07.webp' },
+    // GOD TIER (2) - prices 200-250 M$
+    { id:'meme09',        name:'Brainrot GOD',              rarity:'god', price:200, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-09.webp' },
+    { id:'meme10',        name:'Brainrot SUPREME',          rarity:'god', price:250, img:B+'/memes/640%20-%20%20-%202025-06-24%2015-22-10.webp' },
+];
 
-    function getBrainrotCollection() {
-        try { return JSON.parse(localStorage.getItem('mc_brainrot_collection') || '{}'); } catch(e) { return {}; }
+// ═══════════════════════════════════════════
+// PERSISTENCE (localStorage)
+// ═══════════════════════════════════════════
+function getDB() {
+    try { return JSON.parse(localStorage.getItem('brainrot_collector') || '{}'); } catch(e) { return {}; }
+}
+function saveDB(db) { localStorage.setItem('brainrot_collector', JSON.stringify(db)); }
+
+function getWallet(name) { const db = getDB(); return (db.wallets && db.wallets[name]) || 0; }
+function setWallet(name, amt) { const db = getDB(); if(!db.wallets) db.wallets={}; db.wallets[name]=amt; saveDB(db); }
+
+function getCardOwner(cardId) { const db = getDB(); return db.cards && db.cards[cardId] ? db.cards[cardId] : null; }
+function setCardOwner(cardId, ownerName, pricePaid) {
+    const db = getDB();
+    if(!db.cards) db.cards={};
+    const card = BRAINROTS.find(c=>c.id===cardId);
+    const prev = db.cards[cardId];
+    db.cards[cardId] = { owner: ownerName, pricePaid, date: Date.now() };
+    saveDB(db);
+    return prev;
+}
+function getStillPrice(cardId) {
+    const owner = getCardOwner(cardId);
+    if (!owner) return null;
+    const card = BRAINROTS.find(c=>c.id===cardId);
+    // Still price = 150% of what was paid, minimum base price + 20%
+    return Math.max(Math.ceil(owner.pricePaid * 1.5), Math.ceil(card.price * 1.2));
+}
+
+// ═══════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════
+const ROUND_TIME = 60; // 1 minuta
+const diffSettings = {
+    easy:   { min:2, max:5,  timer:false },
+    medium: { min:2, max:10, timer:false },
+    hard:   { min:2, max:12, timer:true, time:15 }
+};
+
+let state = {
+    difficulty:'easy', earned:0, correct:0, total:0,
+    streak:0, bestStreak:0, combo:1,
+    a:0, b:0, answer:0,
+    timerInterval:null, timeLeft:0, timerMax:15,
+    roundTimerInterval:null, roundTimeLeft:ROUND_TIME,
+    playing:false, hintUsed:false,
+    questionStartTime:0,
+    freshPool:[], askedSet:new Set(),
+    mistakes:[], mistakeMap:{}, masteryMap:{},
+    _lightningCount:0, _waitingForContinue:false,
+    _mistakePracticeCount:{},
+};
+
+const SPEED_LABELS = {
+    lightning: { label:'⚡ BŁYSKAWICA!', cls:'lightning', points:5 },
+    fast:      { label:'🏃 Szybko!',      cls:'fast',      points:3 },
+    good:      { label:'👍 Dobrze',        cls:'good',      points:2 },
+    ok:        { label:'🐢 Powoli...',     cls:'ok',        points:1 },
+};
+const goodMessages = ['Świetnie! ⛏️','Brawo! 💎','Super! 🌟','Genialnie! 🔥','Tak trzymaj! 💪','Mistrz! 👑','Wow! 🏆'];
+const badMessages = ['Spróbuj ponownie!','Prawie!','Nie poddawaj się!','Ćwicz dalej! 💪'];
+const blockTypes = ['grass','dirt','stone','diamond','gold','wood'];
+
+// ═══════════════════════════════════════════
+// CATALOG RENDERING
+// ═══════════════════════════════════════════
+let currentFilter = 'all';
+function filterCards(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    renderCatalog();
+}
+
+function renderCatalog() {
+    const grid = document.getElementById('catalogGrid');
+    const name = getPlayerName();
+    const wallet = getWallet(name);
+    document.getElementById('walletDisplay').textContent = wallet + ' M$';
+
+    let cards = BRAINROTS;
+    if (currentFilter === 'owned') {
+        cards = cards.filter(c => { const o = getCardOwner(c.id); return o && o.owner === name; });
+    } else if (currentFilter !== 'all') {
+        cards = cards.filter(c => c.rarity === currentFilter);
     }
-    function saveBrainrotCollection(col) {
-        localStorage.setItem('mc_brainrot_collection', JSON.stringify(col));
-    }
 
-    // Loot tables based on speed and streak
-    const LOOT_TABLES = {
-        lightning: { // < 2s
-            common: 0.05, uncommon: 0.15, rare: 0.40, epic: 0.30, legendary: 0.10
-        },
-        fast: { // < 4s
-            common: 0.10, uncommon: 0.30, rare: 0.35, epic: 0.20, legendary: 0.05
-        },
-        good: { // < 8s
-            common: 0.25, uncommon: 0.35, rare: 0.25, epic: 0.12, legendary: 0.03
-        },
-        ok: { // >= 8s or hint
-            common: 0.50, uncommon: 0.30, rare: 0.15, epic: 0.04, legendary: 0.01
-        }
-    };
+    let html = '';
+    for (const c of cards) {
+        const owner = getCardOwner(c.id);
+        const isOwned = owner && owner.owner === name;
+        const isOwnedByOther = owner && owner.owner !== name;
+        const stillPrice = owner ? getStillPrice(c.id) : null;
+        const neededPrice = isOwnedByOther ? stillPrice : c.price;
+        const canAfford = name && wallet >= neededPrice;
 
-    const SPEED_LABELS = {
-        lightning: { label: '⚡ BŁYSKAWICA!', cls: 'lightning', points: 5 },
-        fast:      { label: '🏃 Szybko!',      cls: 'fast',      points: 3 },
-        good:      { label: '👍 Dobrze',        cls: 'good',      points: 2 },
-        ok:        { label: '🐢 Powoli...',     cls: 'ok',        points: 1 },
-    };
+        // Card classes
+        let cls = `card ${c.rarity}`;
+        if (isOwned) cls += ' owned';
+        else if (isOwnedByOther) cls += ' other-owned';
+        else if (!canAfford) cls += ' cant-afford';
 
-    // ═══════════════════════════════════════════
-    // Game State
-    // ═══════════════════════════════════════════
-    const ROUND_TIME = 120; // 2 minutes in seconds
+        html += `<div class="${cls}" onclick="cardClick('${c.id}')">`;
+        if (isOwned) html += '<div class="card-badge">✅</div>';
+        else if (isOwnedByOther) html += '<div class="card-badge">🔒</div>';
+        html += `<div class="card-img"><img src="${c.img}" alt="${c.name}" loading="lazy"></div>`;
+        html += `<div class="card-name">${c.name}</div>`;
+        html += `<div class="card-rarity ${c.rarity}">${c.rarity === 'god' ? 'GOD TIER' : c.rarity.toUpperCase()}</div>`;
 
-    let state = {
-        difficulty: 'easy', score: 0, xp: 0, level: 1, xpToNext: 100,
-        correct: 0, total: 0,
-        streak: 0, bestStreak: 0, combo: 1,
-        a: 0, b: 0, answer: 0,
-        timerInterval: null, timeLeft: 0, timerMax: 15,
-        roundTimerInterval: null, roundTimeLeft: ROUND_TIME,
-        achievements: new Set(), playing: false,
-        hintUsed: false, hintsUsedTotal: 0,
-        questionStartTime: 0,
-        inventory: {},
-        lootLog: [],
-        mistakes: [], mistakeMap: {}, masteryMap: {},
-        questionQueue: [], practiceMode: false, questionHistory: [],
-        freshPool: [], askedSet: new Set(),
-    };
-
-    const diffSettings = {
-        easy:   { min: 2, max: 5,  timer: false },
-        medium: { min: 2, max: 10, timer: false },
-        hard:   { min: 2, max: 12, timer: true, time: 15 }
-    };
-
-    const blockTypes = ['grass', 'dirt', 'stone', 'diamond', 'gold', 'wood'];
-
-    const achievementList = [
-        { id: 'first',      check: s => s.correct >= 1,          icon: '⭐', title: 'Pierwszy krok!',      desc: 'Pierwsza poprawna odpowiedź',  progress: s => ({ cur: s.correct, max: 1, label: 'Poprawne' }) },
-        { id: 'streak5',    check: s => s.streak >= 5,           icon: '🔥', title: 'W ogniu!',            desc: 'Seria 5 poprawnych z rzędu',   progress: s => ({ cur: s.streak, max: 5, label: 'Seria' }) },
-        { id: 'dia10',      check: s => s.score >= 30,           icon: '💎', title: 'Górnik diamentów!',   desc: 'Zdobądź 30 punktów',           progress: s => ({ cur: s.score, max: 30, label: 'Punkty' }) },
-        { id: 'hint_learn', check: s => s.hintsUsedTotal >= 5,   icon: '📖', title: 'Badacz!',             desc: 'Użyj 5 podpowiedzi',           progress: s => ({ cur: s.hintsUsedTotal, max: 5, label: 'Podpowiedzi' }) },
-        { id: 'perfect10',  check: s => s.correct >= 10 && s.correct === s.total, icon: '🎯', title: 'Perfekcja!', desc: '10 poprawnych bez błędu', progress: s => ({ cur: s.correct === s.total ? s.correct : 0, max: 10, label: 'Bez błędu' }) },
-        { id: 'streak10',   check: s => s.streak >= 10,          icon: '⚡', title: 'Niepokonany!',        desc: 'Seria 10 poprawnych z rzędu',  progress: s => ({ cur: s.streak, max: 10, label: 'Seria' }) },
-        { id: 'fast_round', check: s => s.correct >= 5 && s.total === s.correct, icon: '💪', title: 'Nie poddaję się!', desc: '5 poprawnych bez błędu pod rząd', progress: s => ({ cur: s.correct === s.total ? s.correct : 0, max: 5, label: 'Czyste' }) },
-        { id: 'lightning5',  check: s => s._lightningCount >= 5,  icon: '⚡', title: 'Prędkość światła!',  desc: '5 odpowiedzi poniżej 2s',      progress: s => ({ cur: s._lightningCount || 0, max: 5, label: 'Błyskawice' }) },
-        { id: 'dia50',      check: s => s.score >= 100,          icon: '💎', title: 'Koparka diamentowa!', desc: 'Zdobądź 100 punktów',          progress: s => ({ cur: s.score, max: 100, label: 'Punkty' }) },
-        { id: 'combo_x5',   check: s => s.combo >= 5,            icon: '💥', title: 'MEGA COMBO!',         desc: 'Osiągnij combo ×5',            progress: s => ({ cur: s.combo, max: 5, label: 'Combo' }) },
-        { id: 'lvl5',       check: s => s.level >= 5,            icon: '🏆', title: 'Mistrz matematyki!',  desc: 'Osiągnij poziom 5',            progress: s => ({ cur: s.level, max: 5, label: 'Poziom' }) },
-        { id: 'legendary',  check: s => s._hasLegendary,         icon: '🥚', title: 'Legendarny łup!',    desc: 'Zdobądź legendarny przedmiot', progress: s => ({ cur: s._hasLegendary ? 1 : 0, max: 1, label: 'Legendarny' }) },
-        { id: 'lvl10',      check: s => s.level >= 10,           icon: '👑', title: 'Legenda!',            desc: 'Osiągnij poziom 10',           progress: s => ({ cur: s.level, max: 10, label: 'Poziom' }) },
-    ];
-
-    const goodMessages = ['Świetnie! ⛏️','Brawo! 💎','Dobrze! ✅','Super! 🌟','Genialnie! 🔥','Tak trzymaj! 💪','Mistrz! 👑','Niesamowite! ⚡','Fantastycznie! 🎉','Wow! 🏆'];
-    const badMessages = ['Spróbuj ponownie!','Prawie!','Nie poddawaj się!','Ćwicz dalej! 💪'];
-
-    // ═══════════════════════════════════════════
-    // Speed & Combo System
-    // ═══════════════════════════════════════════
-
-    function getSpeedTier(ms) {
-        if (ms < 2000) return 'lightning';
-        if (ms < 4000) return 'fast';
-        if (ms < 8000) return 'good';
-        return 'ok';
-    }
-
-    function updateCombo(correct) {
-        if (correct) {
-            state.streak++;
-            if (state.streak > state.bestStreak) state.bestStreak = state.streak;
-            // Combo grows every 3 correct, max 5
-            state.combo = Math.min(5, 1 + Math.floor(state.streak / 3));
+        if (isOwned) {
+            html += `<div class="card-owner">👑 ${name}</div>`;
+            html += `<div class="card-still">STILL THE BRAINROT! (${stillPrice} M$ do przejęcia)</div>`;
+        } else if (isOwnedByOther) {
+            html += `<div class="card-owner takeover">👑 ${owner.owner}</div>`;
+            html += `<div class="card-still">STILL THE BRAINROT!</div>`;
+            html += `<div class="card-price">🔄 Przejmij za ${stillPrice} M$</div>`;
+        } else if (!canAfford) {
+            html += `<div class="card-price">💰 ${c.price} M$ (brak M$)</div>`;
         } else {
-            state.streak = 0;
-            state.combo = 1;
+            html += `<div class="card-price">💰 ${c.price} M$</div>`;
         }
-        renderCombo();
+        html += '</div>';
     }
+    grid.innerHTML = html;
+}
 
-    function renderCombo() {
-        const el = document.getElementById('comboContainer');
-        if (state.combo >= 2) {
-            const cls = state.combo >= 5 ? 'x5' : state.combo >= 4 ? 'x4' : state.combo >= 3 ? 'x3' : 'x2';
-            const pct = ((state.streak % 3) / 3) * 100;
-            const nextCombo = state.combo < 5 ? ` → ×${state.combo + 1}` : ' MAX!';
-            el.innerHTML = `
-                <div class="combo-text ${cls}">🔥 COMBO ×${state.combo} 🔥</div>
-                <div class="combo-bar-bg"><div class="combo-bar-fill" style="width:${state.combo >= 5 ? 100 : pct}%;background:${
-                    state.combo >= 5 ? '#FF4444' : state.combo >= 4 ? '#FF00FF' : state.combo >= 3 ? '#FCDB05' : '#5DECF5'
-                }"></div></div>
-            `;
-        } else if (state.streak > 0) {
-            const pct = (state.streak / 3) * 100;
-            el.innerHTML = `
-                <div style="font-size:8px;color:#888;">seria: ${state.streak} (combo za ${3 - state.streak}...)</div>
-                <div class="combo-bar-bg"><div class="combo-bar-fill" style="width:${pct}%;background:#888"></div></div>
-            `;
-        } else {
-            el.innerHTML = '';
-        }
-    }
+function cardClick(id) {
+    const name = getPlayerName();
+    if (!name) { alert('Wpisz swoje imię!'); return; }
+    const card = BRAINROTS.find(c=>c.id===id);
+    const owner = getCardOwner(id);
+    const wallet = getWallet(name);
+    const isOwned = owner && owner.owner === name;
 
-    // ═══════════════════════════════════════════
-    // Loot System
-    // ═══════════════════════════════════════════
+    if (isOwned) return; // already yours
 
-    function rollLoot(speedTier) {
-        const table = LOOT_TABLES[speedTier];
-        const roll = Math.random();
-        let rarity;
-        let cumul = 0;
-        for (const [r, chance] of Object.entries(table)) {
-            cumul += chance;
-            if (roll <= cumul) { rarity = r; break; }
-        }
-        if (!rarity) rarity = 'common';
-
-        // Combo bonus: extra roll chance for better rarity
-        if (state.combo >= 3 && rarity === 'common') rarity = 'uncommon';
-        if (state.combo >= 5 && rarity === 'uncommon' && Math.random() < 0.5) rarity = 'rare';
-
-        // Pick random item of that rarity
-        const candidates = Object.entries(MC_ITEMS).filter(([_, v]) => v.rarity === rarity);
-        const [itemKey, item] = candidates[Math.floor(Math.random() * candidates.length)];
-
-        // Add to inventory
-        state.inventory[itemKey] = (state.inventory[itemKey] || 0) + 1;
-        state.lootLog.push({ itemKey, rarity });
-
-        if (rarity === 'legendary') state._hasLegendary = true;
-
-        return { itemKey, item };
-    }
-
-    function spawnLootDrop(item) {
-        const el = document.createElement('div');
-        el.className = 'loot-drop';
-        el.textContent = item.icon;
-        el.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 150) + 'px';
-        el.style.top = (window.innerHeight / 2 - 50) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
-    }
-
-    function spawnFloatScore(points, speedTier, x, y) {
-        const el = document.createElement('div');
-        el.className = 'float-score';
-        const colors = { lightning: '#FCDB05', fast: '#5DECF5', good: '#17DD62', ok: '#aaa' };
-        el.style.color = colors[speedTier];
-        el.textContent = `+${points}`;
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1200);
-    }
-
-    // ═══════════════════════════════════════════
-    // Core Functions
-    // ═══════════════════════════════════════════
-
-    function setDifficulty(diff, btn) {
-        state.difficulty = diff;
-        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if (id === 'leaderboardScreen') {
-            showLeaderboardTab(currentLbTab || 'easy');
-        } else if (id === 'catalogScreen') {
+    const price = owner ? getStillPrice(id) : card.price;
+    if (wallet >= price) {
+        const ok = confirm(`Kupić "${card.name}" za ${price} M$?\n(Masz ${wallet} M$)`);
+        if (ok) {
+            setWallet(name, wallet - price);
+            setCardOwner(id, name, price);
             renderCatalog();
         }
     }
+}
 
-    function startGame() {
-        const nameInput = document.getElementById('playerName');
-        const name = (nameInput.value || '').trim() || 'Gracz';
-        state.playerName = name;
-        localStorage.setItem('mc_tabliczka_name', name);
+// ═══════════════════════════════════════════
+// CORE GAME
+// ═══════════════════════════════════════════
+function getPlayerName() { return (document.getElementById('playerName').value||'').trim()||''; }
+function setDifficulty(d,btn) {
+    state.difficulty=d;
+    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+}
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id==='catalogScreen') renderCatalog();
+}
 
-        const settings = diffSettings[state.difficulty];
-        clearInterval(state.roundTimerInterval);
-        clearInterval(state.timerInterval);
-        Object.assign(state, {
-            score: 0, xp: 0, level: 1, xpToNext: 100,
-            correct: 0, total: 0,
-            streak: 0, bestStreak: 0, combo: 1,
-            playing: true, hintUsed: false, hintsUsedTotal: 0,
-            inventory: {}, lootLog: [],
-            mistakes: [], mistakeMap: {}, masteryMap: {},
-            questionQueue: [], practiceMode: false, questionHistory: [],
-            freshPool: [], askedSet: new Set(),
-            roundTimeLeft: ROUND_TIME,
-            _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
-            _mistakePracticeCount: {}, _waitingForContinue: false,
-        });
-        buildFreshPool();
+function startGame() {
+    const name = getPlayerName();
+    if(!name) { alert('Wpisz swoje imię!'); document.getElementById('playerName').focus(); return; }
+    localStorage.setItem('brainrot_player', name);
 
-        if (settings.timer) {
-            state.timerMax = settings.time;
-            document.getElementById('timerSection').classList.add('visible');
-        } else {
-            document.getElementById('timerSection').classList.remove('visible');
-        }
-
-        updateUI();
-        showScreen('gameScreen');
-        startRoundTimer();
-        nextQuestion();
-    }
-
-    function startRoundTimer() {
-        state.roundTimeLeft = ROUND_TIME;
-        updateRoundTimerDisplay();
-        state.roundTimerInterval = setInterval(() => {
-            state.roundTimeLeft -= 0.5;
-            if (state.roundTimeLeft <= 0) {
-                state.roundTimeLeft = 0;
-                clearInterval(state.roundTimerInterval);
-                clearInterval(state.timerInterval);
-                state.playing = false;
-                showGameOver();
-                return;
-            }
-            updateRoundTimerDisplay();
-        }, 500);
-    }
-
-    function updateRoundTimerDisplay() {
-        const t = Math.max(0, Math.ceil(state.roundTimeLeft));
-        const min = Math.floor(t / 60);
-        const sec = t % 60;
-        const timerEl = document.getElementById('mainTimer');
-        timerEl.textContent = `⏱️ ${min}:${sec.toString().padStart(2, '0')}`;
-        timerEl.className = 'main-timer' + (t <= 30 ? ' warning' : '');
-
-        const pct = (state.roundTimeLeft / ROUND_TIME) * 100;
-        const bar = document.getElementById('mainTimerBar');
-        bar.style.width = pct + '%';
-        bar.className = 'main-timer-bar-fill' + (pct < 15 ? ' critical' : pct < 33 ? ' low' : '');
-    }
-
-    function buildFreshPool() {
-        const settings = diffSettings[state.difficulty];
-        state.freshPool = [];
-        // Include BOTH orderings (a×b AND b×a) for more variety
-        for (let a = settings.min; a <= settings.max; a++) {
-            for (let b = settings.min; b <= settings.max; b++) {
-                state.freshPool.push({ a, b });
-            }
-        }
-        shuffle(state.freshPool);
-        state.askedSet = new Set();
-    }
-
-    function pullFromPool() {
-        if (state.freshPool.length > 0) {
-            return state.freshPool.shift();
-        }
-        // Pool exhausted - rebuild (all pairs seen, start fresh cycle)
-        rebuildExhaustedPool();
-        if (state.freshPool.length > 0) {
-            return state.freshPool.shift();
-        }
-        const s = diffSettings[state.difficulty];
-        return { a: randInt(s.min, s.max), b: randInt(s.min, s.max) };
-    }
-
-    function rebuildExhaustedPool() {
-        // All pairs asked once - rebuild with both orderings again
-        const settings = diffSettings[state.difficulty];
-        state.freshPool = [];
-        for (let a = settings.min; a <= settings.max; a++) {
-            for (let b = settings.min; b <= settings.max; b++) {
-                state.freshPool.push({ a, b });
-            }
-        }
-        shuffle(state.freshPool);
-    }
-
-    function practiceWeakSpots() {
-        const weakPairs = Object.entries(state.mistakeMap).filter(([_, c]) => c > 0);
-        if (weakPairs.length === 0) { startGame(); return; }
-
-        clearInterval(state.roundTimerInterval);
-        clearInterval(state.timerInterval);
-        Object.assign(state, {
-            score: 0, xp: 0, level: 1, xpToNext: 100,
-            correct: 0, total: 0,
-            streak: 0, bestStreak: 0, combo: 1,
-            playing: true, hintUsed: false,
-            practiceMode: true, questionHistory: [],
-            inventory: {}, lootLog: [],
-            roundTimeLeft: ROUND_TIME,
-            _lightningCount: 0, _hasLegendary: false, _newTrophies: null,
-            _mistakePracticeCount: {}, _waitingForContinue: false,
-        });
-
-        // Each mistake repeated max 2 times, then mix in fresh questions
-        state.questionQueue = [];
-        for (const [key, count] of Object.entries(state.mistakeMap)) {
-            if (count > 0) {
-                const [a, b] = key.split('×').map(Number);
-                // Max 2 repeats per mistake
-                state.questionQueue.push({ a, b });
-                state.questionQueue.push({ a, b });
-                state._mistakePracticeCount[key] = 0;
-            }
-        }
-        // Add fresh questions so it's not only mistakes (mix ~50/50)
-        const freshCount = Math.max(4, state.questionQueue.length);
-        buildFreshPool();
-        for (let i = 0; i < freshCount && state.freshPool.length > 0; i++) {
-            const q = state.freshPool.shift();
-            const key = `${q.a}×${q.b}`;
-            // Don't add if it's already a mistake question
-            if (!state.mistakeMap[key] && !state.mistakeMap[`${q.b}×${q.a}`]) {
-                state.questionQueue.push(q);
-            }
-        }
-        shuffle(state.questionQueue);
-
-        document.getElementById('timerSection').classList.remove('visible');
-        updateUI(); showScreen('gameScreen');
-        startRoundTimer();
-        showAchievement('🎯', 'Tryb ćwiczeń!', 'Błędy + nowe zadania');
-        nextQuestion();
-    }
-
-    // ═══════════════════════════════════════════
-    // Question Selection
-    // ═══════════════════════════════════════════
-
-    function nextQuestion() {
-        hideHints();
-        state.hintUsed = false;
-
-        let a, b;
-        if (state.practiceMode && state.questionQueue.length > 0) {
-            const q = state.questionQueue.shift();
-            a = q.a; b = q.b;
-        }
-        // In normal mode: only pull from pool (no repeats unless wrong answer re-added it)
-        if (!a || !b) { const q = pullFromPool(); a = q.a; b = q.b; }
-
-        state.a = a; state.b = b; state.answer = a * b;
-        state.askedSet.add(masteryKey(a, b));
-        state.questionHistory.push(`${a}×${b}`);
-        if (state.questionHistory.length > 5) state.questionHistory.shift();
-
-        const key = masteryKey(a, b);
-        if (!state.masteryMap[key]) state.masteryMap[key] = { correct: 0, total: 0, streak: 0 };
-
-        document.getElementById('question').textContent = `${a} × ${b} = ?`;
-        numpadValue = '';
-        updateDisplay();
-        document.getElementById('answerDisplay').className = 'mc-display active';
-        state._waitingForContinue = false;
-        document.getElementById('feedback').textContent = '';
-        document.getElementById('hintCost').textContent = 'Podpowiedź = mniej 💎, ale więcej wiedzy!';
-
-        // Start measuring answer time
-        state.questionStartTime = Date.now();
-
-        const settings = diffSettings[state.difficulty];
-        if (settings.timer) startTimer();
-        if (state.practiceMode && state.questionQueue.length === 0) state.practiceMode = false;
-    }
-
-    function getRepeatChance() {
-        const totalMistakes = Object.values(state.mistakeMap).reduce((s, v) => s + v, 0);
-        return Math.min(0.6, 0.2 + totalMistakes * 0.05);
-    }
-
-    function getWeakestQuestion() {
-        const entries = Object.entries(state.mistakeMap).filter(([_, c]) => c > 0);
-        if (entries.length === 0) return null;
-        const totalWeight = entries.reduce((s, [_, c]) => s + c, 0);
-        let r = Math.random() * totalWeight;
-        for (const [key, count] of entries) {
-            r -= count;
-            if (r <= 0) {
-                const [a, b] = key.split('×').map(Number);
-                if (!isRecentQuestion(a, b)) return { a, b };
-            }
-        }
-        const [key] = entries[0];
-        const [a, b] = key.split('×').map(Number);
-        return { a, b };
-    }
-
-    function isRecentQuestion(a, b) {
-        return state.questionHistory.includes(`${a}×${b}`) || state.questionHistory.includes(`${b}×${a}`);
-    }
-
-    function masteryKey(a, b) { return `${Math.min(a,b)}×${Math.max(a,b)}`; }
-
-    // ═══════════════════════════════════════════
-    // Hint System
-    // ═══════════════════════════════════════════
-
-    function showHint(type) {
-        if (!state.playing) return;
-        if (!state.hintUsed) { state.hintUsed = true; state.hintsUsedTotal++; }
-        document.querySelectorAll('.hint-btn').forEach(b => b.classList.remove('hint-active'));
-        const btnMap = { blocks: 'hintBlocksBtn', skip: 'hintSkipBtn', nearby: 'hintNearbyBtn' };
-        document.getElementById(btnMap[type]).classList.add('hint-active');
-        const hint = document.getElementById('visualHint');
-        hint.innerHTML = ''; hint.classList.add('show');
-        document.getElementById('hintCost').textContent = '📖 Podpowiedź użyta (mniej punktów) — klikaj inne aby porównać!';
-        if (type === 'blocks') buildBlocksHint(hint);
-        else if (type === 'skip') buildSkipCountHint(hint);
-        else if (type === 'nearby') buildNearbyHint(hint);
-        checkAchievements();
-    }
-
-    function buildBlocksHint(container) {
-        const a = state.a, b = state.b;
-        const bt = blockTypes[Math.floor(Math.random() * blockTypes.length)];
-        container.innerHTML = `<div class="hint-title">🧱 WIZUALIZACJA: ${a} × ${b}</div><div class="hint-explanation">${a} × ${b} oznacza: ${a} rzędów po ${b} bloczków</div><div class="grid-label">${a} rzędy ↓ × ${b} kolumny →</div><div id="blockGrid" class="block-grid" style="grid-template-columns: repeat(${b}, 22px);"></div><div class="grid-result" id="gridResult"></div>`;
-        const grid = document.getElementById('blockGrid');
-        const total = a * b; let count = 0;
-        for (let i = 0; i < a; i++) { for (let j = 0; j < b; j++) { count++;
-            const block = document.createElement('div'); block.className = `mc-block ${bt}`;
-            const delay = count * 60, cc = count; block.style.opacity = '0'; grid.appendChild(block);
-            setTimeout(() => { block.classList.add('highlight'); block.style.opacity = '1';
-                document.getElementById('gridResult').textContent = cc === total ? `= ${total} bloczków! ✅` : `${cc} / ${total}...`; }, delay);
-        }}
-    }
-
-    function buildSkipCountHint(container) {
-        const a = state.a, b = state.b;
-        container.innerHTML = `<div class="hint-title">🔢 LICZENIE CO ${b}</div><div class="hint-explanation">${a} × ${b} = dodaj ${b} do siebie ${a} razy:</div><div class="skip-count" id="skipCount"></div><div class="grid-result" id="skipResult"></div>`;
-        const sd = document.getElementById('skipCount');
-        for (let i = 1; i <= a; i++) { const n = document.createElement('div'); n.className = 'skip-num hidden'; n.textContent = i * b; sd.appendChild(n); }
-        for (let i = 1; i <= a; i++) { setTimeout(() => { const el = sd.children[i-1]; el.classList.remove('hidden'); el.classList.add(i === a ? 'answer-num' : 'revealed');
-            const l = []; for (let j = 1; j <= i; j++) l.push(b);
-            document.getElementById('skipResult').textContent = i === a ? `${l.join(' + ')} = ${i*b} ✅` : `${l.join(' + ')} = ${i*b}`; }, i * 400); }
-    }
-
-    function buildNearbyHint(container) {
-        const a = state.a, b = state.b;
-        const facts = [];
-        if (a > 1) facts.push({ a: a-1, b, result: (a-1)*b, current: false });
-        facts.push({ a, b, result: a*b, current: true });
-        if (a <= 12) facts.push({ a: a+1, b, result: (a+1)*b, current: false });
-        container.innerHTML = `<div class="hint-title">📖 SĄSIEDNIE DZIAŁANIA</div><div class="hint-explanation">Jeśli znasz sąsiednie mnożenia,<br>wystarczy dodać lub odjąć ${b}!</div><div class="nearby-facts" id="nearbyFacts"></div><div class="hint-explanation" style="margin-top:8px;color:var(--diamond);">${a > 1 ? `${a-1} × ${b} = ${(a-1)*b}, więc dodaj ${b}...` : `1 × ${b} = ${b}, zacznij od tego!`}</div>`;
-        const fd = document.getElementById('nearbyFacts');
-        facts.forEach((f, i) => { setTimeout(() => { const el = document.createElement('div'); el.className = 'nearby-fact' + (f.current ? ' current' : '');
-            el.innerHTML = f.current ? `${f.a} × ${f.b} <span class="op">=</span> <strong>?</strong>` : `${f.a} × ${f.b} <span class="op">=</span> ${f.result}`;
-            fd.appendChild(el); }, i * 300); });
-    }
-
-    function showWrongHint(type) {
-        const hint = document.getElementById('visualHint'); hint.innerHTML = ''; hint.classList.add('show');
-        if (type === 'blocks') buildBlocksHint(hint); else if (type === 'skip') buildSkipCountHint(hint); else if (type === 'nearby') buildNearbyHint(hint);
-    }
-
-    function hideHints() {
-        document.getElementById('visualHint').classList.remove('show');
-        document.getElementById('visualHint').innerHTML = '';
-        document.getElementById('wrongExplain').classList.remove('show');
-        document.getElementById('wrongExplain').innerHTML = '';
-        document.getElementById('continueRow').style.display = 'none';
-        document.querySelectorAll('.hint-btn').forEach(b => { b.classList.remove('hint-active'); b.disabled = false; });
-    }
-
-    // ═══════════════════════════════════════════
-    // Answer Handling
-    // ═══════════════════════════════════════════
-
-    function startTimer() {
-        clearInterval(state.timerInterval); state.timeLeft = state.timerMax; updateTimerBar();
-        state.timerInterval = setInterval(() => {
-            state.timeLeft -= 0.1;
-            if (state.timeLeft <= 0) {
-                state.timeLeft = 0; clearInterval(state.timerInterval);
-                if (state.playing) handleWrong();
-            }
-            updateTimerBar();
-        }, 100);
-    }
-
-    function updateTimerBar() {
-        const pct = (state.timeLeft / state.timerMax) * 100;
-        const bar = document.getElementById('timerBar');
-        bar.style.width = pct + '%';
-        bar.className = 'timer-bar-fill' + (pct < 30 ? ' warning' : '');
-    }
-
-    // ═══════════════════════════════════════════
-    // Numpad System
-    // ═══════════════════════════════════════════
-
-    let numpadValue = '';
-
-    function updateDisplay() {
-        const display = document.getElementById('answerDisplay');
-        if (numpadValue === '') {
-            display.innerHTML = '<span class="cursor">_</span>';
-        } else {
-            display.textContent = numpadValue;
-        }
-    }
-
-    function numPress(key) {
-        if (!state.playing) return;
-        if (state._waitingForContinue) {
-            if (key === 'ok') continueAfterWrong();
-            return;
-        }
-
-        if (key === 'del') {
-            numpadValue = numpadValue.slice(0, -1);
-            updateDisplay();
-        } else if (key === 'ok') {
-            checkAnswer();
-        } else {
-            // digit 0-9, max 3 digits
-            if (numpadValue.length < 3) {
-                numpadValue += key;
-                updateDisplay();
-            }
-        }
-    }
-
-    function handleKeyboard(event) {
-        if (!state.playing) return;
-        if (event.key === 'Enter' && state._waitingForContinue) {
-            event.preventDefault();
-            continueAfterWrong();
-            return;
-        }
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            checkAnswer();
-        } else if (event.key === 'Backspace') {
-            event.preventDefault();
-            numpadValue = numpadValue.slice(0, -1);
-            updateDisplay();
-        } else if (event.key >= '0' && event.key <= '9') {
-            event.preventDefault();
-            if (numpadValue.length < 3) {
-                numpadValue += event.key;
-                updateDisplay();
-            }
-        }
-    }
-
-    // Physical keyboard support (desktop)
-    document.addEventListener('keydown', (e) => {
-        if (!state.playing || state._waitingForContinue) return;
-        // Don't capture if typing in name field
-        if (document.activeElement && document.activeElement.id === 'playerName') return;
-        handleKeyboard(e);
+    clearInterval(state.roundTimerInterval); clearInterval(state.timerInterval);
+    const settings = diffSettings[state.difficulty];
+    Object.assign(state, {
+        earned:0, correct:0, total:0, streak:0, bestStreak:0, combo:1,
+        playing:true, hintUsed:false, roundTimeLeft:ROUND_TIME,
+        freshPool:[], askedSet:new Set(),
+        mistakes:[], mistakeMap:{}, masteryMap:{},
+        _lightningCount:0, _waitingForContinue:false, _mistakePracticeCount:{},
     });
+    buildFreshPool();
+    if(settings.timer) { state.timerMax=settings.time; document.getElementById('timerSection') && document.getElementById('timerSection').classList.add('visible'); }
+    updateGameUI(); showScreen('gameScreen');
+    startRoundTimer(); nextQuestion();
+}
 
-    function checkAnswer() {
-        if (!state.playing) return;
-        const val = parseInt(numpadValue);
-        if (isNaN(val) || numpadValue === '') return;
-        clearInterval(state.timerInterval);
-        state.total++;
-        const key = masteryKey(state.a, state.b);
-        state.masteryMap[key].total++;
+function buildFreshPool() {
+    const s = diffSettings[state.difficulty];
+    state.freshPool = [];
+    for(let a=s.min;a<=s.max;a++) for(let b=s.min;b<=s.max;b++) state.freshPool.push({a,b});
+    shuffle(state.freshPool);
+    state.askedSet = new Set();
+}
+function rebuildExhaustedPool() {
+    const s = diffSettings[state.difficulty];
+    state.freshPool = [];
+    for(let a=s.min;a<=s.max;a++) for(let b=s.min;b<=s.max;b++) state.freshPool.push({a,b});
+    shuffle(state.freshPool);
+}
+function pullFromPool() {
+    if(state.freshPool.length>0) return state.freshPool.shift();
+    rebuildExhaustedPool();
+    if(state.freshPool.length>0) return state.freshPool.shift();
+    const s=diffSettings[state.difficulty];
+    return {a:randInt(s.min,s.max),b:randInt(s.min,s.max)};
+}
 
-        const display = document.getElementById('answerDisplay');
-        if (val === state.answer) handleCorrect(display);
-        else handleWrong(display, val);
+function startRoundTimer() {
+    state.roundTimeLeft=ROUND_TIME;
+    updateRoundTimerDisplay();
+    state.roundTimerInterval=setInterval(()=>{
+        state.roundTimeLeft-=0.5;
+        if(state.roundTimeLeft<=0){state.roundTimeLeft=0;clearInterval(state.roundTimerInterval);clearInterval(state.timerInterval);state.playing=false;showGameOver();return;}
+        updateRoundTimerDisplay();
+    },500);
+}
+function updateRoundTimerDisplay() {
+    const t=Math.max(0,Math.ceil(state.roundTimeLeft));
+    const min=Math.floor(t/60),sec=t%60;
+    const el=document.getElementById('mainTimer');
+    el.textContent=`⏱️ ${min}:${sec.toString().padStart(2,'0')}`;
+    el.className='main-timer'+(t<=30?' warning':'');
+    const pct=(state.roundTimeLeft/ROUND_TIME)*100;
+    const bar=document.getElementById('mainTimerBar');
+    bar.style.width=pct+'%';
+    bar.className='main-timer-bar-fill'+(pct<15?' critical':pct<33?' low':'');
+}
+
+function nextQuestion() {
+    hideHints(); state.hintUsed=false;
+    const q=pullFromPool();
+    state.a=q.a; state.b=q.b; state.answer=q.a*q.b;
+    const key=masteryKey(q.a,q.b);
+    state.askedSet.add(key);
+    if(!state.masteryMap[key]) state.masteryMap[key]={correct:0,total:0};
+
+    document.getElementById('question').textContent=`${q.a} × ${q.b} = ?`;
+    numpadValue=''; updateDisplay();
+    document.getElementById('answerDisplay').className='mc-display active';
+    state._waitingForContinue=false;
+    document.getElementById('feedback').textContent='';
+    state.questionStartTime=Date.now();
+    if(diffSettings[state.difficulty].timer) startTimer();
+}
+
+// ═══════════════════════════════════════════
+// SPEED / COMBO
+// ═══════════════════════════════════════════
+function getSpeedTier(ms) { if(ms<2000)return'lightning';if(ms<4000)return'fast';if(ms<8000)return'good';return'ok'; }
+function updateCombo(correct) {
+    if(correct){state.streak++;if(state.streak>state.bestStreak)state.bestStreak=state.streak;state.combo=Math.min(5,1+Math.floor(state.streak/3));}
+    else{state.streak=0;state.combo=1;}
+    renderCombo();
+}
+function renderCombo() {
+    const el=document.getElementById('comboContainer');
+    if(state.combo>=2){
+        const cls=state.combo>=5?'x5':state.combo>=4?'x4':state.combo>=3?'x3':'x2';
+        const pct=state.combo>=5?100:((state.streak%3)/3)*100;
+        el.innerHTML=`<div class="combo-text ${cls}">🔥 COMBO ×${state.combo}</div><div class="combo-bar-bg"><div class="combo-bar-fill" style="width:${pct}%;background:${state.combo>=5?'#FF4444':state.combo>=4?'#FF00FF':state.combo>=3?'#FCDB05':'#5DECF5'}"></div></div>`;
+    } else if(state.streak>0){
+        el.innerHTML=`<div style="font-size:7px;color:#888;">seria: ${state.streak}</div>`;
+    } else { el.innerHTML=''; }
+}
+
+// ═══════════════════════════════════════════
+// NUMPAD
+// ═══════════════════════════════════════════
+let numpadValue='';
+function updateDisplay(){const d=document.getElementById('answerDisplay');d.innerHTML=numpadValue===''?'<span class="cursor">_</span>':numpadValue;}
+function numPress(key){
+    if(!state.playing)return;
+    if(state._waitingForContinue){if(key==='ok')continueAfterWrong();return;}
+    if(key==='del'){numpadValue=numpadValue.slice(0,-1);updateDisplay();}
+    else if(key==='ok'){checkAnswer();}
+    else{if(numpadValue.length<3){numpadValue+=key;updateDisplay();}}
+}
+document.addEventListener('keydown',e=>{
+    if(!state.playing)return;
+    if(document.activeElement&&document.activeElement.id==='playerName')return;
+    if(e.key==='Enter'&&state._waitingForContinue){e.preventDefault();continueAfterWrong();return;}
+    if(state._waitingForContinue)return;
+    if(e.key==='Enter'){e.preventDefault();checkAnswer();}
+    else if(e.key==='Backspace'){e.preventDefault();numpadValue=numpadValue.slice(0,-1);updateDisplay();}
+    else if(e.key>='0'&&e.key<='9'){e.preventDefault();if(numpadValue.length<3){numpadValue+=e.key;updateDisplay();}}
+});
+
+// ═══════════════════════════════════════════
+// ANSWER HANDLING
+// ═══════════════════════════════════════════
+function startTimer(){clearInterval(state.timerInterval);state.timeLeft=state.timerMax;state.timerInterval=setInterval(()=>{state.timeLeft-=0.1;if(state.timeLeft<=0){state.timeLeft=0;clearInterval(state.timerInterval);if(state.playing)handleWrong();}},100);}
+
+function checkAnswer(){
+    if(!state.playing)return;
+    const val=parseInt(numpadValue);if(isNaN(val)||numpadValue==='')return;
+    clearInterval(state.timerInterval);state.total++;
+    const key=masteryKey(state.a,state.b);state.masteryMap[key].total++;
+    const display=document.getElementById('answerDisplay');
+    if(val===state.answer)handleCorrect(display);else handleWrong(display,val);
+}
+
+function handleCorrect(display){
+    if(display)display.className='mc-display correct';
+    state.correct++;
+    const key=masteryKey(state.a,state.b);state.masteryMap[key].correct++;
+    const mKey=`${state.a}×${state.b}`;
+    if(state.mistakeMap[mKey]&&state.mistakeMap[mKey]>0)state.mistakeMap[mKey]--;
+
+    const answerTime=Date.now()-state.questionStartTime;
+    const speedTier=state.hintUsed?'ok':getSpeedTier(answerTime);
+    const speedInfo=SPEED_LABELS[speedTier];
+    if(speedTier==='lightning')state._lightningCount++;
+
+    updateCombo(true);
+    const basePoints=speedInfo.points;
+    const points=basePoints*state.combo;
+    state.earned+=points;
+
+    const fb=document.getElementById('feedback');
+    fb.className='feedback good';
+    fb.textContent=state.hintUsed?`Dobrze! ${state.a}×${state.b}=${state.answer} 📖`:`${speedInfo.label} +${points} M$${state.combo>=2?' (×'+state.combo+' combo!)':''}`;
+
+    spawnFloatScore(points,speedTier,window.innerWidth/2-20,window.innerHeight/2-80);
+    spawnParticles(speedTier==='lightning'?14:8,['#5DECF5','#17DD62','#FCDB05','#FF00FF']);
+    updateGameUI();
+    setTimeout(nextQuestion,state.hintUsed?2000:800);
+}
+
+function handleWrong(display,wrongVal){
+    if(display)display.className='mc-display wrong';
+    const key=masteryKey(state.a,state.b);
+    const mKey=`${state.a}×${state.b}`;
+    if(!state._mistakePracticeCount)state._mistakePracticeCount={};
+    const pc=state._mistakePracticeCount[mKey]||0;
+    if(pc<2){state.mistakeMap[mKey]=(state.mistakeMap[mKey]||0)+1;state._mistakePracticeCount[mKey]=pc+1;}
+    const existing=state.mistakes.find(m=>m.a===state.a&&m.b===state.b);
+    if(existing){existing.count++;existing.lastWrong=wrongVal;}
+    else{state.mistakes.push({a:state.a,b:state.b,correctAnswer:state.answer,lastWrong:wrongVal,count:1});}
+
+    updateCombo(false);
+    state.freshPool.unshift({a:state.a,b:state.b});
+
+    const fb=document.getElementById('feedback');fb.className='feedback bad';
+    fb.textContent=badMessages[Math.floor(Math.random()*badMessages.length)];
+    spawnParticles(4,['#FF0000','#CC0000']);
+    showWrongExplanation(wrongVal);
+
+    state._waitingForContinue=true;
+    document.querySelectorAll('.hint-btn').forEach(b=>b.disabled=true);
+    document.getElementById('continueRow').style.display='block';
+    updateGameUI();
+}
+
+function continueAfterWrong(){
+    document.getElementById('continueRow').style.display='none';
+    state._waitingForContinue=false;
+    if(!state.playing){showGameOver();return;}
+    nextQuestion();
+}
+
+function showWrongExplanation(wrongVal){
+    const el=document.getElementById('wrongExplain');
+    const a=state.a,b=state.b,correct=state.answer;
+    const addParts=[];for(let i=0;i<a;i++)addParts.push(b);
+    let relateStr='';
+    if(a>1)relateStr=`<br>📖 ${a-1}×${b}=${(a-1)*b}, dodaj ${b} → <strong>${correct}</strong>`;
+    if(a===2)relateStr=`<br>📖 ${b}+${b}=<strong>${correct}</strong>`;
+    if(b===10)relateStr=`<br>📖 ×10: dopisz 0! → <strong>${correct}</strong>`;
+    if(b===5)relateStr=`<br>📖 ×5: połowa ×10 → <strong>${correct}</strong>`;
+    el.innerHTML=`<div class="explain-title">📚 ${a} × ${b} = ${correct}</div><div class="explain-text">${wrongVal!==undefined?`<span style="color:#FF6666;text-decoration:line-through;">${wrongVal}</span> → `:'⏰ → '}<strong style="color:var(--emerald);font-size:14px;">${correct}</strong><br>🔢 ${addParts.join('+')}=${correct}${relateStr}</div>`;
+    el.classList.add('show');
+}
+
+// ═══════════════════════════════════════════
+// HINT SYSTEM
+// ═══════════════════════════════════════════
+function showHint(type){
+    if(!state.playing)return;
+    if(!state.hintUsed){state.hintUsed=true;}
+    document.querySelectorAll('.hint-btn').forEach(b=>b.classList.remove('hint-active'));
+    const hint=document.getElementById('visualHint');hint.innerHTML='';hint.classList.add('show');
+    if(type==='blocks')buildBlocksHint(hint);else if(type==='skip')buildSkipCountHint(hint);else if(type==='nearby')buildNearbyHint(hint);
+}
+function buildBlocksHint(c){const a=state.a,b=state.b,bt=blockTypes[Math.floor(Math.random()*blockTypes.length)];c.innerHTML=`<div class="hint-title">🧱 ${a}×${b}</div><div class="hint-explanation">${a} rzędów po ${b}</div><div class="block-grid" id="blockGrid" style="grid-template-columns:repeat(${b},20px)"></div><div class="grid-result" id="gridResult"></div>`;const g=document.getElementById('blockGrid');let n=0;const tot=a*b;for(let i=0;i<a;i++)for(let j=0;j<b;j++){n++;const bl=document.createElement('div');bl.className=`mc-block ${bt}`;bl.style.opacity='0';g.appendChild(bl);const cc=n;setTimeout(()=>{bl.classList.add('highlight');bl.style.opacity='1';document.getElementById('gridResult').textContent=cc===tot?`= ${tot} ✅`:`${cc}/${tot}`;},cc*50);}}
+function buildSkipCountHint(c){const a=state.a,b=state.b;c.innerHTML=`<div class="hint-title">🔢 Licz co ${b}</div><div class="skip-count" id="skipCount"></div><div class="grid-result" id="skipResult"></div>`;const sd=document.getElementById('skipCount');for(let i=1;i<=a;i++){const n=document.createElement('div');n.className='skip-num hidden';n.textContent=i*b;sd.appendChild(n);}for(let i=1;i<=a;i++){setTimeout(()=>{sd.children[i-1].classList.remove('hidden');sd.children[i-1].classList.add(i===a?'answer-num':'revealed');const l=[];for(let j=1;j<=i;j++)l.push(b);document.getElementById('skipResult').textContent=i===a?`${l.join('+')}=${i*b} ✅`:`${l.join('+')}=${i*b}`;},i*350);}}
+function buildNearbyHint(c){const a=state.a,b=state.b;const facts=[];if(a>1)facts.push({a:a-1,b,r:(a-1)*b,cur:false});facts.push({a,b,r:a*b,cur:true});if(a<=12)facts.push({a:a+1,b,r:(a+1)*b,cur:false});c.innerHTML=`<div class="hint-title">📖 Sąsiednie</div><div class="nearby-facts" id="nf"></div>`;const fd=document.getElementById('nf');facts.forEach((f,i)=>{setTimeout(()=>{const el=document.createElement('div');el.className='nearby-fact'+(f.cur?' current':'');el.innerHTML=f.cur?`${f.a}×${f.b} = <strong>?</strong>`:`${f.a}×${f.b} = ${f.r}`;fd.appendChild(el);},i*250);});}
+function hideHints(){document.getElementById('visualHint').classList.remove('show');document.getElementById('visualHint').innerHTML='';document.getElementById('wrongExplain').classList.remove('show');document.getElementById('wrongExplain').innerHTML='';document.getElementById('continueRow').style.display='none';document.querySelectorAll('.hint-btn').forEach(b=>{b.classList.remove('hint-active');b.disabled=false;});}
+
+// ═══════════════════════════════════════════
+// GAME OVER
+// ═══════════════════════════════════════════
+function showGameOver(){
+    clearInterval(state.roundTimerInterval);clearInterval(state.timerInterval);state.playing=false;
+    const name=getPlayerName();
+    const pct=state.total>0?Math.round((state.correct/state.total)*100):0;
+
+    // Add earned M$ to wallet
+    const prevWallet=getWallet(name);
+    const newWallet=prevWallet+state.earned;
+    setWallet(name,newWallet);
+
+    // Auto-buy affordable cards (check if any new cards affordable)
+    const newlyOwned=[];const takenOver=[];
+    for(const c of BRAINROTS){
+        const owner=getCardOwner(c.id);
+        const isOwned=owner&&owner.owner===name;
+        if(isOwned)continue;
+        const price=owner?getStillPrice(c.id):c.price;
+        // Don't auto-buy, just show what's affordable
     }
 
-    function handleCorrect(display) {
-        if (display) display.className = 'mc-display correct';
-        state.correct++;
+    document.getElementById('finalStats').innerHTML=`
+        👤 <span class="val">${name}</span><br>
+        💰 Zarobione: <span class="val">+${state.earned} M$</span><br>
+        💼 Portfel: <span class="val">${newWallet} M$</span><br>
+        ✅ Poprawne: <span class="val">${state.correct}/${state.total} (${pct}%)</span><br>
+        🔥 Najlepsza seria: <span class="val">${state.bestStreak}</span><br>
+        💥 Max combo: <span class="val">×${Math.min(5,1+Math.floor(state.bestStreak/3))}</span>
+    `;
 
-        const key = masteryKey(state.a, state.b);
-        state.masteryMap[key].correct++;
-        state.masteryMap[key].streak++;
+    // Show affordable cards
+    const affordable=BRAINROTS.filter(c=>{
+        const owner=getCardOwner(c.id);
+        if(owner&&owner.owner===name)return false;
+        const price=owner?getStillPrice(c.id):c.price;
+        return newWallet>=price;
+    }).slice(0,6);
 
-        const mKey = `${state.a}×${state.b}`;
-        if (state.mistakeMap[mKey] && state.mistakeMap[mKey] > 0) state.mistakeMap[mKey]--;
-
-        // Speed calculation
-        const answerTime = Date.now() - state.questionStartTime;
-        const speedTier = state.hintUsed ? 'ok' : getSpeedTier(answerTime);
-        const speedInfo = SPEED_LABELS[speedTier];
-
-        if (speedTier === 'lightning') state._lightningCount = (state._lightningCount || 0) + 1;
-
-        // Update combo
-        updateCombo(true);
-
-        // Points: speed × combo
-        const basePoints = speedInfo.points;
-        const points = basePoints * state.combo;
-        state.score += points;
-
-        // XP
-        const xpGain = state.hintUsed ? 8 : (10 + basePoints * 3 + state.combo * 2);
-        state.xp += xpGain;
-        while (state.xp >= state.xpToNext) {
-            state.xp -= state.xpToNext;
-            state.level++;
-            state.xpToNext = Math.floor(100 * Math.pow(1.3, state.level - 1));
-            showAchievement('⬆️', 'Nowy poziom!', `Osiągnąłeś poziom ${state.level}!`);
-            grantLevelReward();
+    if(affordable.length>0){
+        let html='<div style="font-size:8px;color:var(--gold);margin-top:12px;text-align:center;">💰 Możesz kupić w katalogu:</div><div class="unlocked-cards">';
+        for(const c of affordable){
+            const owner=getCardOwner(c.id);
+            const price=owner?getStillPrice(c.id):c.price;
+            html+=`<div class="unlocked-card"><img src="${c.img}" alt="${c.name}"><div class="uc-name">${c.name}<br>${price} M$</div></div>`;
         }
-
-        // Loot drop!
-        const loot = rollLoot(speedTier);
-        spawnLootDrop(loot.item);
-
-        // Floating score
-        spawnFloatScore(points, speedTier, window.innerWidth / 2 - 20, window.innerHeight / 2 - 80);
-
-        // Feedback
-        const fb = document.getElementById('feedback');
-        fb.className = 'feedback good';
-        let msg;
-        if (state.hintUsed) {
-            msg = `Dobrze! Zapamiętaj: ${state.a}×${state.b}=${state.answer} 📖`;
-        } else {
-            msg = `${speedInfo.label} +${points}💎`;
-            if (state.combo >= 2) msg += ` (×${state.combo} combo!)`;
-            msg += ` → ${loot.item.icon} ${loot.item.name}`;
-        }
-        fb.textContent = msg;
-
-        spawnParticles(speedTier === 'lightning' ? 16 : speedTier === 'fast' ? 10 : 6,
-            ['#5DECF5', '#17DD62', '#FCDB05', '#FF00FF']);
-
-        checkAchievements();
-        updateUI();
-        setTimeout(nextQuestion, state.hintUsed ? 2500 : 1000);
+        html+='</div>';
+        document.getElementById('unlockedSection').innerHTML=html;
+    } else {
+        document.getElementById('unlockedSection').innerHTML='';
     }
-
-    function handleWrong(display, wrongVal) {
-        if (display) display.className = 'mc-display wrong';
-
-        const key = masteryKey(state.a, state.b);
-        state.masteryMap[key].streak = 0;
-
-        const mKey = `${state.a}×${state.b}`;
-        // Track practice count - only add to repeat queue if practiced < 2 times this session
-        if (!state._mistakePracticeCount) state._mistakePracticeCount = {};
-        const practiceCount = state._mistakePracticeCount[mKey] || 0;
-        if (practiceCount < 2) {
-            state.mistakeMap[mKey] = (state.mistakeMap[mKey] || 0) + 1;
-            state._mistakePracticeCount[mKey] = practiceCount + 1;
-        }
-        // Otherwise it was already repeated enough - don't keep adding
-
-        const existing = state.mistakes.find(m => m.a === state.a && m.b === state.b);
-        if (existing) { existing.count++; existing.lastWrong = wrongVal; }
-        else { state.mistakes.push({ a: state.a, b: state.b, correctAnswer: state.answer, lastWrong: wrongVal, count: 1 }); }
-
-        updateCombo(false);
-
-        // Re-add this question to freshPool so it repeats (wrong answer = re-ask)
-        state.freshPool.unshift({ a: state.a, b: state.b });
-
-        const fb = document.getElementById('feedback');
-        fb.className = 'feedback bad';
-        fb.textContent = badMessages[Math.floor(Math.random() * badMessages.length)];
-
-        spawnParticles(4, ['#FF0000', '#CC0000', '#880000']);
-        showWrongExplanation(wrongVal);
-
-        state._waitingForContinue = true;
-        document.querySelectorAll('.hint-btn').forEach(b => b.disabled = true);
-        const contRow = document.getElementById('continueRow');
-        contRow.style.display = 'block';
-        document.getElementById('continueBtn').textContent = '▶ ROZUMIEM, DALEJ!';
-
-        updateUI();
-    }
-
-    function continueAfterWrong() {
-        document.getElementById('continueRow').style.display = 'none';
-        state._waitingForContinue = false;
-        if (!state.playing) { showGameOver(); return; }
-        nextQuestion();
-    }
-
-    function showWrongExplanation(wrongVal) {
-        const el = document.getElementById('wrongExplain');
-        const a = state.a, b = state.b, correct = state.answer;
-        const bt = blockTypes[Math.floor(Math.random() * blockTypes.length)];
-        const addParts = []; for (let i = 0; i < a; i++) addParts.push(b);
-        const addStr = addParts.join(' + ');
-        let relateStr = '';
-        if (a > 1) relateStr = `<br>📖 ${a-1} × ${b} = ${(a-1)*b}, dodaj jeszcze ${b} → <strong>${correct}</strong>`;
-        if (a === 2) relateStr = `<br>📖 ${a} × ${b} to po prostu ${b} + ${b} = <strong>${correct}</strong>`;
-        if (b === 10) relateStr = `<br>📖 × 10 = dopisz zero! ${a}0 = <strong>${correct}</strong>`;
-        if (b === 5) relateStr = `<br>📖 × 5: to połowa z × 10. ${a}×10=${a*10}, podziel na 2 → <strong>${correct}</strong>`;
-        if (a === b) relateStr = `<br>📖 ${a}² (kwadrat ${a}) = <strong>${correct}</strong> — zapamiętaj!`;
-        let gridHTML = '';
-        if (a * b <= 60) {
-            gridHTML = `<div class="block-grid" style="grid-template-columns:repeat(${b},18px);margin:8px auto;display:inline-grid;">`;
-            for (let i = 0; i < a * b; i++) gridHTML += `<div class="mc-block ${bt}" style="width:18px;height:18px;"></div>`;
-            gridHTML += '</div>';
-        }
-        el.innerHTML = `
-            <div class="explain-title">📚 NAUKA: ${a} × ${b} = ${correct}</div>
-            <div class="explain-text">
-                ${wrongVal !== undefined ? `Twoja odpowiedź: <span style="color:#FF6666;text-decoration:line-through;">${wrongVal}</span><br>` : 'Czas minął!<br>'}
-                Poprawna: <strong style="color:var(--emerald);font-size:14px;">${correct}</strong><br><br>
-                🔢 ${a} × ${b} = ${addStr} = <strong>${correct}</strong>${relateStr}
-            </div>${gridHTML}
-            <div style="font-size:7px;color:#888;margin-top:8px;">💡 To pytanie pojawi się jeszcze raz!</div>
-            <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
-                <button class="mc-btn hint-btn" style="font-size:8px;padding:5px 10px;" onclick="showWrongHint('blocks')">🧱 Bloczki</button>
-                <button class="mc-btn hint-btn" style="font-size:8px;padding:5px 10px;" onclick="showWrongHint('skip')">🔢 Licz co...</button>
-                <button class="mc-btn hint-btn" style="font-size:8px;padding:5px 10px;" onclick="showWrongHint('nearby')">📖 Blisko!</button>
-            </div>`;
-        el.classList.add('show');
-    }
-
-    function grantLevelReward() {
-        // Level up: guaranteed rare+ item
-        const rarity = state.level % 5 === 0 ? 'legendary' : state.level % 3 === 0 ? 'epic' : 'rare';
-        const candidates = Object.entries(MC_ITEMS).filter(([_, v]) => v.rarity === rarity);
-        const [itemKey, item] = candidates[Math.floor(Math.random() * candidates.length)];
-        state.inventory[itemKey] = (state.inventory[itemKey] || 0) + 1;
-        state.lootLog.push({ itemKey, rarity });
-        if (rarity === 'legendary') state._hasLegendary = true;
-        spawnLootDrop(item);
-        showAchievement(item.icon, `Nagroda za poziom ${state.level}!`, item.name);
-    }
-
-    // ═══════════════════════════════════════════
-    // Game Over
-    // ═══════════════════════════════════════════
-
-    function showGameOver() {
-        clearInterval(state.roundTimerInterval);
-        clearInterval(state.timerInterval);
-        state.playing = false;
-
-        const pct = state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0;
-        const savedName = saveToLeaderboard(state.difficulty, state.playerName, state.score, state.level, pct);
-
-        // Check brainrot unlocks
-        const brainrotUnlocked = checkBrainrotUnlocks(state.score);
-
-        let brainrotHTML = '';
-        if (brainrotUnlocked.length > 0) {
-            brainrotHTML = '<br>🧠 Nowe brainroty: <span class="val">' + brainrotUnlocked.map(b => `<img src="${b.img}" style="width:24px;height:24px;border-radius:4px;vertical-align:middle;"> ${b.name}`).join(', ') + '</span>';
-        }
-
-        document.getElementById('finalStats').innerHTML = `
-            👤 Gracz: <span class="val">${savedName}</span><br>
-            💎 Punkty: <span class="val">${state.score}</span><br>
-            ✅ Poprawne: <span class="val">${state.correct} / ${state.total} (${pct}%)</span><br>
-            🔥 Najlepsza seria: <span class="val">${state.bestStreak}</span><br>
-            💥 Max combo: <span class="val">×${Math.min(5, 1 + Math.floor(state.bestStreak / 3))}</span><br>
-            ⬆️ Poziom: <span class="val">${state.level}</span><br>
-            🏆 Osiągnięcia: <span class="val">${state.achievements.size}</span>${brainrotHTML}
-        `;
-
-        // Leaderboard on game over
-        const diffLabel = { easy: '😊 Łatwy', medium: '😎 Średni', hard: '💀 Trudny' };
-        document.getElementById('gameoverLeaderboard').innerHTML =
-            '<h3>🏆 RANKING (' + diffLabel[state.difficulty] + '):</h3>' +
-            renderLeaderboard(state.difficulty, savedName);
-
-        // Loot summary
-        buildLootSummary();
-
-        // Mistakes
-        const reviewEl = document.getElementById('mistakesReview');
-        if (state.mistakes.length > 0) {
-            let html = '<h3>❌ BŁĘDY DO POWTÓRZENIA:</h3>';
-            const sorted = [...state.mistakes].sort((a, b) => b.count - a.count);
-            for (const m of sorted) {
-                html += `<div class="mistake-item"><span class="mistake-q">${m.a} × ${m.b}</span><span class="mistake-wrong">✗ ${m.lastWrong !== undefined ? m.lastWrong : '⏰'}</span><span class="mistake-right">✓ ${m.correctAnswer}</span><span class="mistake-count">×${m.count}</span></div>`;
-            }
-            html += '<div style="font-size:7px;color:#aaa;text-align:center;margin-top:8px;">Kliknij "🎯 ĆWICZ BŁĘDY" aby powtórzyć!</div>';
-            reviewEl.innerHTML = html;
-        } else {
-            reviewEl.innerHTML = '<div style="text-align:center;font-size:9px;color:var(--emerald);margin-top:10px;">🎯 Zero błędów! Perfekcja!</div>';
-        }
-
-        buildMasteryGrid();
-        showScreen('gameoverScreen');
-    }
-
-    function buildLootSummary() {
-        const section = document.getElementById('lootSummary');
-        if (state.lootLog.length === 0) { section.innerHTML = ''; return; }
-
-        // Count unique items
-        const counts = {};
-        for (const l of state.lootLog) {
-            counts[l.itemKey] = (counts[l.itemKey] || 0) + 1;
-        }
-
-        // Sort by rarity
-        const rarityOrder = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 };
-        const sorted = Object.entries(counts).sort((a, b) =>
-            rarityOrder[MC_ITEMS[a[0]].rarity] - rarityOrder[MC_ITEMS[b[0]].rarity]
-        );
-
-        let html = '<h3>🎁 ZDOBYTE PRZEDMIOTY:</h3><div class="loot-grid">';
-        for (const [itemKey, qty] of sorted) {
-            const item = MC_ITEMS[itemKey];
-            const cls = item.rarity === 'rare' ? 'rare' : item.rarity === 'epic' ? 'epic' : item.rarity === 'legendary' ? 'legendary' : '';
-            html += `<div class="loot-card ${cls}"><div class="loot-icon">${item.icon}</div><div class="loot-name">${item.name}</div><div class="loot-qty">×${qty}</div></div>`;
-        }
-        html += '</div>';
-        section.innerHTML = html;
-    }
-
-    function buildMasteryGrid() {
-        const section = document.getElementById('masterySection');
-        const entries = Object.entries(state.masteryMap);
-        if (entries.length === 0) { section.innerHTML = ''; return; }
-        let html = '<h3>📊 MAPA OPANOWANIA:</h3><div class="mastery-grid">';
-        entries.sort((a, b) => { const [a1,a2]=a[0].split('×').map(Number); const [b1,b2]=b[0].split('×').map(Number); return (a1*100+a2)-(b1*100+b2); });
-        for (const [key, data] of entries) {
-            const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
-            let cls = '', stars = '';
-            if (data.total > 0) { if (pct >= 80) { cls = 'strong'; stars = '⭐'.repeat(Math.min(3, data.streak)); } else if (pct >= 50) { stars = '⭐'; } else { cls = 'weak'; } }
-            html += `<div class="mastery-cell ${cls}">${key.replace('×',' × ')}<br><span class="mastery-stars">${stars||'—'}</span><br>${data.total > 0 ? `${pct}%` : '—'}</div>`;
-        }
-        html += '</div>'; section.innerHTML = html;
-    }
-
-    // ═══════════════════════════════════════════
-    // UI
-    // ═══════════════════════════════════════════
-
-    function updateUI() {
-        document.getElementById('score').textContent = state.score;
-        document.getElementById('correct').textContent = state.correct;
-        document.getElementById('total').textContent = state.total;
-        document.getElementById('levelDisplay').textContent = state.level;
-
-        const xpPct = (state.xp / state.xpToNext) * 100;
-        document.getElementById('xpBar').style.width = xpPct + '%';
-        document.getElementById('xpText').textContent = `${state.xp} / ${state.xpToNext} XP`;
-        document.getElementById('xpBarText').textContent = `Poziom ${state.level}`;
-
-        renderCombo();
-        renderCurrentGoal();
-        renderTrophyShelf();
-        renderInventory();
-    }
-
-    function renderInventory() {
-        const inv = document.getElementById('inventory');
-        inv.innerHTML = '';
-        // Sort by rarity (best first)
-        const rarityOrder = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 };
-        const entries = Object.entries(state.inventory)
-            .filter(([_, c]) => c > 0)
-            .sort((a, b) => rarityOrder[MC_ITEMS[a[0]].rarity] - rarityOrder[MC_ITEMS[b[0]].rarity]);
-
-        if (entries.length === 0) {
-            // Show empty slots
-            for (let i = 0; i < 9; i++) { const s = document.createElement('div'); s.className = 'inv-slot'; inv.appendChild(s); }
-            return;
-        }
-
-        for (const [itemKey, count] of entries) {
-            const item = MC_ITEMS[itemKey];
-            const slot = document.createElement('div');
-            const isLeg = item.rarity === 'legendary';
-            slot.className = 'inv-slot active' + (isLeg ? ' legendary' : '');
-            slot.innerHTML = `
-                ${item.icon}<span class="count">${count}</span>
-                <div class="inv-tooltip">
-                    <div class="tt-name ${item.rarity === 'rare' ? 'rare' : item.rarity === 'epic' ? 'epic' : item.rarity === 'legendary' ? 'legendary' : ''}">${item.name}</div>
-                    <div class="tt-desc">${item.desc}</div>
-                    <div class="tt-rarity">${item.rarity.toUpperCase()}</div>
-                </div>
-            `;
-            inv.appendChild(slot);
-        }
-        // Fill remaining slots
-        const remaining = Math.max(0, 9 - entries.length);
-        for (let i = 0; i < remaining; i++) { const s = document.createElement('div'); s.className = 'inv-slot'; inv.appendChild(s); }
-    }
-
-    function getNextGoal() {
-        for (const ach of achievementList) {
-            if (!state.achievements.has(ach.id)) return ach;
-        }
-        return null; // all done!
-    }
-
-    function renderCurrentGoal() {
-        const container = document.getElementById('goalContent');
-        const goal = getNextGoal();
-
-        if (!goal) {
-            container.innerHTML = '<div class="goal-done-msg">🏆 Wszystkie nagrody zdobyte! Jesteś LEGENDĄ! 👑</div>';
-            return;
-        }
-
-        const prog = goal.progress(state);
-        const pct = Math.min(100, Math.round((prog.cur / prog.max) * 100));
-        const isFull = pct >= 100;
-
-        container.innerHTML = `
-            <div class="goal-icon" id="goalIcon">${goal.icon}</div>
-            <div class="goal-info">
-                <div class="goal-title">${goal.title}</div>
-                <div class="goal-desc">${goal.desc}</div>
-                <div class="goal-progress-bg">
-                    <div class="goal-progress-fill${isFull ? ' full' : ''}" style="width:${pct}%"></div>
-                    <div class="goal-progress-text">${prog.label}: ${Math.min(prog.cur, prog.max)} / ${prog.max}</div>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderTrophyShelf() {
-        const shelf = document.getElementById('trophyShelf');
-        shelf.innerHTML = '';
-
-        for (const ach of achievementList) {
-            const slot = document.createElement('div');
-            const isEarned = state.achievements.has(ach.id);
-            const isNew = state._newTrophies && state._newTrophies.has(ach.id);
-
-            slot.className = 'trophy-slot' + (isEarned ? ' earned' : ' empty') + (isNew ? ' new-earned' : '');
-
-            if (isEarned) {
-                slot.innerHTML = `
-                    ${ach.icon}
-                    <div class="trophy-tooltip">
-                        <div class="tt-name">${ach.title}</div>
-                        <div class="tt-desc">${ach.desc}</div>
-                    </div>
-                `;
-            }
-
-            shelf.appendChild(slot);
-        }
-
-        // Clear new flags after render
-        if (state._newTrophies) {
-            setTimeout(() => { state._newTrophies = null; }, 1000);
-        }
-    }
-
-    function checkAchievements() {
-        let anyNew = false;
-        for (const ach of achievementList) {
-            if (!state.achievements.has(ach.id) && ach.check(state)) {
-                state.achievements.add(ach.id);
-                if (!state._newTrophies) state._newTrophies = new Set();
-                state._newTrophies.add(ach.id);
-                anyNew = true;
-            }
-        }
-        if (anyNew) {
-            // Flash the goal panel
-            const panel = document.getElementById('goalContent');
-            panel.classList.add('completed');
-            const icon = document.getElementById('goalIcon');
-            if (icon) icon.classList.add('earned');
-
-            // After celebration, update to next goal
-            setTimeout(() => {
-                panel.classList.remove('completed');
-                renderCurrentGoal();
-                renderTrophyShelf();
-            }, 1500);
-        } else {
-            renderCurrentGoal();
-        }
-    }
-
-    function showAchievement(icon, title, desc) {
-        // Mini floating notification for level-ups etc.
-        const el = document.createElement('div');
-        el.className = 'float-score';
-        el.style.color = '#FCDB05';
-        el.style.fontSize = '11px';
-        el.textContent = `${icon} ${title}`;
-        el.style.left = (window.innerWidth / 2 - 80) + 'px';
-        el.style.top = (window.innerHeight / 2 - 120) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1200);
-        renderCurrentGoal();
-        renderTrophyShelf();
-    }
-
-    function spawnParticles(count, colors) {
-        const c = document.getElementById('particles');
-        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-        for (let i = 0; i < count; i++) {
-            const p = document.createElement('div'); p.className = 'particle';
-            p.style.left = (cx + (Math.random() - 0.5) * 200) + 'px';
-            p.style.top = (cy + (Math.random() - 0.5) * 100) + 'px';
-            p.style.background = colors[Math.floor(Math.random() * colors.length)];
-            c.appendChild(p); setTimeout(() => p.remove(), 1000);
-        }
-    }
-
-    // ═══════════════════════════════════════════
-    // Leaderboard System
-    // ═══════════════════════════════════════════
-
-    function getLeaderboard(difficulty) {
-        try {
-            const data = localStorage.getItem('mc_tabliczka_lb_' + difficulty);
-            return data ? JSON.parse(data) : [];
-        } catch(e) { return []; }
-    }
-
-    function saveToLeaderboard(difficulty, name, score, level, pct) {
-        const lb = getLeaderboard(difficulty);
-
-        // Check for duplicate name
-        let displayName = name;
-        const existingNames = lb.map(e => e.name);
-        if (existingNames.includes(name)) {
-            // Add hash to make unique
-            let hash = 1;
-            while (existingNames.includes(name + '#' + hash)) hash++;
-            displayName = name + '#' + hash;
-        }
-
-        lb.push({ name: displayName, score, level, pct, date: Date.now() });
-        lb.sort((a, b) => b.score - a.score);
-        // Keep top 20
-        if (lb.length > 20) lb.length = 20;
-        localStorage.setItem('mc_tabliczka_lb_' + difficulty, JSON.stringify(lb));
-        return displayName;
-    }
-
-    function renderLeaderboard(difficulty, highlightName) {
-        const lb = getLeaderboard(difficulty);
-        if (lb.length === 0) {
-            return '<div style="text-align:center;font-size:8px;color:#555;padding:16px;">Brak wyników. Zagraj żeby się tu pojawić!</div>';
-        }
-
-        let html = '<table class="lb-table"><thead><tr><th>#</th><th>Gracz</th><th>💎</th><th>⬆️</th><th>✅</th></tr></thead><tbody>';
-        for (let i = 0; i < lb.length; i++) {
-            const e = lb[i];
-            const isCurrent = highlightName && e.name === highlightName;
-            const rankCls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-            html += `<tr class="${isCurrent ? 'current' : ''}">
-                <td class="lb-rank ${rankCls}">${medal}</td>
-                <td class="lb-name">${e.name}</td>
-                <td class="lb-score">${e.score}</td>
-                <td>${e.level}</td>
-                <td>${e.pct}%</td>
-            </tr>`;
-        }
-        html += '</tbody></table>';
-        return html;
-    }
-
-    let currentLbTab = 'easy';
-    function showLeaderboardTab(diff, btn) {
-        currentLbTab = diff;
-        if (btn) {
-            btn.closest('.difficulty').querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        document.getElementById('leaderboardContent').innerHTML = renderLeaderboard(diff);
-    }
-
-    // ═══════════════════════════════════════════
-    // Brainrot Collection System
-    // ═══════════════════════════════════════════
-
-    function checkBrainrotUnlocks(score) {
-        const collection = getBrainrotCollection();
-        const newlyUnlocked = [];
-
-        for (const br of BRAINROT_CHARS) {
-            if (score >= br.goal) {
-                const prev = collection[br.id];
-                if (!prev || score > prev.bestScore) {
-                    const wasOwned = prev && prev.owned;
-                    collection[br.id] = { owned: true, bestScore: score, date: Date.now() };
-                    if (!wasOwned) {
-                        newlyUnlocked.push(br);
-                    }
-                }
-            }
-        }
-
-        saveBrainrotCollection(collection);
-        return newlyUnlocked;
-    }
-
-    function renderCatalog() {
-        const container = document.getElementById('catalogContent');
-        const collection = getBrainrotCollection();
-        // Get best score ever across all sessions for progress display
-        let bestEver = 0;
-        try { const lb = ['easy','medium','hard'].flatMap(d => getLeaderboard(d)); bestEver = lb.reduce((m,e) => Math.max(m, e.score), 0); } catch(e) {}
-
-        let html = '';
-        for (const br of BRAINROT_CHARS) {
-            const data = collection[br.id];
-            const isOwned = data && data.owned;
-            const rarCls = br.rarity;
-
-            html += `<div class="brainrot-card ${rarCls}${isOwned ? ' owned' : ''}">`;
-            html += `<div class="brainrot-icon${isOwned ? '' : ' locked'}"><img src="${br.img}" alt="${br.name}" loading="lazy"></div>`;
-            html += `<div class="brainrot-name">${isOwned ? br.name : '???'}</div>`;
-            html += `<div class="brainrot-rarity ${rarCls}">${rarCls === 'god' ? 'GOD TIER' : rarCls.toUpperCase()}</div>`;
-
-            if (isOwned) {
-                html += `<div class="brainrot-desc">${br.desc}</div>`;
-                html += `<div class="brainrot-stats">⚡ ${br.power}<br>💬 "${br.catchphrase}"</div>`;
-                html += `<div class="brainrot-owned-badge">✅ STILL THE BRAINROT! (${data.bestScore}💎)</div>`;
-            } else {
-                const pct = Math.min(100, Math.round((bestEver / br.goal) * 100));
-                html += `<div class="brainrot-goal">🔒 Potrzebujesz ${br.goal}💎 w jednej rundzie</div>`;
-                html += `<div class="brainrot-progress-bg"><div class="brainrot-progress-fill${pct >= 100 ? ' full' : ''}" style="width:${pct}%"></div></div>`;
-                html += `<div style="font-size:6px;color:#666;margin-top:2px;">Twój rekord: ${bestEver}💎</div>`;
-            }
-
-            html += '</div>';
-        }
-        container.innerHTML = html;
-    }
-
-    // ═══════════════════════════════════════════
-    // Helpers
-    // ═══════════════════════════════════════════
-
-    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
-
-    // Load saved name + init leaderboard screen
-    (function() {
-        const saved = localStorage.getItem('mc_tabliczka_name');
-        if (saved) document.getElementById('playerName').value = saved;
-    })();
+    document.getElementById('takenSection').innerHTML='';
+    showScreen('gameoverScreen');
+}
+
+// ═══════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════
+function updateGameUI(){
+    document.getElementById('earnedDisplay').textContent=state.earned;
+    document.getElementById('correct').textContent=state.correct;
+    document.getElementById('total').textContent=state.total;
+    document.getElementById('streakDisplay').textContent=state.streak;
+    renderCombo();
+}
+
+function spawnFloatScore(pts,tier,x,y){const el=document.createElement('div');el.className='float-score';el.style.color={lightning:'#FCDB05',fast:'#5DECF5',good:'#17DD62',ok:'#aaa'}[tier];el.textContent=`+${pts} M$`;el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),1200);}
+function spawnParticles(count,colors){const c=document.getElementById('particles');const cx=window.innerWidth/2,cy=window.innerHeight/2;for(let i=0;i<count;i++){const p=document.createElement('div');p.className='particle';p.style.left=(cx+(Math.random()-0.5)*200)+'px';p.style.top=(cy+(Math.random()-0.5)*100)+'px';p.style.background=colors[Math.floor(Math.random()*colors.length)];c.appendChild(p);setTimeout(()=>p.remove(),1000);}}
+function masteryKey(a,b){return`${Math.min(a,b)}×${Math.max(a,b)}`;}
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+
+// INIT
+(function(){
+    const saved=localStorage.getItem('brainrot_player');
+    if(saved)document.getElementById('playerName').value=saved;
+    renderCatalog();
+    // Update wallet & catalog when name changes
+    const nameEl=document.getElementById('playerName');
+    nameEl.addEventListener('input',()=>{
+        const n=nameEl.value.trim();
+        if(n) localStorage.setItem('brainrot_player',n);
+        renderCatalog();
+    });
+})();
 </script>
 </body>
 </html>
